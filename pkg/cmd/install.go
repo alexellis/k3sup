@@ -1,13 +1,12 @@
 package cmd
 
 import (
-	"bytes"
 	"fmt"
-	"io"
 	"io/ioutil"
-	"os"
 	"path/filepath"
 	"strings"
+
+	kssh "github.com/alexellis/k3sup/pkg/ssh"
 
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/pkg/errors"
@@ -57,7 +56,7 @@ func MakeInstall() *cobra.Command {
 		}
 
 		address := fmt.Sprintf("%s:%d", ip.String(), port)
-		operator, err := NewSSHOperator(address, config)
+		operator, err := kssh.NewSSHOperator(address, config)
 
 		if err != nil {
 			return errors.Wrapf(err, "unable to connect to %s over ssh", address)
@@ -91,8 +90,6 @@ func MakeInstall() *cobra.Command {
 		fmt.Printf("Saving file to: %s\n", absPath)
 
 		kubeconfig := strings.Replace(string(res.StdOut), "localhost", ip.String(), -1)
-
-		fmt.Println(res)
 
 		writeErr := ioutil.WriteFile(absPath, []byte(kubeconfig), 0600)
 		if writeErr != nil {
@@ -133,75 +130,4 @@ func loadPublickey(path string) ssh.AuthMethod {
 		panic(err)
 	}
 	return ssh.PublicKeys(signer)
-}
-
-type commandRes struct {
-	StdOut []byte
-	StdErr []byte
-}
-
-func executeCommand(cmd string) (commandRes, error) {
-
-	return commandRes{}, nil
-}
-
-type SSHOperator struct {
-	conn *ssh.Client
-}
-
-func (s *SSHOperator) Close() error {
-
-	return s.conn.Close()
-}
-
-func NewSSHOperator(address string, config *ssh.ClientConfig) (*SSHOperator, error) {
-	conn, err := ssh.Dial("tcp", address, config)
-	if err != nil {
-		return nil, err
-	}
-
-	operator := SSHOperator{
-		conn: conn,
-	}
-
-	return &operator, nil
-}
-
-func (s *SSHOperator) Execute(command string) (commandRes, error) {
-
-	sess, err := s.conn.NewSession()
-	if err != nil {
-		return commandRes{}, err
-	}
-
-	defer sess.Close()
-
-	sessStdOut, err := sess.StdoutPipe()
-	if err != nil {
-		return commandRes{}, err
-	}
-
-	output := bytes.Buffer{}
-
-	stdOutWriter := io.MultiWriter(os.Stdout, &output)
-	go io.Copy(stdOutWriter, sessStdOut)
-
-	sessStderr, err := sess.StderrPipe()
-	if err != nil {
-		return commandRes{}, err
-	}
-
-	errorOutput := bytes.Buffer{}
-	stdErrWriter := io.MultiWriter(os.Stderr, &errorOutput)
-	go io.Copy(stdErrWriter, sessStderr)
-
-	err = sess.Run(command)
-	if err != nil {
-		return commandRes{}, err
-	}
-
-	return commandRes{
-		StdErr: errorOutput.Bytes(),
-		StdOut: output.Bytes(),
-	}, nil
 }
