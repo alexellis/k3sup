@@ -3,6 +3,7 @@
 
 export OWNER=alexellis
 export REPO=k3sup
+export SUCCESS_CMD="$REPO version"
 
 version=$(curl -sI https://github.com/$OWNER/$REPO/releases/latest | grep Location | awk -F"/" '{ printf "%s", $NF }' | tr -d '\r')
 
@@ -108,7 +109,7 @@ getPackage() {
                 rm $targetFile
             fi
 
-           $REPO version
+           ${SUCCESS_CMD}
         fi
     fi
 }
