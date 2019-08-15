@@ -17,7 +17,9 @@ curl -sLS https://raw.githubusercontent.com/alexellis/k3sup/master/get.sh | sh
 sudo install k3sup /usr/local/bin/
 ```
 
-Provision a VM and make sure that your SSH keys are installed.
+Provision a new VM running a compatible operating system such as Ubuntu, Debian, Raspbian, or something else. Make sure that you opt-in to copy your registered SSH keys over to the new VM or host automatically.
+
+> Note: You can copy ssh keys to a remote VM with `ssh-copy-id user@IP`.
 
 Imagine the IP was `192.168.0.1` and the usenrame was `ubuntu`, then you would run this:
 
@@ -33,6 +35,7 @@ Other options for `install`:
 * `--skip-install` - if you already have k3s installed, you can just run this command to get the `kubeconfig`
 * `--ssh-key` - specify a specific path for the SSH key for remote login
 * `--local-path` - default is `./kubeconfig` - set the path into which you want to save your VM's `kubeconfig`
+* `--ssh-port` - default is `22`, but you can specify an alternative port i.e. `2222`
 
 * Now try the access:
 
