@@ -14,11 +14,26 @@ func main() {
 
 	cmdInstall := makeInstallCmd()
 
+	cmdVersion := makeVersionCmd()
+
 	var rootCmd = &cobra.Command{Use: "app"}
 
 	rootCmd.AddCommand(cmdInstall)
-
+	rootCmd.AddCommand(cmdVersion)
 	rootCmd.Execute()
+}
+
+func makeVersionCmd() *cobra.Command {
+	var cmd = &cobra.Command{
+		Use:          "version",
+		Short:        "Print the version",
+		Example:      `  k3sup version`,
+		SilenceUsage: false,
+	}
+	cmd.Run = func(cmd *cobra.Command, args []string) {
+		fmt.Printf("Welcome to k3sup!\n")
+	}
+	return cmd
 }
 
 func makeInstallCmd() *cobra.Command {

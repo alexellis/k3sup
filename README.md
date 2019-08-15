@@ -44,3 +44,9 @@ kubectl get node
 ## License
 
 MIT
+
+## Contributing
+
+As per [OpenFaaS](https://github.com/openfaas/faas/blob/master/CONTRIBUTING.md)
+
+All commits must be signed-off as part of the [Developer Certificate of Origin (DCO)](https://developercertificate.org)
