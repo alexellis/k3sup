@@ -4,15 +4,17 @@ k3sup is a light-weight utility to get from zero to KUBECONFIG with [k3s](https:
 
 The tool is written in Go and is cross-compiled for Linux, Windows, MacOS and even on Raspberry Pi.
 
-## Why does this tool need to exist?
+## What's this for?
+
+This tool installs `k3s`, updates the SAN address to the public IP, downloads the k3s config file and then updates it with the public IP address of your VM so that you can connect to it with `kubectl`. It automates everything and is very fast.
 
 You may wonder why a tool like this needs to exist when you can do this sort of thing with bash.
 
-This tool was developed to automate a manual and off-putting process for developers who are already short of time. Once you've provisioned a VM with your favourite tooling, k3sup makes it a doddle to get access to `kubectl` locally.
+k3sup was developed to automate what can be a very manual and confusing process for many developers, who are already short on time. Once you've provisioned a VM with your favourite tooling, `k3sup` means you are only 60 seconds away from `kubectl get pods`, from your own computer.
 
 Uses:
 
-* Bootstrap Kubernetes with k3s onto any VM - either manually, during CI or through cloudinit
+* Bootstrap Kubernetes with k3s onto any VM - either manually, during CI or through `cloudinit`
 * Get from zero to `kubectl` with `k3s` on Raspberry Pi (RPi), VMs, DigitalOcean, Civo, Scaleway and more
 * Fetch a KUBECONFIG from an existing `k3s` cluster
 
