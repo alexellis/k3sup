@@ -84,6 +84,8 @@ kubectl get node -o wide
 
 You now have `kubectl` access from your laptop to your Raspberry Pi running k3s.
 
+See also: [Blog: Will it cluster? K3s on Raspbian](https://blog.alexellis.io/test-drive-k3s-on-raspberry-pi/)
+
 ## License
 
 MIT
