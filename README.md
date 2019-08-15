@@ -88,6 +88,12 @@ You now have `kubectl` access from your laptop to your Raspberry Pi running k3s.
 
 See also: [Blog: Will it cluster? K3s on Raspbian](https://blog.alexellis.io/test-drive-k3s-on-raspberry-pi/)
 
+## Caveats on security
+
+If you are using public cloud, then make sure you see the notes from the Rancher team on setting up a Firewall or Security Group.
+
+k3s docs: [k3s configuration / open ports](https://rancher.com/docs/k3s/latest/en/configuration/#open-ports-network-security)
+
 ## License
 
 MIT
