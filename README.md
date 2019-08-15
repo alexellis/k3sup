@@ -10,6 +10,12 @@ You may wonder why a tool like this needs to exist when you can do this sort of 
 
 This tool was developed to automate a manual and off-putting process for developers who are already short of time. Once you've provisioned a VM with your favourite tooling, k3sup makes it a doddle to get access to `kubectl` locally.
 
+Uses:
+
+* Bootstrap Kubernetes with k3s onto any VM - either manually, during CI or through cloudinit
+* Get from zero to `kubectl` with `k3s` on Raspberry Pi (RPi), VMs, DigitalOcean, Civo, Scaleway and more
+* Fetch a KUBECONFIG from an existing `k3s` cluster
+
 ## Demo
 
 I install k3s onto two separate machines and get access to `kubeconfig` within a minute.
