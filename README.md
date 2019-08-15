@@ -10,6 +10,17 @@ You may wonder why a tool like this needs to exist when you can do this sort of 
 
 This tool was developed to automate a manual and off-putting process for developers who are already short of time. Once you've provisioned a VM with your favourite tooling, k3sup makes it a doddle to get access to `kubectl` locally.
 
+## Demo
+
+I install k3s onto two separate machines and get access to `kubeconfig` within a minute.
+
+* Ubuntu 18.04 VM created on DigitalOcean with ssh key copied automatically
+* Raspberry Pi 4 with my ssh key copied over via `ssh-copy-id`
+
+Watch the demo:
+
+[![asciicast](https://asciinema.org/a/262630.svg)](https://asciinema.org/a/262630)
+
 ## Usage
 
 ```sh
