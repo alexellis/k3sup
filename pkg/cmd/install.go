@@ -1,11 +1,16 @@
 package cmd
 
 import (
+	"bytes"
 	"fmt"
+	"io"
 	"io/ioutil"
+	"os"
 	"path/filepath"
+	"strings"
 
 	homedir "github.com/mitchellh/go-homedir"
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"golang.org/x/crypto/ssh"
 )
@@ -23,14 +28,17 @@ func MakeInstall() *cobra.Command {
 	command.Flags().String("user", "root", "Username for SSH login")
 
 	command.Flags().String("ssh-key", "~/.ssh/id_rsa", "The ssh key to use for remote login")
+	command.Flags().Int("ssh-port", 22, "The port on which to connect for ssh")
 	command.Flags().Bool("skip-install", false, "Skip the k3s installer")
 	command.Flags().String("local-path", "kubeconfig", "Local path to save the kubeconfig file")
 
-	command.Run = func(command *cobra.Command, args []string) {
+	command.RunE = func(command *cobra.Command, args []string) error {
 
 		localKubeconfig, _ := command.Flags().GetString("local-path")
 
 		skipInstall, _ := command.Flags().GetBool("skip-install")
+
+		port, _ := command.Flags().GetInt("ssh-port")
 
 		ip, _ := command.Flags().GetIP("ip")
 		fmt.Println("Public SAN: " + ip.String())
@@ -40,36 +48,70 @@ func MakeInstall() *cobra.Command {
 		sshKeyPath := expandPath(sshKey)
 		fmt.Printf("ssh -i %s %s@%s\n", sshKeyPath, user, ip.String())
 
-		clientConfig := ssh.ClientConfig{
+		config := &ssh.ClientConfig{
+			User: user,
 			Auth: []ssh.AuthMethod{
 				loadPublickey(sshKeyPath),
 			},
 			HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 		}
-		fmt.Println(clientConfig)
+
+		address := fmt.Sprintf("%s:%d", ip.String(), port)
+		operator, err := NewSSHOperator(address, config)
+
+		if err != nil {
+			return errors.Wrapf(err, "unable to connect to %s over ssh", address)
+		}
+		defer operator.Close()
 
 		if !skipInstall {
 			installK3scommand := fmt.Sprintf("curl -sLS https://get.k3s.io | INSTALL_K3S_EXEC='server --tls-san %s' sh -\n", ip)
 			fmt.Printf("ssh: %s\n", installK3scommand)
+			res, err := operator.Execute(installK3scommand)
+
+			if err != nil {
+				return fmt.Errorf("Error received processing command: %s", err)
+			}
+
+			fmt.Printf("Result: %s %s\n", string(res.StdOut), string(res.StdErr))
 		}
 
 		getConfigcommand := fmt.Sprintf("sudo cat /etc/rancher/k3s/k3s.yaml\n")
 		fmt.Printf("ssh: %s\n", getConfigcommand)
 
+		res, err := operator.Execute(getConfigcommand)
+
+		if err != nil {
+			return fmt.Errorf("Error received processing command: %s", err)
+		}
+
+		fmt.Printf("Result: %s %s\n", string(res.StdOut), string(res.StdErr))
+
 		absPath, _ := filepath.Abs(localKubeconfig)
 		fmt.Printf("Saving file to: %s\n", absPath)
 
+		kubeconfig := strings.Replace(string(res.StdOut), "localhost", ip.String(), -1)
+
+		fmt.Println(res)
+
+		writeErr := ioutil.WriteFile(absPath, []byte(kubeconfig), 0600)
+		if writeErr != nil {
+			return writeErr
+		}
+
+		return nil
 	}
 
 	command.PreRunE = func(command *cobra.Command, args []string) error {
-		// if val, _ := command.Flags().getip .GetString("ip"); len(val) == 0 {
-		// 	return fmt.Errorf(`give --ip or install --help`)
-		// }
 		_, ipErr := command.Flags().GetIP("ip")
 		if ipErr != nil {
 			return ipErr
 		}
 
+		_, sshPortErr := command.Flags().GetInt("ssh-port")
+		if sshPortErr != nil {
+			return sshPortErr
+		}
 		return nil
 	}
 	return command
@@ -91,4 +133,75 @@ func loadPublickey(path string) ssh.AuthMethod {
 		panic(err)
 	}
 	return ssh.PublicKeys(signer)
+}
+
+type commandRes struct {
+	StdOut []byte
+	StdErr []byte
+}
+
+func executeCommand(cmd string) (commandRes, error) {
+
+	return commandRes{}, nil
+}
+
+type SSHOperator struct {
+	conn *ssh.Client
+}
+
+func (s *SSHOperator) Close() error {
+
+	return s.conn.Close()
+}
+
+func NewSSHOperator(address string, config *ssh.ClientConfig) (*SSHOperator, error) {
+	conn, err := ssh.Dial("tcp", address, config)
+	if err != nil {
+		return nil, err
+	}
+
+	operator := SSHOperator{
+		conn: conn,
+	}
+
+	return &operator, nil
+}
+
+func (s *SSHOperator) Execute(command string) (commandRes, error) {
+
+	sess, err := s.conn.NewSession()
+	if err != nil {
+		return commandRes{}, err
+	}
+
+	defer sess.Close()
+
+	sessStdOut, err := sess.StdoutPipe()
+	if err != nil {
+		return commandRes{}, err
+	}
+
+	output := bytes.Buffer{}
+
+	stdOutWriter := io.MultiWriter(os.Stdout, &output)
+	go io.Copy(stdOutWriter, sessStdOut)
+
+	sessStderr, err := sess.StderrPipe()
+	if err != nil {
+		return commandRes{}, err
+	}
+
+	errorOutput := bytes.Buffer{}
+	stdErrWriter := io.MultiWriter(os.Stderr, &errorOutput)
+	go io.Copy(stdErrWriter, sessStderr)
+
+	err = sess.Run(command)
+	if err != nil {
+		return commandRes{}, err
+	}
+
+	return commandRes{
+		StdErr: errorOutput.Bytes(),
+		StdOut: output.Bytes(),
+	}, nil
 }
