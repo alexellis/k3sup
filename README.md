@@ -1,8 +1,10 @@
-# k3sup 🚀
+# k3sup 🚀 (said 'ketchup')
 
 k3sup is a light-weight utility to get from zero to KUBECONFIG with [k3s](https://k3s.io/) on any local or remote VM. All you need is `ssh` access and the `k3sup` binary to get `kubectl` access immediately.
 
 The tool is written in Go and is cross-compiled for Linux, Windows, MacOS and even on Raspberry Pi.
+
+How do you say it? Ketchup, as in tomato.
 
 ## What's this for? 💻
 
