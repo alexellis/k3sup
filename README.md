@@ -63,6 +63,8 @@ kubectl get node
 
 ### Micro-tutorial for Raspberry Pi (2, 3, or 4)
 
+In a few moments you will have Kubernetes up and running on your Raspberry Pi 2, 3 or 4. Stand by for the fastest possible install. At the end you will have a KUBECONFIG file on your local computer that you can use to access your cluster remotely.
+
 * [Download etcher.io](https://www.balena.io/etcher/) for your OS
 
 * Flash an SD card using [Raspbian Lite](https://www.raspberrypi.org/downloads/raspbian/)
