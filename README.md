@@ -61,6 +61,29 @@ export KUBECONFIG=`pwd`/kubeconfig
 kubectl get node
 ```
 
+### Micro-tutorial for Raspberry Pi (2, 3, or 4)
+
+* [Download etcher.io](https://www.balena.io/etcher/) for your OS
+
+* Flash an SD card using [Raspbian Lite](https://www.raspberrypi.org/downloads/raspbian/)
+
+* Generate an ssh-key if you don't already have one with `ssh-keygen` (hit enter to all questions)
+
+* Find the RPi IP with `ping -c raspberrypi.local`, then set `export IP=""` with the IP
+
+* Copy over your ssh key with: `ssh-copy-id pi@raspberrypi.local`
+
+* Run `k3sup --ip $IP --user pi`
+
+* Point at the config file and get the status of the node:
+
+```sh
+export KUBECONFIG=`pwd`/kubeconfig
+kubectl get node -o wide
+```
+
+You now have `kubectl` access from your laptop to your Raspberry Pi running k3s.
+
 ## License
 
 MIT
