@@ -1,10 +1,10 @@
-# k3sup
+# k3sup 🚀
 
 k3sup is a light-weight utility to get from zero to KUBECONFIG with [k3s](https://k3s.io/) on any local or remote VM. All you need is `ssh` access and the `k3sup` binary to get `kubectl` access immediately.
 
 The tool is written in Go and is cross-compiled for Linux, Windows, MacOS and even on Raspberry Pi.
 
-## What's this for?
+## What's this for? 💻
 
 This tool installs `k3s`, updates the SAN address to the public IP, downloads the k3s config file and then updates it with the public IP address of your VM so that you can connect to it with `kubectl`. It automates everything and is very fast.
 
@@ -18,7 +18,7 @@ Uses:
 * Get from zero to `kubectl` with `k3s` on Raspberry Pi (RPi), VMs, DigitalOcean, Civo, Scaleway and more
 * Fetch a KUBECONFIG from an existing `k3s` cluster
 
-## Demo
+## Demo 📼
 
 I install k3s onto two separate machines and get access to `kubeconfig` within a minute.
 
@@ -29,7 +29,7 @@ Watch the demo:
 
 [![asciicast](https://asciinema.org/a/262630.svg)](https://asciinema.org/a/262630)
 
-## Usage
+## Usage ✅
 
 ```sh
 curl -sLS https://raw.githubusercontent.com/alexellis/k3sup/master/get.sh | sh
@@ -63,7 +63,7 @@ export KUBECONFIG=`pwd`/kubeconfig
 kubectl get node
 ```
 
-### Micro-tutorial for Raspberry Pi (2, 3, or 4)
+### Micro-tutorial for Raspberry Pi (2, 3, or 4) 🥧
 
 In a few moments you will have Kubernetes up and running on your Raspberry Pi 2, 3 or 4. Stand by for the fastest possible install. At the end you will have a KUBECONFIG file on your local computer that you can use to access your cluster remotely.
 
