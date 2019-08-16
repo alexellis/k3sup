@@ -8,17 +8,18 @@ How do you say it? Ketchup, as in tomato.
 
 ## What's this for? 💻
 
-This tool installs `k3s`, updates the SAN address to the public IP, downloads the k3s config file and then updates it with the public IP address of your VM so that you can connect to it with `kubectl`. It automates everything and is very fast.
+This tool installs `k3s`, updates the advertised address for generating TLS certificates to be the public IP, downloads the k3s config file and then updates it with the public IP address of your VM so that you can connect to it with `kubectl`. It automates everything and is very fast.
 
 You may wonder why a tool like this needs to exist when you can do this sort of thing with bash.
 
-k3sup was developed to automate what can be a very manual and confusing process for many developers, who are already short on time. Once you've provisioned a VM with your favourite tooling, `k3sup` means you are only 60 seconds away from `kubectl get pods`, from your own computer.
+k3sup was developed to automate what can be a very manual and confusing process for many developers, who are already short on time. Once you've provisioned a VM with your favourite tooling, `k3sup` means you are only 60 seconds away from `kubectl get pods`, from your own computer. With version 0.2.0, you can even join other nodes into the cluster.
 
 Uses:
 
 * Bootstrap Kubernetes with k3s onto any VM - either manually, during CI or through `cloudinit`
 * Get from zero to `kubectl` with `k3s` on Raspberry Pi (RPi), VMs, DigitalOcean, Civo, Scaleway and more
 * Fetch a KUBECONFIG from an existing `k3s` cluster
+* Join nodes into an existing `k3s` cluster with `k3sup join`
 
 ## Demo 📼
 
