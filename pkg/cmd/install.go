@@ -16,7 +16,7 @@ import (
 
 func MakeInstall() *cobra.Command {
 	var command = &cobra.Command{
-		Use:          "install k3s",
+		Use:          "install",
 		Short:        "Install k3s on a server via SSH",
 		Long:         `Install k3s on a server via SSH.`,
 		Example:      `  k3sup install --ip 192.168.0.100 --user root`,
@@ -40,10 +40,11 @@ func MakeInstall() *cobra.Command {
 		port, _ := command.Flags().GetInt("ssh-port")
 
 		ip, _ := command.Flags().GetIP("ip")
-		fmt.Println("Public SAN: " + ip.String())
+		fmt.Println("Public IP: " + ip.String())
 
 		user, _ := command.Flags().GetString("user")
 		sshKey, _ := command.Flags().GetString("ssh-key")
+
 		sshKeyPath := expandPath(sshKey)
 		fmt.Printf("ssh -i %s %s@%s\n", sshKeyPath, user, ip.String())
 
@@ -61,6 +62,7 @@ func MakeInstall() *cobra.Command {
 		if err != nil {
 			return errors.Wrapf(err, "unable to connect to %s over ssh", address)
 		}
+
 		defer operator.Close()
 
 		if !skipInstall {

@@ -11,9 +11,13 @@ func main() {
 
 	cmdVersion := cmd.MakeVersion()
 
+	cmdJoin := cmd.MakeJoin()
+
 	var rootCmd = &cobra.Command{Use: "app"}
 
 	rootCmd.AddCommand(cmdInstall)
 	rootCmd.AddCommand(cmdVersion)
+	rootCmd.AddCommand(cmdJoin)
+
 	rootCmd.Execute()
 }

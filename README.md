@@ -33,6 +33,10 @@ Watch the demo:
 
 ## Usage ✅
 
+### Setup a server
+
+You can setup a server and stop here, or go on to use the `join` command to add some "agents" aka `nodes` or `workers` into the cluster to expand its compute capacity.
+
 ```sh
 curl -sLS https://raw.githubusercontent.com/alexellis/k3sup/master/get.sh | sh
 sudo install k3sup /usr/local/bin/
@@ -64,6 +68,31 @@ Other options for `install`:
 export KUBECONFIG=`pwd`/kubeconfig
 kubectl get node
 ```
+
+### Join some agents to your server
+
+Let's say that you have a server, and have already run the following:
+
+```sh
+export SERVER_IP=192.168.0.100
+export USER=root
+
+k3sup install --ip $SERVER_IP --user $USER
+```
+
+Next join one or more `agents` to the cluster:
+
+```sh
+export AGENT_IP=192.168.0.101
+
+export SERVER_IP=192.168.0.100
+export USER=root
+
+k3sup join --ip $AGENT_IP --server-ip $SERVER_IP --user $USER
+```
+
+That's all, so with the above command you can have a two-node cluster up and running, whether that's using VMs on-premises, using Raspberry Pis, 64-bit ARM or even cloud VMs on EC2.
+
 
 ### Micro-tutorial for Raspberry Pi (2, 3, or 4) 🥧
 
