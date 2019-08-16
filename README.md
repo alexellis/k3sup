@@ -42,7 +42,7 @@ Provision a new VM running a compatible operating system such as Ubuntu, Debian,
 
 > Note: You can copy ssh keys to a remote VM with `ssh-copy-id user@IP`.
 
-Imagine the IP was `192.168.0.1` and the usenrame was `ubuntu`, then you would run this:
+Imagine the IP was `192.168.0.1` and the username was `ubuntu`, then you would run this:
 
 * Run `k3sup`:
 
