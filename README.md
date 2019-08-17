@@ -8,25 +8,25 @@ How do you say it? Ketchup, as in tomato.
 
 ## What's this for? 💻
 
-This tool installs `k3s`, updates the advertised address for generating TLS certificates to be the public IP, downloads the k3s config file and then updates it with the public IP address of your VM so that you can connect to it with `kubectl`. It automates everything and is very fast.
+This tool uses `ssh` to install `k3s` to a remote Linux host. You can also use it to join existing Linux hosts into a k3s cluster as `agents`. First, `k3s` is installed using the utility script from Rancher, along with a flag for your host's public IP so that TLS works properly. The `kubeconfig` file on the server is then fetched and updated so that you can connect from your laptop using `kubectl`.
 
 You may wonder why a tool like this needs to exist when you can do this sort of thing with bash.
 
-k3sup was developed to automate what can be a very manual and confusing process for many developers, who are already short on time. Once you've provisioned a VM with your favourite tooling, `k3sup` means you are only 60 seconds away from `kubectl get pods`, from your own computer. With version 0.2.0, you can even join other nodes into the cluster.
+k3sup was developed to automate what can be a very manual and confusing process for many developers, who are already short on time. Once you've provisioned a VM with your favourite tooling, `k3sup` means you are only 60 seconds away from running `kubectl get pods` on your own computer. With version 0.2.0, you can even `join` other nodes into any existing k3s cluster.
 
 Uses:
 
 * Bootstrap Kubernetes with k3s onto any VM - either manually, during CI or through `cloudinit`
-* Get from zero to `kubectl` with `k3s` on Raspberry Pi (RPi), VMs, DigitalOcean, Civo, Scaleway and more
-* Fetch a KUBECONFIG from an existing `k3s` cluster
+* Get from zero to `kubectl` with `k3s` on Raspberry Pi (RPi), VMs, AWS EC2, DigitalOcean, Civo, Scaleway and more
+* Fetch a working KUBECONFIG from an existing `k3s` cluster
 * Join nodes into an existing `k3s` cluster with `k3sup join`
 
 ## Demo 📼
 
-I install k3s onto two separate machines and get access to `kubeconfig` within a minute.
+In the demo I install `k3s` onto two separate machines and get access to `kubeconfig` within a minute.
 
-* Ubuntu 18.04 VM created on DigitalOcean with ssh key copied automatically
-* Raspberry Pi 4 with my ssh key copied over via `ssh-copy-id`
+1) Ubuntu 18.04 VM created on DigitalOcean with ssh key copied automatically
+2) Raspberry Pi 4 with my ssh key copied over via `ssh-copy-id`
 
 Watch the demo:
 
@@ -93,7 +93,6 @@ k3sup join --ip $AGENT_IP --server-ip $SERVER_IP --user $USER
 ```
 
 That's all, so with the above command you can have a two-node cluster up and running, whether that's using VMs on-premises, using Raspberry Pis, 64-bit ARM or even cloud VMs on EC2.
-
 
 ### Micro-tutorial for Raspberry Pi (2, 3, or 4) 🥧
 
