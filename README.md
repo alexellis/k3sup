@@ -127,6 +127,26 @@ If you are using public cloud, then make sure you see the notes from the Rancher
 
 k3s docs: [k3s configuration / open ports](https://rancher.com/docs/k3s/latest/en/configuration/#open-ports-network-security)
 
+## What are people saying about `k3sup`?
+
+* Blog post by Ruan Bekker:
+
+    > Provision k3s to all the places with a awesome utility called "k3sup" by @alexellisuk. Definitely worth checking it out, its epic!
+
+    [Provision k3s on the fly with k3sup](https://sysadmins.co.za/provision-k3s-on-the-fly-with-k3sup/)
+
+* [Dave Cadwallader (@geek_dave)](https://twitter.com/geek_dave/status/1162386683200851969?s=20):
+
+    > Alex - Thanks so much for all the effort you put into your tools and tutorials.  My rpi homelab has been a valuable learning playground for CNCF tech thanks to you!
+
+* Checkout the [Announcement tweet](https://twitter.com/alexellisuk/status/1162272786250735618?s=20)
+
+## What other cool tools exist for k3s?
+
+* [k3s](https://github.com/rancher/k3s) - Kubernetes as installed by `k3sup`. k3s is a compliant, light-weight, multi-architecture distribution of Kubernetes
+* [k3d](https://github.com/rancher/k3d) - this tool runs a Docker container on your local laptop with k3s started up inside
+* [k3v](https://github.com/ibuildthecloud/k3v) - "virtual kubernetes" - a very early PoC from the author of k3s aiming to slice up a single cluster for multiple tenants
+
 ## License
 
 MIT
