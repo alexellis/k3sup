@@ -21,9 +21,12 @@ Uses:
 * Fetch a working KUBECONFIG from an existing `k3s` cluster
 * Join nodes into an existing `k3s` cluster with `k3sup join`
 
+![](./docs/k3sup-cloud.png)
+*Conceptual architecture, showing `k3sup` running locally against any VM such as AWS EC2 or a VPS such as DigitalOcean.*
+
 ## Demo 📼
 
-In the demo I install `k3s` onto two separate machines and get access to `kubeconfig` within a minute.
+In the demo I install `k3s` onto two separate machines and get my `kubeconfig` downloaded to my laptop each time in around one minute.
 
 1) Ubuntu 18.04 VM created on DigitalOcean with ssh key copied automatically
 2) Raspberry Pi 4 with my ssh key copied over via `ssh-copy-id`
@@ -34,7 +37,9 @@ Watch the demo:
 
 ## Usage ✅
 
-### Setup a server
+The `k3sup` tool is designed to be run on your desktop/laptop computer, but binaries are provided for MacOS, Windows, and Linux (including ARM).
+
+### Setup a Kubernetes server
 
 You can setup a server and stop here, or go on to use the `join` command to add some "agents" aka `nodes` or `workers` into the cluster to expand its compute capacity.
 
@@ -70,7 +75,7 @@ export KUBECONFIG=`pwd`/kubeconfig
 kubectl get node
 ```
 
-### Join some agents to your server
+### Join some agents to your Kubernetes server
 
 Let's say that you have a server, and have already run the following:
 
@@ -97,6 +102,9 @@ That's all, so with the above command you can have a two-node cluster up and run
 ### Micro-tutorial for Raspberry Pi (2, 3, or 4) 🥧
 
 In a few moments you will have Kubernetes up and running on your Raspberry Pi 2, 3 or 4. Stand by for the fastest possible install. At the end you will have a KUBECONFIG file on your local computer that you can use to access your cluster remotely.
+
+![](./docs/k3sup-rpi.png)
+*Conceptual architecture, showing `k3sup` running locally against bare-metal ARM devices.*
 
 * [Download etcher.io](https://www.balena.io/etcher/) for your OS
 
