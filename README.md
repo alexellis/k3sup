@@ -149,10 +149,19 @@ k3s docs: [k3s configuration / open ports](https://rancher.com/docs/k3s/latest/e
 
 * Checkout the [Announcement tweet](https://twitter.com/alexellisuk/status/1162272786250735618?s=20)
 
-## What other cool tools exist for k3s?
+## Similar tools & glossary
 
-* [k3s](https://github.com/rancher/k3s) - Kubernetes as installed by `k3sup`. k3s is a compliant, light-weight, multi-architecture distribution of Kubernetes
-* [k3d](https://github.com/rancher/k3d) - this tool runs a Docker container on your local laptop with k3s started up inside
+Glossary:
+
+* Kubernetes: master/slave
+* k3s: server/agent
+
+Related tools:
+
+* [k3s](https://github.com/rancher/k3s) - Kubernetes as installed by `k3sup`. k3s is a compliant, light-weight, multi-architecture distribution of Kubernetes. It can be used to run Kubernetes locally or remotely for development, or in edge locations.
+* [k3d](https://github.com/rancher/k3d) - this tool runs a Docker container on your local laptop with k3s inside
+* [kind](https://github.com/kubernetes-sigs/kind) - kind can run a Kubernetes cluster within a Docker container for local development. k3s is also suitable for this purpose through `k3d`. KinD is not suitable for running a remote cluster for development.
+* [kubeadm](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/) - a tool to create fully-loaded, production-ready Kubernetes clusters with or without high-availability (HA). Tends to be heavier-weight and slower than k3s. It is aimed at cloud VMs or bare-metal computers which means it doesn't always work well with low-powered ARM devices.
 * [k3v](https://github.com/ibuildthecloud/k3v) - "virtual kubernetes" - a very early PoC from the author of k3s aiming to slice up a single cluster for multiple tenants
 
 ## License
