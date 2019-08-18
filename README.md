@@ -165,9 +165,9 @@ MIT
 
 Blogs posts, tutorials, and Tweets about k3sup are appreciated. Please send a PR to the README.md file to add yours.
 
-### Sponsorship
+### Say thanks
 
-Buy [the author](https://twitter.com/alexellisuk) a beer, or sponsor him through [GitHub Sponsors](https://github.com/users/alexellis/sponsorship) from as little as 5 USD per month.
+Buy the author a coffee and show your support for `k3sup` through [GitHub Sponsors](https://github.com/users/alexellis/sponsorship).
 
 ### Contributing via GitHub
 
