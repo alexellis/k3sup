@@ -1,6 +1,6 @@
 Version := $(shell git describe --tags --dirty)
 GitCommit := $(shell git rev-parse HEAD)
-LDFLAGS := "-s -w -X main.Version=$(Version) -X main.GitCommit=$(GitCommit)"
+LDFLAGS := "-s -w -X github.com/alexellis/k3sup/pkg/cmd.Version=$(Version) -X github.com/alexellis/k3sup/pkg/cmd.GitCommit=$(GitCommit)"
 PLATFORM := $(shell ./hack/platform-tag.sh)
 
 .PHONY: all
