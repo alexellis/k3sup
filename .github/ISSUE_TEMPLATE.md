@@ -26,9 +26,6 @@
 
 ## Your Environment
 
-<!--- Include as many relevant details about the environment you experienced the bug in -->
-* Docker version `docker version` (e.g. Docker 17.0.05 ):
-
 * What OS or type or VM are you using? Where is it hosted?
 
 * Operating System and version (e.g. Linux, Windows, MacOS):
