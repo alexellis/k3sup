@@ -26,7 +26,11 @@ Uses:
 
 ## Demo 📼
 
+<<<<<<< Updated upstream
 In the demo I install `k3s` onto two separate machines and get my `kubeconfig` downloaded to my laptop each time in around one minute.
+=======
+I install Kubernetes (using k3s) onto two separate machines and get access to `kubeconfig` within a minute.
+>>>>>>> Stashed changes
 
 1) Ubuntu 18.04 VM created on DigitalOcean with ssh key copied automatically
 2) Raspberry Pi 4 with my ssh key copied over via `ssh-copy-id`
@@ -44,7 +48,7 @@ The `k3sup` tool is designed to be run on your desktop/laptop computer, but bina
 You can setup a server and stop here, or go on to use the `join` command to add some "agents" aka `nodes` or `workers` into the cluster to expand its compute capacity.
 
 ```sh
-curl -sLS https://raw.githubusercontent.com/alexellis/k3sup/master/get.sh | sh
+curl -sLS https://get.k3sup.dev | sh
 sudo install k3sup /usr/local/bin/
 ```
 
@@ -161,6 +165,18 @@ MIT
 
 ## Contributing
 
-As per [OpenFaaS](https://github.com/openfaas/faas/blob/master/CONTRIBUTING.md)
+### Blog posts & tweets
+
+Blogs posts, tutorials, and Tweets about k3sup are appreciated. Please send a PR to the README.md file to add yours.
+
+### Sponsorship
+
+Buy [the author](https://twitter.com/alexellisuk) a beer, or sponsor him through [GitHub Sponsors](https://github.com/users/alexellis/sponsorship) from as little as 5 USD per month.
+
+### Contributing via GitHub
+
+Before contributing code, please see the [CONTRIBUTING guide](https://github.com/alexellis/inlets/blob/master/CONTRIBUTING.md). Note that k3sup uses the same guide as [inlets.dev](https://inlets.dev/).
+
+Both Issues and PRs have their own templates. Please fill out the whole template.
 
 All commits must be signed-off as part of the [Developer Certificate of Origin (DCO)](https://developercertificate.org)
