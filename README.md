@@ -26,11 +26,7 @@ Uses:
 
 ## Demo 📼
 
-<<<<<<< Updated upstream
-In the demo I install `k3s` onto two separate machines and get my `kubeconfig` downloaded to my laptop each time in around one minute.
-=======
-I install Kubernetes (using k3s) onto two separate machines and get access to `kubeconfig` within a minute.
->>>>>>> Stashed changes
+In the demo I install Kubernetes (`k3s`) onto two separate machines and get my `kubeconfig` downloaded to my laptop each time in around one minute.
 
 1) Ubuntu 18.04 VM created on DigitalOcean with ssh key copied automatically
 2) Raspberry Pi 4 with my ssh key copied over via `ssh-copy-id`
