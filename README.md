@@ -24,6 +24,17 @@ Uses:
 ![](./docs/k3sup-cloud.png)
 *Conceptual architecture, showing `k3sup` running locally against any VM such as AWS EC2 or a VPS such as DigitalOcean.*
 
+## Download `k3sup` (tl;dr)
+
+`k3sup` is distributed as a static Go binary, use the installer or visit the [Releases page](https://github.com/alexellis/k3sup/releases).
+
+```sh
+curl -sLS https://get.k3sup.dev | sh
+sudo install k3sup /usr/local/bin/
+
+k3sup --help
+```
+
 ## Demo 📼
 
 In the demo I install Kubernetes (`k3s`) onto two separate machines and get my `kubeconfig` downloaded to my laptop each time in around one minute.
@@ -42,11 +53,6 @@ The `k3sup` tool is designed to be run on your desktop/laptop computer, but bina
 ### Setup a Kubernetes server
 
 You can setup a server and stop here, or go on to use the `join` command to add some "agents" aka `nodes` or `workers` into the cluster to expand its compute capacity.
-
-```sh
-curl -sLS https://get.k3sup.dev | sh
-sudo install k3sup /usr/local/bin/
-```
 
 Provision a new VM running a compatible operating system such as Ubuntu, Debian, Raspbian, or something else. Make sure that you opt-in to copy your registered SSH keys over to the new VM or host automatically.
 
