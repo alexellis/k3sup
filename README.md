@@ -26,7 +26,7 @@ Uses:
 
 ## Download `k3sup` (tl;dr)
 
-`k3sup` is distributed as a static Go binary, use the installer or visit the [Releases page](https://github.com/alexellis/k3sup/releases).
+`k3sup` is distributed as a static Go binary. You can use the installer on MacOS and Linux, or visit the [Releases page](https://github.com/alexellis/k3sup/releases) to download the executable for Windows.
 
 ```sh
 curl -sLS https://get.k3sup.dev | sh
