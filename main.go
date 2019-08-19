@@ -13,7 +13,7 @@ func main() {
 
 	cmdJoin := cmd.MakeJoin()
 
-	var rootCmd = &cobra.Command{Use: "app"}
+	var rootCmd = &cobra.Command{Use: "k3sup"}
 
 	rootCmd.AddCommand(cmdInstall)
 	rootCmd.AddCommand(cmdVersion)
