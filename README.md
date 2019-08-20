@@ -8,24 +8,39 @@ How do you say it? Ketchup, as in tomato.
 
 ## What's this for? 💻
 
-This tool installs `k3s`, updates the SAN address to the public IP, downloads the k3s config file and then updates it with the public IP address of your VM so that you can connect to it with `kubectl`. It automates everything and is very fast.
+This tool uses `ssh` to install `k3s` to a remote Linux host. You can also use it to join existing Linux hosts into a k3s cluster as `agents`. First, `k3s` is installed using the utility script from Rancher, along with a flag for your host's public IP so that TLS works properly. The `kubeconfig` file on the server is then fetched and updated so that you can connect from your laptop using `kubectl`.
 
 You may wonder why a tool like this needs to exist when you can do this sort of thing with bash.
 
-k3sup was developed to automate what can be a very manual and confusing process for many developers, who are already short on time. Once you've provisioned a VM with your favourite tooling, `k3sup` means you are only 60 seconds away from `kubectl get pods`, from your own computer.
+k3sup was developed to automate what can be a very manual and confusing process for many developers, who are already short on time. Once you've provisioned a VM with your favourite tooling, `k3sup` means you are only 60 seconds away from running `kubectl get pods` on your own computer. With version 0.2.0, you can even `join` other nodes into any existing k3s cluster.
 
 Uses:
 
 * Bootstrap Kubernetes with k3s onto any VM - either manually, during CI or through `cloudinit`
-* Get from zero to `kubectl` with `k3s` on Raspberry Pi (RPi), VMs, DigitalOcean, Civo, Scaleway and more
-* Fetch a KUBECONFIG from an existing `k3s` cluster
+* Get from zero to `kubectl` with `k3s` on Raspberry Pi (RPi), VMs, AWS EC2, DigitalOcean, Civo, Scaleway and more
+* Fetch a working KUBECONFIG from an existing `k3s` cluster
+* Join nodes into an existing `k3s` cluster with `k3sup join`
+
+![](./docs/k3sup-cloud.png)
+*Conceptual architecture, showing `k3sup` running locally against any VM such as AWS EC2 or a VPS such as DigitalOcean.*
+
+## Download `k3sup` (tl;dr)
+
+`k3sup` is distributed as a static Go binary. You can use the installer on MacOS and Linux, or visit the [Releases page](https://github.com/alexellis/k3sup/releases) to download the executable for Windows.
+
+```sh
+curl -sLS https://get.k3sup.dev | sh
+sudo install k3sup /usr/local/bin/
+
+k3sup --help
+```
 
 ## Demo 📼
 
-I install k3s onto two separate machines and get access to `kubeconfig` within a minute.
+In the demo I install Kubernetes (`k3s`) onto two separate machines and get my `kubeconfig` downloaded to my laptop each time in around one minute.
 
-* Ubuntu 18.04 VM created on DigitalOcean with ssh key copied automatically
-* Raspberry Pi 4 with my ssh key copied over via `ssh-copy-id`
+1) Ubuntu 18.04 VM created on DigitalOcean with ssh key copied automatically
+2) Raspberry Pi 4 with my ssh key copied over via `ssh-copy-id`
 
 Watch the demo:
 
@@ -33,16 +48,17 @@ Watch the demo:
 
 ## Usage ✅
 
-```sh
-curl -sLS https://raw.githubusercontent.com/alexellis/k3sup/master/get.sh | sh
-sudo install k3sup /usr/local/bin/
-```
+The `k3sup` tool is designed to be run on your desktop/laptop computer, but binaries are provided for MacOS, Windows, and Linux (including ARM).
+
+### Setup a Kubernetes server
+
+You can setup a server and stop here, or go on to use the `join` command to add some "agents" aka `nodes` or `workers` into the cluster to expand its compute capacity.
 
 Provision a new VM running a compatible operating system such as Ubuntu, Debian, Raspbian, or something else. Make sure that you opt-in to copy your registered SSH keys over to the new VM or host automatically.
 
 > Note: You can copy ssh keys to a remote VM with `ssh-copy-id user@IP`.
 
-Imagine the IP was `192.168.0.1` and the usenrame was `ubuntu`, then you would run this:
+Imagine the IP was `192.168.0.1` and the username was `ubuntu`, then you would run this:
 
 * Run `k3sup`:
 
@@ -65,9 +81,36 @@ export KUBECONFIG=`pwd`/kubeconfig
 kubectl get node
 ```
 
+### Join some agents to your Kubernetes server
+
+Let's say that you have a server, and have already run the following:
+
+```sh
+export SERVER_IP=192.168.0.100
+export USER=root
+
+k3sup install --ip $SERVER_IP --user $USER
+```
+
+Next join one or more `agents` to the cluster:
+
+```sh
+export AGENT_IP=192.168.0.101
+
+export SERVER_IP=192.168.0.100
+export USER=root
+
+k3sup join --ip $AGENT_IP --server-ip $SERVER_IP --user $USER
+```
+
+That's all, so with the above command you can have a two-node cluster up and running, whether that's using VMs on-premises, using Raspberry Pis, 64-bit ARM or even cloud VMs on EC2.
+
 ### Micro-tutorial for Raspberry Pi (2, 3, or 4) 🥧
 
 In a few moments you will have Kubernetes up and running on your Raspberry Pi 2, 3 or 4. Stand by for the fastest possible install. At the end you will have a KUBECONFIG file on your local computer that you can use to access your cluster remotely.
+
+![](./docs/k3sup-rpi.png)
+*Conceptual architecture, showing `k3sup` running locally against bare-metal ARM devices.*
 
 * [Download etcher.io](https://www.balena.io/etcher/) for your OS
 
@@ -98,12 +141,53 @@ If you are using public cloud, then make sure you see the notes from the Rancher
 
 k3s docs: [k3s configuration / open ports](https://rancher.com/docs/k3s/latest/en/configuration/#open-ports-network-security)
 
+## What are people saying about `k3sup`?
+
+* Blog post by Ruan Bekker:
+
+    > Provision k3s to all the places with a awesome utility called "k3sup" by @alexellisuk. Definitely worth checking it out, its epic!
+
+    [Provision k3s on the fly with k3sup](https://sysadmins.co.za/provision-k3s-on-the-fly-with-k3sup/)
+
+* [Dave Cadwallader (@geek_dave)](https://twitter.com/geek_dave/status/1162386683200851969?s=20):
+
+    > Alex - Thanks so much for all the effort you put into your tools and tutorials.  My rpi homelab has been a valuable learning playground for CNCF tech thanks to you!
+
+* Checkout the [Announcement tweet](https://twitter.com/alexellisuk/status/1162272786250735618?s=20)
+
+## Similar tools & glossary
+
+Glossary:
+
+* Kubernetes: master/slave
+* k3s: server/agent
+
+Related tools:
+
+* [k3s](https://github.com/rancher/k3s) - Kubernetes as installed by `k3sup`. k3s is a compliant, light-weight, multi-architecture distribution of Kubernetes. It can be used to run Kubernetes locally or remotely for development, or in edge locations.
+* [k3d](https://github.com/rancher/k3d) - this tool runs a Docker container on your local laptop with k3s inside
+* [kind](https://github.com/kubernetes-sigs/kind) - kind can run a Kubernetes cluster within a Docker container for local development. k3s is also suitable for this purpose through `k3d`. KinD is not suitable for running a remote cluster for development.
+* [kubeadm](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/) - a tool to create fully-loaded, production-ready Kubernetes clusters with or without high-availability (HA). Tends to be heavier-weight and slower than k3s. It is aimed at cloud VMs or bare-metal computers which means it doesn't always work well with low-powered ARM devices.
+* [k3v](https://github.com/ibuildthecloud/k3v) - "virtual kubernetes" - a very early PoC from the author of k3s aiming to slice up a single cluster for multiple tenants
+
 ## License
 
 MIT
 
 ## Contributing
 
-As per [OpenFaaS](https://github.com/openfaas/faas/blob/master/CONTRIBUTING.md)
+### Blog posts & tweets
+
+Blogs posts, tutorials, and Tweets about k3sup are appreciated. Please send a PR to the README.md file to add yours.
+
+### Say thanks
+
+Buy the author a coffee and show your support for `k3sup` through [GitHub Sponsors](https://github.com/users/alexellis/sponsorship).
+
+### Contributing via GitHub
+
+Before contributing code, please see the [CONTRIBUTING guide](https://github.com/alexellis/inlets/blob/master/CONTRIBUTING.md). Note that k3sup uses the same guide as [inlets.dev](https://inlets.dev/).
+
+Both Issues and PRs have their own templates. Please fill out the whole template.
 
 All commits must be signed-off as part of the [Developer Certificate of Origin (DCO)](https://developercertificate.org)
