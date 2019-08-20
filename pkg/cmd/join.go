@@ -45,10 +45,17 @@ func MakeJoin() *cobra.Command {
 		sshKeyPath := expandPath(sshKey)
 		fmt.Printf("ssh -i %s %s@%s\n", sshKeyPath, user, serverIP.String())
 
+		authMethod, closeSSHAgent, err := loadPublickey(sshKeyPath)
+		if err != nil {
+			return errors.Wrapf(err, "unable to load the ssh key with path %q", sshKeyPath)
+		}
+
+		defer closeSSHAgent()
+
 		config := &ssh.ClientConfig{
 			User: user,
 			Auth: []ssh.AuthMethod{
-				loadPublickey(sshKeyPath),
+				authMethod,
 			},
 			HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 		}
@@ -105,10 +112,17 @@ func MakeJoin() *cobra.Command {
 
 func setupAgent(serverIP, ip net.IP, port int, user, sshKeyPath, joinToken string) error {
 
+	authMethod, closeSSHAgent, err := loadPublickey(sshKeyPath)
+	if err != nil {
+		return errors.Wrapf(err, "unable to load the ssh key with path %q", sshKeyPath)
+	}
+
+	defer closeSSHAgent()
+
 	config := &ssh.ClientConfig{
 		User: user,
 		Auth: []ssh.AuthMethod{
-			loadPublickey(sshKeyPath),
+			authMethod,
 		},
 		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 	}

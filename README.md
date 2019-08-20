@@ -135,6 +135,26 @@ If you are using public cloud, then make sure you see the notes from the Rancher
 
 k3s docs: [k3s configuration / open ports](https://rancher.com/docs/k3s/latest/en/configuration/#open-ports-network-security)
 
+## If your ssh-key is password-protected
+
+If the ssh-key is encrypted the first step is to try to connect to the ssh-agent. If this works, it will be used to connect to the server.
+If the ssh-agent is not running, the user will be prompted for the password of the ssh-key.
+
+On most Linux systems and MacOS, ssh-agent is automatically configured and executed at login. No additional actions are required to use it. 
+
+To start the ssh-agent manually and add your key run the following commands:
+
+```
+eval `ssh-agent`
+ssh-add ~/.ssh/id_rsa
+```
+
+You can now just run k3sup as usual. No special parameters are necessary.
+
+```
+k3sup --ip $IP --user user
+```
+
 ## What are people saying about `k3sup`?
 
 * Blog post by Ruan Bekker:
