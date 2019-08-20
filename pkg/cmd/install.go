@@ -1,8 +1,11 @@
 package cmd
 
 import (
+	"bytes"
 	"fmt"
 	"io/ioutil"
+	"net"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -12,6 +15,8 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"golang.org/x/crypto/ssh"
+	"golang.org/x/crypto/ssh/agent"
+	"golang.org/x/crypto/ssh/terminal"
 )
 
 func MakeInstall() *cobra.Command {
@@ -48,10 +53,17 @@ func MakeInstall() *cobra.Command {
 		sshKeyPath := expandPath(sshKey)
 		fmt.Printf("ssh -i %s %s@%s\n", sshKeyPath, user, ip.String())
 
+		authMethod, closeSSHAgent, err := loadPublickey(sshKeyPath)
+		if err != nil {
+			return errors.Wrapf(err, "unable to load the ssh key with path %q", sshKeyPath)
+		}
+
+		defer closeSSHAgent()
+
 		config := &ssh.ClientConfig{
 			User: user,
 			Auth: []ssh.AuthMethod{
-				loadPublickey(sshKeyPath),
+				authMethod,
 			},
 			HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 		}
@@ -121,15 +133,65 @@ func expandPath(path string) string {
 	return res
 }
 
-func loadPublickey(path string) ssh.AuthMethod {
+func sshAgent(publicKeyPath string) (ssh.AuthMethod, func() error) {
+	if sshAgentConn, err := net.Dial("unix", os.Getenv("SSH_AUTH_SOCK")); err == nil {
+		sshAgent := agent.NewClient(sshAgentConn)
+
+		keys, _ := sshAgent.List()
+		if len(keys) == 0 {
+			return nil, sshAgentConn.Close
+		}
+
+		pubkey, err := ioutil.ReadFile(publicKeyPath)
+		if err != nil {
+			return nil, sshAgentConn.Close
+		}
+
+		authkey, _, _, _, err := ssh.ParseAuthorizedKey(pubkey)
+		if err != nil {
+			return nil, sshAgentConn.Close
+		}
+		parsedkey := authkey.Marshal()
+
+		for _, key := range keys {
+			if bytes.Equal(key.Blob, parsedkey) {
+				return ssh.PublicKeysCallback(sshAgent.Signers), sshAgentConn.Close
+			}
+		}
+	}
+	return nil, func() error { return nil }
+}
+
+func loadPublickey(path string) (ssh.AuthMethod, func() error, error) {
+	noopCloseFunc := func() error { return nil }
 
 	key, err := ioutil.ReadFile(path)
 	if err != nil {
-		panic(err)
+		return nil, noopCloseFunc, err
 	}
+
 	signer, err := ssh.ParsePrivateKey(key)
 	if err != nil {
-		panic(err)
+		if err.Error() != "ssh: cannot decode encrypted private keys" {
+			return nil, noopCloseFunc, err
+		}
+
+		agent, close := sshAgent(path + ".pub")
+		if agent != nil {
+			return agent, close, nil
+		}
+
+		defer close()
+
+		fmt.Printf("Enter passphrase for '%s': ", path)
+		bytePassword, err := terminal.ReadPassword(int(os.Stdin.Fd()))
+		fmt.Println()
+
+		signer, err = ssh.ParsePrivateKeyWithPassphrase(key, bytePassword)
+		if err != nil {
+			return nil, noopCloseFunc, err
+		}
 	}
-	return ssh.PublicKeys(signer)
+
+	return ssh.PublicKeys(signer), noopCloseFunc, nil
 }
