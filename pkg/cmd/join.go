@@ -28,6 +28,7 @@ func MakeJoin() *cobra.Command {
 	command.Flags().String("ssh-key", "~/.ssh/id_rsa", "The ssh key to use for remote login")
 	command.Flags().Int("ssh-port", 22, "The port on which to connect for ssh")
 	command.Flags().Bool("skip-install", false, "Skip the k3s installer")
+	command.Flags().Bool("docker", false, "Use Docker instead of Containerd")
 
 	command.RunE = func(command *cobra.Command, args []string) error {
 
@@ -136,7 +137,13 @@ func setupAgent(serverIP, ip net.IP, port int, user, sshKeyPath, joinToken strin
 
 	defer operator.Close()
 
-	getTokenCommand := fmt.Sprintf(`curl -sfL https://get.k3s.io/ | K3S_URL="https://%s:6443" K3S_TOKEN="%s" sh -`, serverIP.String(), strings.TrimSpace(joinToken))
+	if !useDocker {
+		getTokenCommand := fmt.Sprintf(`curl -sfL https://get.k3s.io/ | K3S_URL="https://%s:6443" K3S_TOKEN="%s" sh -`, serverIP.String(), strings.TrimSpace(joinToken))
+	}
+	else {
+		getTokenCommand := fmt.Sprintf(`curl -sfL https://get.k3s.io/ | INSTALL_K3S_EXEC="--docker" K3S_URL="https://%s:6443" K3S_TOKEN="%s" sh -`, serverIP.String(), strings.TrimSpace(joinToken))
+	}
+	
 	fmt.Printf("ssh: %s\n", getTokenCommand)
 
 	res, err := operator.Execute(getTokenCommand)

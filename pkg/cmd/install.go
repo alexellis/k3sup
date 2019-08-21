@@ -35,12 +35,15 @@ func MakeInstall() *cobra.Command {
 	command.Flags().Int("ssh-port", 22, "The port on which to connect for ssh")
 	command.Flags().Bool("skip-install", false, "Skip the k3s installer")
 	command.Flags().String("local-path", "kubeconfig", "Local path to save the kubeconfig file")
+	command.Flags().Bool("docker", false, "Use Docker instead of Containerd")
 
 	command.RunE = func(command *cobra.Command, args []string) error {
 
 		localKubeconfig, _ := command.Flags().GetString("local-path")
 
 		skipInstall, _ := command.Flags().GetBool("skip-install")
+
+		useDocker, _ := command.Flags().GetBool("docker")
 
 		port, _ := command.Flags().GetInt("ssh-port")
 
@@ -78,7 +81,13 @@ func MakeInstall() *cobra.Command {
 		defer operator.Close()
 
 		if !skipInstall {
-			installK3scommand := fmt.Sprintf("curl -sLS https://get.k3s.io | INSTALL_K3S_EXEC='server --tls-san %s' sh -\n", ip)
+			if !useDocker {
+				installK3scommand := fmt.Sprintf("curl -sLS https://get.k3s.io | INSTALL_K3S_EXEC='server --tls-san %s' sh -\n", ip)
+			}
+			else {
+				installK3scommand := fmt.Sprintf("curl -sLS https://get.k3s.io | INSTALL_K3S_EXEC='server --docker --tls-san %s' sh -\n", ip)
+			}
+
 			fmt.Printf("ssh: %s\n", installK3scommand)
 			res, err := operator.Execute(installK3scommand)
 
