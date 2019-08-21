@@ -116,6 +116,8 @@ In a few moments you will have Kubernetes up and running on your Raspberry Pi 2,
 
 * Flash an SD card using [Raspbian Lite](https://www.raspberrypi.org/downloads/raspbian/)
 
+* In order to enable SSH, create an empty file named `ssh` on the `boot` volume: `touch /Volumes/boot/ssh`
+
 * Generate an ssh-key if you don't already have one with `ssh-keygen` (hit enter to all questions)
 
 * Find the RPi IP with `ping -c raspberrypi.local`, then set `export IP=""` with the IP
@@ -146,7 +148,7 @@ k3s docs: [k3s configuration / open ports](https://rancher.com/docs/k3s/latest/e
 If the ssh-key is encrypted the first step is to try to connect to the ssh-agent. If this works, it will be used to connect to the server.
 If the ssh-agent is not running, the user will be prompted for the password of the ssh-key.
 
-On most Linux systems and MacOS, ssh-agent is automatically configured and executed at login. No additional actions are required to use it. 
+On most Linux systems and MacOS, ssh-agent is automatically configured and executed at login. No additional actions are required to use it.
 
 To start the ssh-agent manually and add your key run the following commands:
 
