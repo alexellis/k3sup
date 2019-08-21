@@ -116,7 +116,7 @@ In a few moments you will have Kubernetes up and running on your Raspberry Pi 2,
 
 * Flash an SD card using [Raspbian Lite](https://www.raspberrypi.org/downloads/raspbian/)
 
-* In order to enable SSH, create an empty file named `ssh` on the `boot` volume: `touch /Volumes/boot/ssh`
+* Enable SSH by creating an empty file named `ssh` in the boot partition
 
 * Generate an ssh-key if you don't already have one with `ssh-keygen` (hit enter to all questions)
 
