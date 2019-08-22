@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 
@@ -18,6 +19,8 @@ import (
 	"golang.org/x/crypto/ssh/agent"
 	"golang.org/x/crypto/ssh/terminal"
 )
+
+var kubeconfig []byte
 
 func MakeInstall() *cobra.Command {
 	var command = &cobra.Command{
@@ -35,6 +38,7 @@ func MakeInstall() *cobra.Command {
 	command.Flags().Int("ssh-port", 22, "The port on which to connect for ssh")
 	command.Flags().Bool("skip-install", false, "Skip the k3s installer")
 	command.Flags().String("local-path", "kubeconfig", "Local path to save the kubeconfig file")
+	command.Flags().Bool("merge", false, "Merge the config with existing kubeconfig if it already exists.\nProvide the --local-path flag with --merge if a kubeconfig already exists in some other directory")
 
 	command.RunE = func(command *cobra.Command, args []string) error {
 
@@ -49,6 +53,7 @@ func MakeInstall() *cobra.Command {
 
 		user, _ := command.Flags().GetString("user")
 		sshKey, _ := command.Flags().GetString("ssh-key")
+		merge, _ := command.Flags().GetBool("merge")
 
 		sshKeyPath := expandPath(sshKey)
 		fmt.Printf("ssh -i %s %s@%s\n", sshKeyPath, user, ip.String())
@@ -101,15 +106,28 @@ func MakeInstall() *cobra.Command {
 		fmt.Printf("Result: %s %s\n", string(res.StdOut), string(res.StdErr))
 
 		absPath, _ := filepath.Abs(localKubeconfig)
-		fmt.Printf("Saving file to: %s\n", absPath)
 
-		kubeconfig := strings.Replace(string(res.StdOut), "localhost", ip.String(), -1)
+		kubeconfig := []byte(strings.Replace(string(res.StdOut), "localhost", ip.String(), -1))
 
-		writeErr := ioutil.WriteFile(absPath, []byte(kubeconfig), 0600)
-		if writeErr != nil {
+		if merge {
+			// Create a merged kubeconfig
+			kubeconfig, err = mergeConfigs(absPath, []byte(kubeconfig))
+			if err != nil {
+				return err
+			}
+		}
+		// Create a new kubeconfig
+		if writeErr := writeConfig(absPath, []byte(kubeconfig), false); writeErr != nil {
 			return writeErr
 		}
 
+		// Switch context
+		fmt.Println("Switching to the current context: default")
+		cmd := exec.Command("kubectl", "config", "set", "current-context", "default")
+		if err := cmd.Run(); err != nil {
+			return fmt.Errorf("Could not switch to 'default' context")
+		}
+		fmt.Println("Context switched to 'default'")
 		return nil
 	}
 
@@ -126,6 +144,53 @@ func MakeInstall() *cobra.Command {
 		return nil
 	}
 	return command
+}
+
+// Generates config files give the path to file: string and the data: []byte
+func writeConfig(path string, data []byte, suppressMessage bool) error {
+	absPath, _ := filepath.Abs(path)
+	if !suppressMessage {
+		fmt.Printf("Saving file to: %s\n", absPath)
+	}
+	writeErr := ioutil.WriteFile(absPath, []byte(data), 0600)
+	if writeErr != nil {
+		return writeErr
+	}
+	return nil
+}
+
+func mergeConfigs(localKubeconfigPath string, k3sconfig []byte) ([]byte, error) {
+	// Create a temporary kubeconfig to store the config of the newly create k3s cluster
+	file, err := ioutil.TempFile(os.TempDir(), "k3s-temp-*")
+	if err != nil {
+		return nil, fmt.Errorf("Could not generate a temporary file to store the kuebeconfig: %s", err)
+	}
+	defer file.Close()
+
+	if writeErr := writeConfig(file.Name(), []byte(k3sconfig), true); writeErr != nil {
+		return nil, writeErr
+	}
+
+	fmt.Printf("Merging with existing kubeconfig at %s\n", localKubeconfigPath)
+
+	// Append KUBECONFIGS in ENV Vars
+	appendKubeConfigENV := fmt.Sprintf("KUBECONFIG=%s:%s", localKubeconfigPath, file.Name())
+
+	// Merge the two kubeconfigs and read the output into 'data'
+	cmd := exec.Command("kubectl", "config", "view", "--merge", "--flatten")
+	cmd.Env = append(os.Environ(), appendKubeConfigENV)
+	data, err := cmd.Output()
+	if err != nil {
+		return nil, fmt.Errorf("Could not merge kubeconfigs: %s", err)
+	}
+
+	// Remove the temporarily generated file
+	err = os.Remove(file.Name())
+	if err != nil {
+		return nil, errors.Wrapf(err, "Could not remove temporary kubeconfig file: %s", file.Name())
+	}
+
+	return data, nil
 }
 
 func expandPath(path string) string {
