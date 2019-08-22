@@ -175,6 +175,10 @@ k3sup --ip $IP --user user
 
     > Alex - Thanks so much for all the effort you put into your tools and tutorials.  My rpi homelab has been a valuable learning playground for CNCF tech thanks to you!
 
+* [k3sup in KubeWeekly #181](https://kubeweekly.io/2019/08/22/kubeweekly-181/)
+
+* [Multi-node Kubernetes on Civo in 5 minutes flat with k3sup!](https://www.civo.com/learn/kubernetes-on-civo-in-5-minutes-flat)
+
 * [k3sup mentioned on Kubernetes Podcast episode 67](https://kubernetespodcast.com/episode/067-orka/)
 
 * Checkout the [Announcement tweet](https://twitter.com/alexellisuk/status/1162272786250735618?s=20)
