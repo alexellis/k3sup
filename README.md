@@ -120,11 +120,11 @@ In a few moments you will have Kubernetes up and running on your Raspberry Pi 2,
 
 * Generate an ssh-key if you don't already have one with `ssh-keygen` (hit enter to all questions)
 
-* Find the RPi IP with `ping -c raspberrypi.local`, then set `export IP=""` with the IP
+* Find the RPi IP with `ping -c raspberrypi.local`, then set `export SERVER_IP=""` with the IP
 
 * Copy over your ssh key with: `ssh-copy-id pi@raspberrypi.local`
 
-* Run `k3sup --ip $IP --user pi`
+* Run `k3sup install --ip $SERVER_IP --user pi`
 
 * Point at the config file and get the status of the node:
 
@@ -134,6 +134,12 @@ kubectl get node -o wide
 ```
 
 You now have `kubectl` access from your laptop to your Raspberry Pi running k3s.
+
+If you want to join some nodes, run `export IP=""` for each additional RPi, followed by:
+
+* `k3sup join --ip $IP --server-ip $SERVER_IP --user pi`
+
+> Remember all these commands are run from your computer, not the RPi.
 
 Now where next? I would recommend my detailed tutorial where I spend time looking at how to flash the SD card, deploy k3s, deploy OpenFaaS (for some useful microservices), and then get incoming HTTP traffic.
 
