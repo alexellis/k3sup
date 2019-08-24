@@ -124,7 +124,7 @@ In a few moments you will have Kubernetes up and running on your Raspberry Pi 2,
 
 * Copy over your ssh key with: `ssh-copy-id pi@raspberrypi.local`
 
-* Run `k3sup --ip $IP --user pi`
+* Run `k3sup install --ip $IP --user pi`
 
 * Point at the config file and get the status of the node:
 
