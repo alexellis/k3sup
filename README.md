@@ -73,6 +73,7 @@ Other options for `install`:
 * `--ssh-key` - specify a specific path for the SSH key for remote login
 * `--local-path` - default is `./kubeconfig` - set the path into which you want to save your VM's `kubeconfig`
 * `--ssh-port` - default is `22`, but you can specify an alternative port i.e. `2222`
+* `--k3s-extra-args` - Optional extra arguments to pass to k3s installer, wrapped in quotes, i.e. `--k3s-extra-args '--docker --no-deploy servicelb'`
 
 * Now try the access:
 

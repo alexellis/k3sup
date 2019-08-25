@@ -28,6 +28,7 @@ func MakeJoin() *cobra.Command {
 	command.Flags().String("ssh-key", "~/.ssh/id_rsa", "The ssh key to use for remote login")
 	command.Flags().Int("ssh-port", 22, "The port on which to connect for ssh")
 	command.Flags().Bool("skip-install", false, "Skip the k3s installer")
+	command.Flags().String("k3s-extra-args", "", "Optional extra arguments to pass to k3s installer, wrapped in quotes (e.g. --k3s-extra-args '--node-taint key=value:NoExecute')")
 
 	command.RunE = func(command *cobra.Command, args []string) error {
 
@@ -41,6 +42,8 @@ func MakeJoin() *cobra.Command {
 		sshKey, _ := command.Flags().GetString("ssh-key")
 
 		port, _ := command.Flags().GetInt("ssh-port")
+
+		k3sExtraArgs, _ := command.Flags().GetString("k3s-extra-args")
 
 		sshKeyPath := expandPath(sshKey)
 		fmt.Printf("ssh -i %s %s@%s\n", sshKeyPath, user, serverIP.String())
@@ -84,7 +87,7 @@ func MakeJoin() *cobra.Command {
 
 		joinToken := string(res.StdOut)
 
-		setupAgent(serverIP, ip, port, user, sshKeyPath, joinToken)
+		setupAgent(serverIP, ip, port, user, sshKeyPath, joinToken, k3sExtraArgs)
 
 		return nil
 	}
@@ -110,7 +113,7 @@ func MakeJoin() *cobra.Command {
 	return command
 }
 
-func setupAgent(serverIP, ip net.IP, port int, user, sshKeyPath, joinToken string) error {
+func setupAgent(serverIP, ip net.IP, port int, user, sshKeyPath, joinToken string, k3sExtraArgs string) error {
 
 	authMethod, closeSSHAgent, err := loadPublickey(sshKeyPath)
 	if err != nil {
@@ -136,7 +139,7 @@ func setupAgent(serverIP, ip net.IP, port int, user, sshKeyPath, joinToken strin
 
 	defer operator.Close()
 
-	getTokenCommand := fmt.Sprintf(`curl -sfL https://get.k3s.io/ | K3S_URL="https://%s:6443" K3S_TOKEN="%s" sh -`, serverIP.String(), strings.TrimSpace(joinToken))
+	getTokenCommand := fmt.Sprintf(`curl -sfL https://get.k3s.io/ | K3S_URL="https://%s:6443" K3S_TOKEN="%s" sh - %s`, serverIP.String(), strings.TrimSpace(joinToken), k3sExtraArgs)
 	fmt.Printf("ssh: %s\n", getTokenCommand)
 
 	res, err := operator.Execute(getTokenCommand)
