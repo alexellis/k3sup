@@ -1,0 +1,23 @@
+builds:
+- binary: k3sup
+  goarch:
+    - amd64
+  env:
+  - CGO_ENABLED=0
+  ldflags:
+   - -s -w -X github.com/alexellis/k3sup/pkg/cmd.Version={{.Version}}
+   - -X github.com/alexellis/k3sup/pkg/cmd.GitCommit={{.ShortCommit}}
+archive:
+  replacements:
+    darwin: Darwin
+    linux: Linux
+    windows: Windows
+    amd64: x86_64
+    armhf: arm
+    arm64: arm64
+  files:
+  - none*
+changelog:
+  skip: true
+checksum:
+  name_template: 'checksums.txt'
