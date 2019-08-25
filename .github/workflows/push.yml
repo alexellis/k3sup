@@ -1,0 +1,13 @@
+on: push
+
+name: Build and test
+jobs:
+  buildDockerImage:
+    name: Build docker image
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: Build docker image
+      uses: actions/docker/cli@master
+      with:
+        args: build -t k3sup --build-arg VERSION=${GITHUB_REF#refs/tags/} .

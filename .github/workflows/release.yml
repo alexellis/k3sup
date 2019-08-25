@@ -1,0 +1,26 @@
+on: release
+
+name: Build, test and publish
+jobs:
+  buildDockerImage:
+    name: Build docker image
+    runs-on: ubuntu-latest
+    steps:
+    - name: Is release published?
+      if: github.event.action != 'published'
+      run: exit 78
+    - uses: actions/checkout@master
+    - name: Build docker image
+      uses: actions/docker/cli@master
+      with:
+        args: build -t yace --build-arg VERSION=${{ github.event.release.tag_name }} COMMIT=${{ github.sha }} .
+    - name: Release if tagged
+      uses: actions/bin/filter@master
+      with:
+        args: tag v*
+    - name: Build && release binaries
+      uses: docker://goreleaser/goreleaser:v0.104
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        args: release
