@@ -14,10 +14,6 @@ jobs:
       uses: actions/docker/cli@master
       with:
         args: build -t yace --build-arg VERSION=${{ github.event.release.tag_name }} --build-arg COMMIT=${{ github.sha }} .
-    - name: Release if tagged
-      uses: actions/bin/filter@master
-      with:
-        args: tag v*
     - name: Build && release binaries
       uses: docker://goreleaser/goreleaser:v0.104
       env:
