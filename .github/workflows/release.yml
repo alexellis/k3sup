@@ -13,7 +13,7 @@ jobs:
     - name: Build docker image
       uses: actions/docker/cli@master
       with:
-        args: build -t yace --build-arg VERSION=${{ github.event.release.tag_name }} COMMIT=${{ github.sha }} .
+        args: build -t yace --build-arg VERSION=${{ github.event.release.tag_name }} --build-arg COMMIT=${{ github.sha }} .
     - name: Release if tagged
       uses: actions/bin/filter@master
       with:
