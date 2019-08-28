@@ -17,7 +17,7 @@ k3sup was developed to automate what can be a very manual and confusing process 
 Uses:
 
 * Bootstrap Kubernetes with k3s onto any VM - either manually, during CI or through `cloudinit`
-* Get from zero to `kubectl` with `k3s` on Raspberry Pi (RPi), VMs, AWS EC2, DigitalOcean, Civo, Scaleway and more
+* Get from zero to `kubectl` with `k3s` on Raspberry Pi (RPi), VMs, AWS EC2, Packet bare-metal, DigitalOcean, Civo, Scaleway, and others
 * Fetch a working KUBECONFIG from an existing `k3s` cluster
 * Join nodes into an existing `k3s` cluster with `k3sup join`
 
