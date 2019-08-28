@@ -116,18 +116,12 @@ func MakeInstall() *cobra.Command {
 				return err
 			}
 		}
+
 		// Create a new kubeconfig
 		if writeErr := writeConfig(absPath, []byte(kubeconfig), false); writeErr != nil {
 			return writeErr
 		}
 
-		// Switch context
-		fmt.Println("Switching to the current context: default")
-		cmd := exec.Command("kubectl", "config", "set", "current-context", "default")
-		if err := cmd.Run(); err != nil {
-			return fmt.Errorf("Could not switch to 'default' context")
-		}
-		fmt.Println("Context switched to 'default'")
 		return nil
 	}
 
