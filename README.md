@@ -46,11 +46,17 @@ Watch the demo:
 
 [![asciicast](https://asciinema.org/a/262630.svg)](https://asciinema.org/a/262630)
 
+## Who is the author? 👏
+
+`k3sup` is Open Source Software (OSS) and was created by [Alex Ellis](https://www.alexellis.io/) - the Founder of [OpenFaaS &reg;](https://www.openfaas.com/) and a voluntary [CNCF Ambassador](https://www.cncf.io/people/ambassadors/).
+
+The project is not funded by any company. Show your support for Alex and his work through [GitHub Sponsors](https://github.com/users/alexellis/sponsorship). Individuals or companies can sponsor Alex and it starts from as little as the price of a coffee.
+
 ## Usage ✅
 
 The `k3sup` tool is designed to be run on your desktop/laptop computer, but binaries are provided for MacOS, Windows, and Linux (including ARM).
 
-### Setup a Kubernetes server
+### Setup a Kubernetes *server* with `k3sup`
 
 You can setup a server and stop here, or go on to use the `join` command to add some "agents" aka `nodes` or `workers` into the cluster to expand its compute capacity.
 
