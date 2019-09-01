@@ -2,6 +2,12 @@ builds:
 - binary: k3sup
   goarch:
     - amd64
+    - arm
+    - arm64
+  goos:
+    - darwin
+    - linux
+    - windows
   env:
   - CGO_ENABLED=0
   ldflags:
