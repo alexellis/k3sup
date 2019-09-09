@@ -139,7 +139,7 @@ func setupAgent(serverIP, ip net.IP, port int, user, sshKeyPath, joinToken strin
 
 	defer operator.Close()
 
-	getTokenCommand := fmt.Sprintf(`curl -sfL https://get.k3s.io/ | K3S_URL="https://%s:6443" K3S_TOKEN="%s" sh - %s`, serverIP.String(), strings.TrimSpace(joinToken), k3sExtraArgs)
+	getTokenCommand := fmt.Sprintf("curl -sfL https://get.k3s.io/ | K3S_URL='https://%s:6443' K3S_TOKEN='%s' sh -s - %s", serverIP.String(), strings.TrimSpace(joinToken), k3sExtraArgs)
 	fmt.Printf("ssh: %s\n", getTokenCommand)
 
 	res, err := operator.Execute(getTokenCommand)
