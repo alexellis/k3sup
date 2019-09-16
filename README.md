@@ -50,7 +50,9 @@ Watch the demo:
 
 `k3sup` is Open Source Software (OSS) and was created by [Alex Ellis](https://www.alexellis.io/) - the Founder of [OpenFaaS &reg;](https://www.openfaas.com/) and a voluntary [CNCF Ambassador](https://www.cncf.io/people/ambassadors/).
 
-The project is not funded by any company. Show your support for Alex and his work through [GitHub Sponsors](https://github.com/users/alexellis/sponsorship). Individuals or companies can sponsor Alex and it starts from as little as the price of a coffee.
+Do you like `k3sup` or enjoy any of Alex's other work? 🍻
+
+Join dozens of other developers 🏆 in supporting Alex and his work through [GitHub Sponsors](https://github.com/users/alexellis/sponsorship) today. You'll get into the Insiders Track and access to regular email updates on all his work.
 
 ## Usage ✅
 
@@ -227,11 +229,11 @@ MIT
 
 ### Blog posts & tweets
 
-Blogs posts, tutorials, and Tweets about k3sup are appreciated. Please send a PR to the README.md file to add yours.
+Blogs posts, tutorials, and Tweets about k3sup (`#k3sup`) are appreciated. Please send a PR to the README.md file to add yours.
 
-### Say thanks
+### Say thanks ☕️ 👏
 
-Buy the author a coffee and show your support for `k3sup` through [GitHub Sponsors](https://github.com/users/alexellis/sponsorship).
+Show your support for `k3sup` through [GitHub Sponsors](https://github.com/users/alexellis/sponsorship) from 5USD.
 
 ### Contributing via GitHub
 
