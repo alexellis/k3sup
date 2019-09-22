@@ -29,6 +29,7 @@ func MakeJoin() *cobra.Command {
 	command.Flags().Int("ssh-port", 22, "The port on which to connect for ssh")
 	command.Flags().Bool("skip-install", false, "Skip the k3s installer")
 	command.Flags().String("k3s-extra-args", "", "Optional extra arguments to pass to k3s installer, wrapped in quotes (e.g. --k3s-extra-args '--node-taint key=value:NoExecute')")
+	command.Flags().String("k3s-extra-envs", "", "Optional exta environment variables to pass to k3s installer, wrapped in quotes (e.g. --k3s-extra-envs 'INSTALL_K3S_VERSION=vX.Y.Z-rc')")
 
 	command.RunE = func(command *cobra.Command, args []string) error {
 
@@ -44,6 +45,7 @@ func MakeJoin() *cobra.Command {
 		port, _ := command.Flags().GetInt("ssh-port")
 
 		k3sExtraArgs, _ := command.Flags().GetString("k3s-extra-args")
+		k3sExtraEnvs, _ := command.Flags().GetString("k3s-extra-envs")
 
 		sshKeyPath := expandPath(sshKey)
 		fmt.Printf("ssh -i %s %s@%s\n", sshKeyPath, user, serverIP.String())
@@ -87,7 +89,7 @@ func MakeJoin() *cobra.Command {
 
 		joinToken := string(res.StdOut)
 
-		setupAgent(serverIP, ip, port, user, sshKeyPath, joinToken, k3sExtraArgs)
+		setupAgent(serverIP, ip, port, user, sshKeyPath, joinToken, k3sExtraArgs, k3sExtraEnvs)
 
 		return nil
 	}
@@ -113,7 +115,7 @@ func MakeJoin() *cobra.Command {
 	return command
 }
 
-func setupAgent(serverIP, ip net.IP, port int, user, sshKeyPath, joinToken string, k3sExtraArgs string) error {
+func setupAgent(serverIP, ip net.IP, port int, user, sshKeyPath, joinToken string, k3sExtraArgs string, k3sExtraEnvs string) error {
 
 	authMethod, closeSSHAgent, err := loadPublickey(sshKeyPath)
 	if err != nil {
@@ -139,7 +141,7 @@ func setupAgent(serverIP, ip net.IP, port int, user, sshKeyPath, joinToken strin
 
 	defer operator.Close()
 
-	getTokenCommand := fmt.Sprintf("curl -sfL https://get.k3s.io/ | K3S_URL='https://%s:6443' K3S_TOKEN='%s' sh -s - %s", serverIP.String(), strings.TrimSpace(joinToken), k3sExtraArgs)
+	getTokenCommand := fmt.Sprintf("curl -sfL https://get.k3s.io/ | K3S_URL='https://%s:6443' K3S_TOKEN='%s' %s sh -s - %s", serverIP.String(), strings.TrimSpace(joinToken), k3sExtraEnvs, k3sExtraArgs)
 	fmt.Printf("ssh: %s\n", getTokenCommand)
 
 	res, err := operator.Execute(getTokenCommand)
