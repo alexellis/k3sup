@@ -80,6 +80,7 @@ Other options for `install`:
 * `--skip-install` - if you already have k3s installed, you can just run this command to get the `kubeconfig`
 * `--ssh-key` - specify a specific path for the SSH key for remote login
 * `--local-path` - default is `./kubeconfig` - set the path into which you want to save your VM's `kubeconfig`
+* `--context` - default is `default` - set the name of the kubeconfig context.
 * `--ssh-port` - default is `22`, but you can specify an alternative port i.e. `2222`
 * `--k3s-extra-args` - Optional extra arguments to pass to k3s installer, wrapped in quotes, i.e. `--k3s-extra-args '--docker --no-deploy servicelb'`
 
