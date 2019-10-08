@@ -26,12 +26,28 @@
   revision = "39771216ff4c63d11f5e604076f9c45e8be1067b"
 
 [[projects]]
+  digest = "1:f751f08e75f52495a002168ac1f31f5f6058ac9e0d469ef2babc5566ed6db58b"
+  name = "github.com/openfaas-incubator/ofc-bootstrap"
+  packages = ["pkg/execute"]
+  pruneopts = "UT"
+  revision = "e753726b2fa69c59c7eeb241394d01e97a6e5129"
+  version = "0.7.3"
+
+[[projects]]
   digest = "1:cf31692c14422fa27c83a05292eb5cbe0fb2775972e8f1f8446a71549bd8980b"
   name = "github.com/pkg/errors"
   packages = ["."]
   pruneopts = "UT"
   revision = "ba968bfe8b2f7e042a574c888954fccecfa385b4"
   version = "v0.8.1"
+
+[[projects]]
+  digest = "1:1af58d182e3b1008d25d7ba65ff7c2631a246023d3b814f9ba8c7919aded59f3"
+  name = "github.com/sethvargo/go-password"
+  packages = ["password"]
+  pruneopts = "UT"
+  revision = "bc15c697eeda69a082991d2f1ed37660658fea32"
+  version = "v0.1.2"
 
 [[projects]]
   digest = "1:e096613fb7cf34743d49af87d197663cfccd61876e2219853005a57baedfa562"
@@ -85,7 +101,9 @@
   input-imports = [
     "github.com/mitchellh/go-homedir",
     "github.com/morikuni/aec",
+    "github.com/openfaas-incubator/ofc-bootstrap/pkg/execute",
     "github.com/pkg/errors",
+    "github.com/sethvargo/go-password/password",
     "github.com/spf13/cobra",
     "golang.org/x/crypto/ssh",
     "golang.org/x/crypto/ssh/agent",
