@@ -9,6 +9,11 @@ import (
 	"path"
 	"strings"
 
+	"github.com/sethvargo/go-password/password"
+
+	"github.com/alexellis/k3sup/pkg/config"
+	"github.com/openfaas-incubator/ofc-bootstrap/pkg/execute"
+
 	"github.com/spf13/cobra"
 )
 
@@ -102,8 +107,15 @@ func makeInstallOpenFaaS() *cobra.Command {
 	}
 
 	openfaas.Flags().Bool("loadbalancer", false, "add a loadbalancer")
+	openfaas.Flags().StringP("namespace", "n", "openfaas", "Namepsace for core services")
 
 	openfaas.RunE = func(command *cobra.Command, args []string) error {
+
+		err := config.InitUserDir()
+		if err != nil {
+			return err
+		}
+
 		kubeConfigPath := path.Join(os.Getenv("HOME"), ".kube/config")
 
 		if val, ok := os.LookupEnv("KUBECONFIG"); ok {
@@ -115,14 +127,156 @@ func makeInstallOpenFaaS() *cobra.Command {
 		fmt.Printf("Using context: %s\n", kubeConfigPath)
 
 		lb, _ := command.Flags().GetBool("loadbalancer")
-		err := installOpenFaaS(kubeConfigPath, lb)
+
+		namespace, _ := command.Flags().GetString("namespace")
+
+		err = addHelmRepo("openfaas", "https://openfaas.github.io/faas-netes/")
+		if err != nil {
+			return err
+		}
+
+		err = updateHelmRepos()
 
 		if err != nil {
 			return err
 		}
 
-		return nil
+		err = installOpenFaaS(kubeConfigPath, lb)
+
+		if err != nil {
+			return err
+		}
+
+		err = kubectl("apply", "-f", "https://raw.githubusercontent.com/openfaas/faas-netes/master/namespaces.yml")
+
+		if err != nil {
+			return err
+		}
+
+		pass, err := password.Generate(25, 10, 0, false, true)
+		if err != nil {
+			return err
+		}
+
+		err = kubectl("-n", "openfaas", "create", "secret", "generic", "basic-auth", "--from-literal=basic-auth-user=admin", "--from-literal=basic-auth-password='"+pass+"', ")
+
+		if err != nil {
+			return err
+		}
+
+		chartPath := path.Join(os.TempDir(), "charts")
+
+		err = fetchChart(chartPath, "openfaas/openfaas")
+
+		if err != nil {
+			return err
+		}
+
+		outputPath := path.Join(chartPath, "openfaas/rendered")
+		err = templateChart(chartPath, "openfaas", namespace, outputPath, "values.yaml")
+		if err != nil {
+			return err
+		}
+
+		err = kubectl("apply", "-R", "-f", outputPath)
+
+		return err
 	}
 
 	return openfaas
+}
+
+func fetchChart(path, chart string) error {
+	mkErr := os.MkdirAll(path, 0700)
+
+	if mkErr != nil {
+		return mkErr
+	}
+	task := execute.ExecTask{
+		Command: fmt.Sprintf("helm fetch %s --untar --untardir %s", chart, path),
+	}
+	res, err := task.Execute()
+
+	if err != nil {
+		return err
+	}
+
+	if res.ExitCode != 0 {
+		return fmt.Errorf("exit code %d", res.ExitCode)
+	}
+	return nil
+}
+
+func templateChart(basePath, chart, namespace, outputPath, values string) error {
+
+	mkErr := os.MkdirAll(outputPath, 0700)
+	if mkErr != nil {
+		return mkErr
+	}
+
+	chartRoot := path.Join(basePath, chart)
+	task := execute.ExecTask{
+		Command: fmt.Sprintf("helm template %s --output-dir %s --values %s --namespace %s",
+			chart, outputPath, path.Join(chartRoot, values), namespace),
+		Cwd: basePath,
+	}
+
+	res, err := task.Execute()
+
+	if err != nil {
+		return err
+	}
+
+	if res.ExitCode != 0 {
+		return fmt.Errorf("exit code %d", res.ExitCode)
+	}
+	return nil
+}
+
+func addHelmRepo(name, url string) error {
+	task := execute.ExecTask{
+		Command: fmt.Sprintf("helm repo add %s %s", name, url),
+	}
+	res, err := task.Execute()
+
+	if err != nil {
+		return err
+	}
+
+	if res.ExitCode != 0 {
+		return fmt.Errorf("exit code %d", res.ExitCode)
+	}
+	return nil
+}
+
+func updateHelmRepos() error {
+	task := execute.ExecTask{
+		Command: fmt.Sprintf("helm repo update"),
+	}
+	res, err := task.Execute()
+
+	if err != nil {
+		return err
+	}
+
+	if res.ExitCode != 0 {
+		return fmt.Errorf("exit code %d", res.ExitCode)
+	}
+	return nil
+}
+
+func kubectl(parts ...string) error {
+	task := execute.ExecTask{
+		Command: strings.Join(append([]string{"kubectl"}, parts...), " "),
+	}
+	res, err := task.Execute()
+
+	if err != nil {
+		return err
+	}
+
+	if res.ExitCode != 0 {
+		return fmt.Errorf("exit code %d", res.ExitCode)
+	}
+	return nil
 }
