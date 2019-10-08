@@ -114,7 +114,7 @@ func MakeInstall() *cobra.Command {
 
 		absPath, _ := filepath.Abs(localKubeconfig)
 
-		kubeconfig := []byte(strings.Replace(string(res.StdOut), "localhost", ip.String(), -1))
+		kubeconfig := []byte(strings.NewReplacer("localhost", ip.String(), "127.0.0.1", ip.String()).Replace(string(res.StdOut)))
 
 		if merge {
 			// Create a merged kubeconfig
