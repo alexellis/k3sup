@@ -11,8 +11,8 @@ import (
 
 	"github.com/sethvargo/go-password/password"
 
+	"github.com/alexellis/go-execute"
 	"github.com/alexellis/k3sup/pkg/config"
-	"github.com/openfaas-incubator/ofc-bootstrap/pkg/execute"
 
 	"github.com/spf13/cobra"
 )
