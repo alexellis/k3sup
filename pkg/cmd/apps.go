@@ -2,10 +2,7 @@ package cmd
 
 import (
 	"fmt"
-	"io/ioutil"
-	"net/http"
 	"os"
-	"os/exec"
 	"path"
 	"strings"
 
@@ -58,45 +55,6 @@ func getApps() []string {
 	return []string{"openfaas"}
 }
 
-func installOpenFaaS(kubeconfigPath string, loadBalancer bool) error {
-
-	res, err := http.Get("https://raw.githubusercontent.com/openfaas/faas-netes/master/install.sh")
-	if err != nil {
-		return err
-	}
-	defer res.Body.Close()
-
-	out, _ := ioutil.ReadAll(res.Body)
-
-	val := string(out)
-	if !loadBalancer {
-		val = strings.Replace(val, "LoadBalancer", "NodePort", -1)
-	}
-
-	script := path.Join(os.TempDir(), "install.sh")
-
-	err = ioutil.WriteFile(script, []byte(val), 0600)
-	if err != nil {
-		return err
-	}
-
-	fmt.Printf("Wrote script to: %s\n", script)
-
-	cmd1 := exec.Command("/bin/bash", script)
-	cmd1.Env = append(os.Environ(), "KUBECONFIG="+kubeconfigPath)
-	cmd1.Stderr = os.Stderr
-	cmd1.Stdout = os.Stdout
-
-	startErr := cmd1.Start()
-	if startErr != nil {
-		return startErr
-	}
-
-	cmd1.Wait()
-
-	return nil
-}
-
 func makeInstallOpenFaaS() *cobra.Command {
 	var openfaas = &cobra.Command{
 		Use:          "openfaas",
@@ -107,7 +65,7 @@ func makeInstallOpenFaaS() *cobra.Command {
 	}
 
 	openfaas.Flags().Bool("loadbalancer", false, "add a loadbalancer")
-	openfaas.Flags().StringP("namespace", "n", "openfaas", "Namepsace for core services")
+	openfaas.Flags().StringP("namespace", "n", "openfaas", "Namespace for core services")
 
 	openfaas.RunE = func(command *cobra.Command, args []string) error {
 		arch := getArchitecture()
@@ -134,7 +92,7 @@ func makeInstallOpenFaaS() *cobra.Command {
 		}
 		fmt.Printf("Using context: %s\n", kubeConfigPath)
 
-		lb, _ := command.Flags().GetBool("loadbalancer")
+		// lb, _ := command.Flags().GetBool("loadbalancer")
 
 		namespace, _ := command.Flags().GetString("namespace")
 
@@ -149,11 +107,11 @@ func makeInstallOpenFaaS() *cobra.Command {
 			return err
 		}
 
-		err = installOpenFaaS(kubeConfigPath, lb)
+		// err = installOpenFaaS(kubeConfigPath, lb)
 
-		if err != nil {
-			return err
-		}
+		// if err != nil {
+		// 	return err
+		// }
 
 		err = kubectl("apply", "-f", "https://raw.githubusercontent.com/openfaas/faas-netes/master/namespaces.yml")
 
@@ -166,7 +124,7 @@ func makeInstallOpenFaaS() *cobra.Command {
 			return err
 		}
 
-		err = kubectl("-n", "openfaas", "create", "secret", "generic", "basic-auth", "--from-literal=basic-auth-user=admin", "--from-literal=basic-auth-password='"+pass+"', ")
+		err = kubectl("-n", namespace, "create", "secret", "generic", "basic-auth", "--from-literal=basic-auth-user=admin", "--from-literal=basic-auth-password='"+pass+"', ")
 
 		if err != nil {
 			return err
