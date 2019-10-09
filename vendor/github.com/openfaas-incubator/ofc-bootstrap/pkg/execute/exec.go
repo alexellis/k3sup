@@ -10,6 +10,7 @@ import (
 
 type ExecTask struct {
 	Command string
+	Args    []string
 	Shell   bool
 	Env     []string
 	Cwd     string
@@ -43,7 +44,7 @@ func (et ExecTask) Execute() (ExecResult, error) {
 			cmd = exec.Command(command, args...)
 
 		} else {
-			cmd = exec.Command(et.Command)
+			cmd = exec.Command(et.Command, et.Args...)
 		}
 	}
 

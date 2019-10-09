@@ -110,6 +110,14 @@ func makeInstallOpenFaaS() *cobra.Command {
 	openfaas.Flags().StringP("namespace", "n", "openfaas", "Namepsace for core services")
 
 	openfaas.RunE = func(command *cobra.Command, args []string) error {
+		arch := getArchitecture()
+		fmt.Printf("Node architecture: %s\n", arch)
+
+		valuesSuffix := ""
+		switch arch {
+		case "arm":
+			valuesSuffix = "-armhf"
+		}
 
 		err := config.InitUserDir()
 		if err != nil {
@@ -173,7 +181,7 @@ func makeInstallOpenFaaS() *cobra.Command {
 		}
 
 		outputPath := path.Join(chartPath, "openfaas/rendered")
-		err = templateChart(chartPath, "openfaas", namespace, outputPath, "values.yaml")
+		err = templateChart(chartPath, "openfaas", namespace, outputPath, "values"+valuesSuffix+".yaml")
 		if err != nil {
 			return err
 		}
@@ -205,6 +213,14 @@ func fetchChart(path, chart string) error {
 		return fmt.Errorf("exit code %d", res.ExitCode)
 	}
 	return nil
+}
+
+func getArchitecture() string {
+	res, _ := kubectlTask("get", "nodes", `--output`, `jsonpath={range $.items[0]}{.status.nodeInfo.architecture}`)
+
+	arch := strings.TrimSpace(string(res.Stdout))
+
+	return arch
 }
 
 func templateChart(basePath, chart, namespace, outputPath, values string) error {
@@ -265,10 +281,23 @@ func updateHelmRepos() error {
 	return nil
 }
 
+func kubectlTask(parts ...string) (execute.ExecResult, error) {
+	task := execute.ExecTask{
+		Command: "kubectl",
+		Args:    parts,
+	}
+
+	res, err := task.Execute()
+
+	return res, err
+}
+
 func kubectl(parts ...string) error {
 	task := execute.ExecTask{
-		Command: strings.Join(append([]string{"kubectl"}, parts...), " "),
+		Command: "kubectl",
+		Args:    parts,
 	}
+
 	res, err := task.Execute()
 
 	if err != nil {
