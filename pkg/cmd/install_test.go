@@ -40,7 +40,7 @@ func Test_loadPublickeyEncrypted(t *testing.T) {
 	}
 
 	tmpfile.Close()
-	_, err = loadPublickey(tmpfile.Name())
+	_, _, err = loadPublickey(tmpfile.Name())
 	if err.Error() != expected {
 		t.Errorf("Unexpected error, got: %q, want: %q.", err.Error(), expected)
 	}
