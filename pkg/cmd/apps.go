@@ -107,12 +107,6 @@ func makeInstallOpenFaaS() *cobra.Command {
 			return err
 		}
 
-		// err = installOpenFaaS(kubeConfigPath, lb)
-
-		// if err != nil {
-		// 	return err
-		// }
-
 		err = kubectl("apply", "-f", "https://raw.githubusercontent.com/openfaas/faas-netes/master/namespaces.yml")
 
 		if err != nil {

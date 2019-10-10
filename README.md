@@ -91,6 +91,26 @@ export KUBECONFIG=`pwd`/kubeconfig
 kubectl get node
 ```
 
+### Install an `app` with `k3sup`
+
+Install apps with `k3sup` `>=0.4.0` directly into any Kubernetes cluster, all you need is `kubectl` access.
+
+You can install [openfaas](https://github.com/openfaas/faas) for Kubernetes in a single command, it will detect whether you're using a Raspberry Pi or a regular computer.
+
+```sh
+k3sup app install openfaas
+```
+
+Find out more:
+
+```sh
+k3sup app --help
+k3sup app install --help
+k3sup app install openfaas --help
+```
+
+Want to request an app? Raise an issue or let me know on [Slack](https://slack.openfaas.io).
+
 ### Join some agents to your Kubernetes server
 
 Let's say that you have a server, and have already run the following:
