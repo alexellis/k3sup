@@ -124,7 +124,7 @@ func makeInstallOpenFaaS() *cobra.Command {
 			return err
 		}
 
-		err = kubectl("-n", namespace, "create", "secret", "generic", "basic-auth", "--from-literal=basic-auth-user=admin", "--from-literal=basic-auth-password='"+pass+"', ")
+		_, err = kubectlTask("-n", namespace, "create", "secret", "generic", "basic-auth", "--from-literal=basic-auth-user=admin", `--from-literal=basic-auth-password=`+pass)
 
 		if err != nil {
 			return err
