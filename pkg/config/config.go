@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"os"
+	"path"
 )
 
 // K3sVersion default version
@@ -10,16 +11,23 @@ const K3sVersion = "v0.8.1"
 
 func InitUserDir() (string, error) {
 	home := os.Getenv("HOME")
-	fullPath := fmt.Sprintf("%s/k3sup/.bin/", home)
+	root := fmt.Sprintf("%s/.k3sup/", home)
 
 	if len(home) == 0 {
-		return fullPath, fmt.Errorf("env-var HOME, not set")
+		return home, fmt.Errorf("env-var HOME, not set")
 	}
 
-	err := os.MkdirAll(fullPath, 0700)
+	binPath := path.Join(root, "/.bin/")
+	err := os.MkdirAll(binPath, 0700)
 	if err != nil {
-		return fullPath, err
+		return binPath, err
 	}
 
-	return fullPath, nil
+	helmPath := path.Join(root, "/.helm/")
+	helmErr := os.MkdirAll(helmPath, 0700)
+	if helmErr != nil {
+		return helmPath, helmErr
+	}
+
+	return root, nil
 }

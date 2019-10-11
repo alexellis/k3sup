@@ -17,7 +17,8 @@ func fetchChart(path, chart string) error {
 	}
 
 	task := execute.ExecTask{
-		Command: fmt.Sprintf("helm fetch %s --untar --untardir %s", chart, path),
+		Command: fmt.Sprintf("%s fetch %s --untar --untardir %s", localBinary("helm"), chart, path),
+		Env:     os.Environ(),
 	}
 	res, err := task.Execute()
 
@@ -48,8 +49,9 @@ func templateChart(basePath, chart, namespace, outputPath, values string) error 
 
 	chartRoot := path.Join(basePath, chart)
 	task := execute.ExecTask{
-		Command: fmt.Sprintf("helm template %s --output-dir %s --values %s --namespace %s",
-			chart, outputPath, path.Join(chartRoot, values), namespace),
+		Command: fmt.Sprintf("%s template %s --output-dir %s --values %s --namespace %s",
+			localBinary("helm"), chart, outputPath, path.Join(chartRoot, values), namespace),
+		Env: os.Environ(),
 		Cwd: basePath,
 	}
 
@@ -65,9 +67,15 @@ func templateChart(basePath, chart, namespace, outputPath, values string) error 
 	return nil
 }
 
+func localBinary(name string) string {
+	home := os.Getenv("HOME")
+	return path.Join(path.Join(home, ".k3sup/.bin/"), name)
+}
+
 func addHelmRepo(name, url string) error {
 	task := execute.ExecTask{
-		Command: fmt.Sprintf("helm repo add %s %s", name, url),
+		Command: fmt.Sprintf("%s repo add %s %s", localBinary("helm"), name, url),
+		Env:     os.Environ(),
 	}
 	res, err := task.Execute()
 
@@ -83,7 +91,26 @@ func addHelmRepo(name, url string) error {
 
 func updateHelmRepos() error {
 	task := execute.ExecTask{
-		Command: fmt.Sprintf("helm repo update"),
+		Command: fmt.Sprintf("%s repo update", localBinary("helm")),
+		Env:     os.Environ(),
+	}
+	res, err := task.Execute()
+
+	if err != nil {
+		return err
+	}
+
+	if res.ExitCode != 0 {
+		return fmt.Errorf("exit code %d", res.ExitCode)
+	}
+	return nil
+}
+
+func helmInit() error {
+	task := execute.ExecTask{
+		Command: fmt.Sprintf("%s", localBinary("helm")),
+		Env:     os.Environ(),
+		Args:    []string{"init", "--client-only"},
 	}
 	res, err := task.Execute()
 

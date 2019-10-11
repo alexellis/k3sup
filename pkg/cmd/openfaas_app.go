@@ -2,7 +2,10 @@ package cmd
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
+	"net/http"
+	"net/url"
 	"os"
 	"path"
 	"strings"
@@ -29,6 +32,18 @@ func makeInstallOpenFaaS() *cobra.Command {
 	openfaas.Flags().StringP("namespace", "n", "openfaas", "Namespace for core services")
 
 	openfaas.RunE = func(command *cobra.Command, args []string) error {
+		kubeConfigPath := path.Join(os.Getenv("HOME"), ".kube/config")
+
+		if val, ok := os.LookupEnv("KUBECONFIG"); ok {
+			kubeConfigPath = val
+		}
+
+		if command.Flags().Changed("kubeconfig") {
+			kubeConfigPath, _ = command.Flags().GetString("kubeconfig")
+		}
+
+		fmt.Printf("Using context: %s\n", kubeConfigPath)
+
 		arch := getArchitecture()
 		fmt.Printf("Node architecture: %s\n", arch)
 
@@ -49,17 +64,16 @@ func makeInstallOpenFaaS() *cobra.Command {
 
 		log.Printf("User dir established as: %s\n", userPath)
 
-		kubeConfigPath := path.Join(os.Getenv("HOME"), ".kube/config")
+		os.Setenv("HELM_HOME", path.Join(userPath, ".helm"))
 
-		if val, ok := os.LookupEnv("KUBECONFIG"); ok {
-			kubeConfigPath = val
+		if _, statErr := os.Stat(path.Join(path.Join(userPath, ".bin"), "helm")); statErr != nil {
+			downloadHelm(userPath, clientArch, clientOS)
+
+			err = helmInit()
+			if err != nil {
+				return err
+			}
 		}
-
-		if command.Flags().Changed("kubeconfig") {
-			kubeConfigPath, _ = command.Flags().GetString("kubeconfig")
-		}
-
-		fmt.Printf("Using context: %s\n", kubeConfigPath)
 
 		// lb, _ := command.Flags().GetBool("loadbalancer")
 
@@ -109,7 +123,29 @@ func makeInstallOpenFaaS() *cobra.Command {
 
 		err = kubectl("apply", "-R", "-f", outputPath)
 
-		return err
+		if err != nil {
+			return err
+		}
+
+		fmt.Println(`=======================================================================
+= OpenFaaS has been installed.                                        =
+=======================================================================
+If basic auth is enabled, you can now log into your gateway.
+
+# Get the faas-cli
+curl -SLsf https://cli.openfaas.com | sudo sh
+
+# Forward the gateway to your machine
+kubectl rollout status -n openfaas deploy/gateway
+kubectl port-forward -n openfaas svc/gateway &
+
+# Get your password and log in
+PASSWORD=$(kubectl get secret -n openfaas basic-auth -o jsonpath="{.data.basic-auth-password}" | base64 --decode; echo)
+echo -n $PASSWORD | faas-cli login --username admin --password-stdin
+
+Thank you for using k3sup!`)
+
+		return nil
 	}
 
 	return openfaas
@@ -133,4 +169,37 @@ func getClientArch() (string, string) {
 	os := strings.TrimSpace(resOS.Stdout)
 
 	return arch, os
+}
+
+func getHelmURL(arch, os, version string) string {
+	archSuffix := "amd64"
+	osSuffix := strings.ToLower(os)
+
+	if strings.HasPrefix(arch, "armv7") {
+		archSuffix = "arm"
+	} else if strings.HasPrefix(arch, "aarch64") {
+		archSuffix = "arm64"
+	}
+
+	return fmt.Sprintf("https://get.helm.sh/helm-%s-%s-%s.tar.gz", version, osSuffix, archSuffix)
+}
+
+func downloadHelm(userPath, clientArch, clientOS string) error {
+	helmURL := getHelmURL(clientArch, clientOS, "v2.14.3")
+	fmt.Println(helmURL)
+	parsedURL, _ := url.Parse(helmURL)
+
+	res, err := http.DefaultClient.Get(parsedURL.String())
+	if err != nil {
+		return err
+	}
+
+	defer res.Body.Close()
+	r := ioutil.NopCloser(res.Body)
+	untarErr := Untar(r, path.Join(userPath, ".bin"))
+	if untarErr != nil {
+		return untarErr
+	}
+
+	return nil
 }
