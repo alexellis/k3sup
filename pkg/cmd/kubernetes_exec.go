@@ -59,7 +59,7 @@ func templateChart(basePath, chart, namespace, outputPath, values string, overri
 	if len(values) > 0 {
 		valuesStr = "--values " + path.Join(chartRoot, values)
 	}
-	log.Println("basePath", basePath)
+
 	task := execute.ExecTask{
 		Command: fmt.Sprintf("%s template %s --name %s --namespace %s --output-dir %s %s %s",
 			localBinary("helm"), chart, chart, namespace, outputPath, valuesStr, overridesStr),
@@ -77,7 +77,9 @@ func templateChart(basePath, chart, namespace, outputPath, values string, overri
 		return fmt.Errorf("exit code %d", res.ExitCode)
 	}
 
-	fmt.Println(res.ExitCode, res.Stdout, res.Stderr)
+	if len(res.Stderr) > 0 {
+		log.Printf("stderr: %s\n", res.Stderr)
+	}
 
 	return nil
 }
