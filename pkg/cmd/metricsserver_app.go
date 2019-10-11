@@ -44,28 +44,21 @@ func makeInstallMetricsServer() *cobra.Command {
 		clientArch, clientOS := getClientArch()
 
 		fmt.Printf("Client: %s, %s\n", clientArch, clientOS)
-
 		log.Printf("User dir established as: %s\n", userPath)
 
 		os.Setenv("HELM_HOME", path.Join(userPath, ".helm"))
 
-		if _, statErr := os.Stat(path.Join(path.Join(userPath, ".bin"), "helm")); statErr != nil {
-			downloadHelm(userPath, clientArch, clientOS)
-
-			err = helmInit()
-			if err != nil {
-				return err
-			}
+		err = tryDownloadHelm(userPath, clientArch, clientOS)
+		if err != nil {
+			return err
 		}
 
 		err = updateHelmRepos()
-
 		if err != nil {
 			return err
 		}
 
 		chartPath := path.Join(os.TempDir(), "charts")
-
 		err = fetchChart(chartPath, "stable/metrics-server")
 
 		if err != nil {
@@ -118,4 +111,16 @@ Thank you for using k3sup!`)
 	}
 
 	return metricsServer
+}
+
+func tryDownloadHelm(userPath, clientArch, clientOS string) error {
+	if _, statErr := os.Stat(path.Join(path.Join(userPath, ".bin"), "helm")); statErr != nil {
+		downloadHelm(userPath, clientArch, clientOS)
+
+		err := helmInit()
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
