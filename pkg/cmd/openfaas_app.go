@@ -77,13 +77,9 @@ func makeInstallOpenFaaS() *cobra.Command {
 
 		os.Setenv("HELM_HOME", path.Join(userPath, ".helm"))
 
-		if _, statErr := os.Stat(path.Join(path.Join(userPath, ".bin"), "helm")); statErr != nil {
-			downloadHelm(userPath, clientArch, clientOS)
-
-			err = helmInit()
-			if err != nil {
-				return err
-			}
+		err = tryDownloadHelm(userPath, clientArch, clientOS)
+		if err != nil {
+			return err
 		}
 
 		err = addHelmRepo("openfaas", "https://openfaas.github.io/faas-netes/")
