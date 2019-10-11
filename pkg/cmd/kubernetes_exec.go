@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"path"
 	"strings"
@@ -53,9 +54,15 @@ func templateChart(basePath, chart, namespace, outputPath, values string, overri
 	}
 
 	chartRoot := path.Join(basePath, chart)
+
+	valuesStr := ""
+	if len(values) > 0 {
+		valuesStr = "--values " + path.Join(chartRoot, values)
+	}
+	log.Println("basePath", basePath)
 	task := execute.ExecTask{
-		Command: fmt.Sprintf("%s template %s --output-dir %s --values %s --namespace %s %s",
-			localBinary("helm"), chart, outputPath, path.Join(chartRoot, values), namespace, overridesStr),
+		Command: fmt.Sprintf("%s template %s --name %s --namespace %s --output-dir %s %s %s",
+			localBinary("helm"), chart, chart, namespace, outputPath, valuesStr, overridesStr),
 		Env: os.Environ(),
 		Cwd: basePath,
 	}
@@ -69,6 +76,9 @@ func templateChart(basePath, chart, namespace, outputPath, values string, overri
 	if res.ExitCode != 0 {
 		return fmt.Errorf("exit code %d", res.ExitCode)
 	}
+
+	fmt.Println(res.ExitCode, res.Stdout, res.Stderr)
+
 	return nil
 }
 

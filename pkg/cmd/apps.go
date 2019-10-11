@@ -27,6 +27,7 @@ func MakeApps() *cobra.Command {
 	install.Flags().String("kubeconfig", "kubeconfig", "Local path for your kubeconfig file")
 
 	openfaas := makeInstallOpenFaaS()
+	metricsserver := makeInstallMetricsServer()
 
 	install.RunE = func(command *cobra.Command, args []string) error {
 
@@ -40,10 +41,11 @@ func MakeApps() *cobra.Command {
 
 	command.AddCommand(install)
 	install.AddCommand(openfaas)
+	install.AddCommand(metricsserver)
 
 	return command
 }
 
 func getApps() []string {
-	return []string{"openfaas"}
+	return []string{"openfaas", "metrics-server"}
 }
