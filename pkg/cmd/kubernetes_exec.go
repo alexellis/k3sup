@@ -167,3 +167,13 @@ func kubectl(parts ...string) error {
 	}
 	return nil
 }
+
+func getDefaultKubeconfig() string {
+	kubeConfigPath := path.Join(os.Getenv("HOME"), ".kube/config")
+
+	if val, ok := os.LookupEnv("KUBECONFIG"); ok {
+		kubeConfigPath = val
+	}
+
+	return kubeConfigPath
+}
