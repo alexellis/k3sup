@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"os"
 	"path"
+	"strconv"
 	"strings"
 
 	"github.com/alexellis/go-execute"
@@ -28,8 +29,9 @@ func makeInstallOpenFaaS() *cobra.Command {
 		SilenceUsage: true,
 	}
 
-	openfaas.Flags().Bool("loadbalancer", false, "add a loadbalancer")
-	openfaas.Flags().StringP("namespace", "n", "openfaas", "Namespace for core services")
+	openfaas.Flags().BoolP("basic-auth", "a", true, "Enable authentication")
+	openfaas.Flags().BoolP("load-balancer", "l", false, "Add a loadbalancer")
+	openfaas.Flags().StringP("namespace", "n", "openfaas", "The namespace for the core services")
 
 	openfaas.RunE = func(command *cobra.Command, args []string) error {
 		kubeConfigPath := path.Join(os.Getenv("HOME"), ".kube/config")
@@ -75,8 +77,6 @@ func makeInstallOpenFaaS() *cobra.Command {
 			}
 		}
 
-		// lb, _ := command.Flags().GetBool("loadbalancer")
-
 		namespace, _ := command.Flags().GetString("namespace")
 
 		err = addHelmRepo("openfaas", "https://openfaas.github.io/faas-netes/")
@@ -115,8 +115,23 @@ func makeInstallOpenFaaS() *cobra.Command {
 			return err
 		}
 
+		overrides := map[string]string{}
+
+		basicAuth, _ := command.Flags().GetBool("basic-auth")
+		overrides["basicAuth"] = strings.ToLower(strconv.FormatBool(basicAuth))
+
+		overrides["serviceType"] = "NodePort"
+		lb, _ := command.Flags().GetBool("load-balancer")
+		if lb {
+			overrides["serviceType"] = "LoadBalancer"
+		}
+
 		outputPath := path.Join(chartPath, "openfaas/rendered")
-		err = templateChart(chartPath, "openfaas", namespace, outputPath, "values"+valuesSuffix+".yaml")
+		err = templateChart(chartPath, "openfaas",
+			namespace,
+			outputPath,
+			"values"+valuesSuffix+".yaml",
+			overrides)
 		if err != nil {
 			return err
 		}

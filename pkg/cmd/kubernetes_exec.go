@@ -40,17 +40,22 @@ func getArchitecture() string {
 	return arch
 }
 
-func templateChart(basePath, chart, namespace, outputPath, values string) error {
+func templateChart(basePath, chart, namespace, outputPath, values string, overrides map[string]string) error {
 
 	mkErr := os.MkdirAll(outputPath, 0700)
 	if mkErr != nil {
 		return mkErr
 	}
 
+	overridesStr := ""
+	for k, v := range overrides {
+		overridesStr += fmt.Sprintf(" --set %s=%s", k, v)
+	}
+
 	chartRoot := path.Join(basePath, chart)
 	task := execute.ExecTask{
-		Command: fmt.Sprintf("%s template %s --output-dir %s --values %s --namespace %s",
-			localBinary("helm"), chart, outputPath, path.Join(chartRoot, values), namespace),
+		Command: fmt.Sprintf("%s template %s --output-dir %s --values %s --namespace %s %s",
+			localBinary("helm"), chart, outputPath, path.Join(chartRoot, values), namespace, overridesStr),
 		Env: os.Environ(),
 		Cwd: basePath,
 	}
