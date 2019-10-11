@@ -44,15 +44,28 @@ func makeInstallOpenFaaS() *cobra.Command {
 			kubeConfigPath, _ = command.Flags().GetString("kubeconfig")
 		}
 
+		namespace, _ := command.Flags().GetString("namespace")
+
+		if namespace != "openfaas" {
+			return fmt.Errorf(`to override the "openfaas", install OpenFaaS via helm manually`)
+		}
+
 		fmt.Printf("Using context: %s\n", kubeConfigPath)
 
 		arch := getArchitecture()
 		fmt.Printf("Node architecture: %s\n", arch)
 
-		valuesSuffix := ""
+		var valuesSuffix string
 		switch arch {
 		case "arm":
 			valuesSuffix = "-armhf"
+			break
+		case "arm64":
+		case "aarch64":
+			valuesSuffix = "-arm64"
+			break
+		default:
+			valuesSuffix = ""
 		}
 
 		userPath, err := config.InitUserDir()
@@ -77,8 +90,6 @@ func makeInstallOpenFaaS() *cobra.Command {
 			}
 		}
 
-		namespace, _ := command.Flags().GetString("namespace")
-
 		err = addHelmRepo("openfaas", "https://openfaas.github.io/faas-netes/")
 		if err != nil {
 			return err
@@ -90,7 +101,8 @@ func makeInstallOpenFaaS() *cobra.Command {
 			return err
 		}
 
-		err = kubectl("apply", "-f", "https://raw.githubusercontent.com/openfaas/faas-netes/master/namespaces.yml")
+		err = kubectl("apply", "-f",
+			"https://raw.githubusercontent.com/openfaas/faas-netes/master/namespaces.yml")
 
 		if err != nil {
 			return err
@@ -101,7 +113,10 @@ func makeInstallOpenFaaS() *cobra.Command {
 			return err
 		}
 
-		_, err = kubectlTask("-n", namespace, "create", "secret", "generic", "basic-auth", "--from-literal=basic-auth-user=admin", `--from-literal=basic-auth-password=`+pass)
+		_, err = kubectlTask("-n", namespace, "create", "secret", "generic",
+			"basic-auth",
+			"--from-literal=basic-auth-user=admin",
+			`--from-literal=basic-auth-password=`+pass)
 
 		if err != nil {
 			return err
@@ -132,6 +147,7 @@ func makeInstallOpenFaaS() *cobra.Command {
 			outputPath,
 			"values"+valuesSuffix+".yaml",
 			overrides)
+
 		if err != nil {
 			return err
 		}
@@ -145,7 +161,6 @@ func makeInstallOpenFaaS() *cobra.Command {
 		fmt.Println(`=======================================================================
 = OpenFaaS has been installed.                                        =
 =======================================================================
-If basic auth is enabled, you can now log into your gateway.
 
 # Get the faas-cli
 curl -SLsf https://cli.openfaas.com | sudo sh
@@ -154,9 +169,12 @@ curl -SLsf https://cli.openfaas.com | sudo sh
 kubectl rollout status -n openfaas deploy/gateway
 kubectl port-forward -n openfaas svc/gateway 8080:8080 &
 
-# Get your password and log in
+# If basic auth is enabled, you can now log into your gateway:
 PASSWORD=$(kubectl get secret -n openfaas basic-auth -o jsonpath="{.data.basic-auth-password}" | base64 --decode; echo)
 echo -n $PASSWORD | faas-cli login --username admin --password-stdin
+
+faas-cli deploy figlet
+faas-cli list
 
 Thank you for using k3sup!`)
 

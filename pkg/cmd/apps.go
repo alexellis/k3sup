@@ -24,7 +24,7 @@ func MakeApps() *cobra.Command {
 		SilenceUsage: true,
 	}
 
-	install.Flags().String("kubeconfig", "kubeconfig", "Local path to save the kubeconfig file")
+	install.Flags().String("kubeconfig", "kubeconfig", "Local path for your kubeconfig file")
 
 	openfaas := makeInstallOpenFaaS()
 
