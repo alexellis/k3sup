@@ -34,23 +34,19 @@ func makeInstallOpenFaaS() *cobra.Command {
 	openfaas.Flags().StringP("namespace", "n", "openfaas", "The namespace for the core services")
 
 	openfaas.RunE = func(command *cobra.Command, args []string) error {
-		kubeConfigPath := path.Join(os.Getenv("HOME"), ".kube/config")
-
-		if val, ok := os.LookupEnv("KUBECONFIG"); ok {
-			kubeConfigPath = val
-		}
+		kubeConfigPath := getDefaultKubeconfig()
 
 		if command.Flags().Changed("kubeconfig") {
 			kubeConfigPath, _ = command.Flags().GetString("kubeconfig")
 		}
+
+		fmt.Printf("Using kubeconfig: %s\n", kubeConfigPath)
 
 		namespace, _ := command.Flags().GetString("namespace")
 
 		if namespace != "openfaas" {
 			return fmt.Errorf(`to override the "openfaas", install OpenFaaS via helm manually`)
 		}
-
-		fmt.Printf("Using context: %s\n", kubeConfigPath)
 
 		arch := getArchitecture()
 		fmt.Printf("Node architecture: %s\n", arch)

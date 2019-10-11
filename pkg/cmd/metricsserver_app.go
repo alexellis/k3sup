@@ -20,22 +20,25 @@ func makeInstallMetricsServer() *cobra.Command {
 		SilenceUsage: true,
 	}
 
-	metricsServer.RunE = func(command *cobra.Command, args []string) error {
-		kubeConfigPath := path.Join(os.Getenv("HOME"), ".kube/config")
+	metricsServer.Flags().StringP("namespace", "n", "default", "The namespace used for installation")
 
-		if val, ok := os.LookupEnv("KUBECONFIG"); ok {
-			kubeConfigPath = val
-		}
+	metricsServer.RunE = func(command *cobra.Command, args []string) error {
+		kubeConfigPath := getDefaultKubeconfig()
 
 		if command.Flags().Changed("kubeconfig") {
 			kubeConfigPath, _ = command.Flags().GetString("kubeconfig")
 		}
 
-		fmt.Printf("Using context: %s\n", kubeConfigPath)
+		fmt.Printf("Using kubeconfig: %s\n", kubeConfigPath)
 
 		userPath, err := config.InitUserDir()
 		if err != nil {
 			return err
+		}
+		namespace, _ := command.Flags().GetString("namespace")
+
+		if namespace != "default" {
+			return fmt.Errorf(`to override the "default", install via tiller`)
 		}
 
 		clientArch, clientOS := getClientArch()
@@ -74,9 +77,11 @@ func makeInstallMetricsServer() *cobra.Command {
 		fmt.Println("Chart path: ", chartPath)
 		outputPath := path.Join(chartPath, "metrics-server/rendered")
 
+		// ns:="kube-system"
+		ns := "default"
 		err = templateChart(chartPath,
 			"metrics-server",
-			"kube-system",
+			ns,
 			outputPath,
 			"values.yaml",
 			overrides)
