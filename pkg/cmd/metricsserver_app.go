@@ -16,7 +16,7 @@ func makeInstallMetricsServer() *cobra.Command {
 		Use:          "metrics-server",
 		Short:        "Install metrics-server",
 		Long:         `Install metrics-server`,
-		Example:      `  k3sup app install metrics-server --loadbalancer`,
+		Example:      `  k3sup app install metrics-server --namespace default`,
 		SilenceUsage: true,
 	}
 
