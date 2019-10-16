@@ -83,6 +83,7 @@ Other options for `install`:
 * `--context` - default is `default` - set the name of the kubeconfig context.
 * `--ssh-port` - default is `22`, but you can specify an alternative port i.e. `2222`
 * `--k3s-extra-args` - Optional extra arguments to pass to k3s installer, wrapped in quotes, i.e. `--k3s-extra-args '--docker --no-deploy servicelb'`
+* `--k3s-version` - default is `v0.8.1`, set the specific version of k3s, i.e. `v0.9.1`
 
 * Now try the access:
 
