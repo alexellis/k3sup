@@ -6,6 +6,11 @@ The tool is written in Go and is cross-compiled for Linux, Windows, MacOS and ev
 
 How do you say it? Ketchup, as in tomato.
 
+[![Go Report Card](https://goreportcard.com/badge/github.com/alexellis/k3sup)](https://goreportcard.com/report/github.com/alexellis/k3sup) [![Build
+Status](https://travis-ci.org/alexellis/k3sup.svg?branch=master)](https://travis-ci.org/alexellis/k3sup) [![GoDoc](https://godoc.org/github.com/alexellis/k3sup?status.svg)](https://godoc.org/github.com/alexellis/k3sup) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![OpenFaaS](https://img.shields.io/badge/openfaas-serverless-blue.svg)](https://k3sup.dev)
+![GitHub All Releases](https://img.shields.io/github/downloads/alexellis/k3sup/total)
+
 ## What's this for? 💻
 
 This tool uses `ssh` to install `k3s` to a remote Linux host. You can also use it to join existing Linux hosts into a k3s cluster as `agents`. First, `k3s` is installed using the utility script from Rancher, along with a flag for your host's public IP so that TLS works properly. The `kubeconfig` file on the server is then fetched and updated so that you can connect from your laptop using `kubectl`.
