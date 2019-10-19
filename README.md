@@ -86,7 +86,8 @@ Other options for `install`:
 * `--local-path` - default is `./kubeconfig` - set the path into which you want to save your VM's `kubeconfig`
 * `--context` - default is `default` - set the name of the kubeconfig context.
 * `--ssh-port` - default is `22`, but you can specify an alternative port i.e. `2222`
-* `--k3s-extra-args` - Optional extra arguments to pass to k3s installer, wrapped in quotes, i.e. `--k3s-extra-args '--docker --no-deploy servicelb'`
+* `--k3s-extra-args` - Optional extra arguments to pass to k3s installer, wrapped in quotes, i.e. `--k3s-extra-args '--no-deploy traefik'` or `--k3s-extra-args '---docker'`.
+* `--k3s-version` - set the specific version of k3s, i.e. `v0.9.1`
 
 * Now try the access:
 
@@ -102,7 +103,8 @@ Install apps with `k3sup` `>=0.4.0` directly into any Kubernetes cluster, all yo
 You can install [openfaas](https://github.com/openfaas/faas) for Kubernetes in a single command, it will detect whether you're using a Raspberry Pi or a regular computer.
 
 ```sh
-k3sup app install openfaas
+k3sup app install openfaas          # PC, RPi, ARM64
+k3sup app install metrics-server    # PC only
 ```
 
 Find out more:
@@ -110,10 +112,10 @@ Find out more:
 ```sh
 k3sup app --help
 k3sup app install --help
-k3sup app install openfaas --help
+k3sup app install APP_NAME --help
 ```
 
-Want to request an app? Raise an issue or let me know on [Slack](https://slack.openfaas.io).
+Want to request an app? [Raise an issue](https://github.com/alexellis/k3sup/issues) or let me know on [Slack](https://slack.openfaas.io).
 
 ### Join some agents to your Kubernetes server
 
