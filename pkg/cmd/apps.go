@@ -26,6 +26,7 @@ func MakeApps() *cobra.Command {
 
 	install.Flags().String("kubeconfig", "kubeconfig", "Local path for your kubeconfig file")
 
+	certmanager := makeInstallCertManager()
 	openfaas := makeInstallOpenFaaS()
 	metricsserver := makeInstallMetricsServer()
 
@@ -40,6 +41,7 @@ func MakeApps() *cobra.Command {
 	}
 
 	command.AddCommand(install)
+	install.AddCommand(certmanager)
 	install.AddCommand(openfaas)
 	install.AddCommand(metricsserver)
 
