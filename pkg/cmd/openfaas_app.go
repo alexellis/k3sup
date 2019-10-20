@@ -165,8 +165,12 @@ kubectl port-forward -n openfaas svc/gateway 8080:8080 &
 PASSWORD=$(kubectl get secret -n openfaas basic-auth -o jsonpath="{.data.basic-auth-password}" | base64 --decode; echo)
 echo -n $PASSWORD | faas-cli login --username admin --password-stdin
 
-faas-cli deploy figlet
+faas-cli store deploy figlet
 faas-cli list
+
+# For Raspberry Pi
+faas-cli store deploy figlet \
+ -u https://raw.githubusercontent.com/openfaas/store/master/store-armhf.json
 
 Thank you for using k3sup!`)
 
