@@ -23,7 +23,12 @@ type ExecResult struct {
 }
 
 func (et ExecTask) Execute() (ExecResult, error) {
-	fmt.Println("exec: ", et.Command)
+	argsSt := ""
+	if len(et.Args) > 0 {
+		argsSt = strings.Join(et.Args, " ")
+	}
+
+	fmt.Println("exec: ", et.Command, argsSt)
 
 	var cmd *exec.Cmd
 

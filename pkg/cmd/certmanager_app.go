@@ -14,8 +14,8 @@ func makeInstallCertManager() *cobra.Command {
 	var certManager = &cobra.Command{
 		Use:          "cert-manager",
 		Short:        "Install cert-manager",
-		Long:         "Install Cert-Manager",
-		Example:      "k3sup install cert-manager --namespace cert-manager",
+		Long:         "Install cert-manager for obtaining TLS certificates from LetsEncrypt",
+		Example:      "k3sup install cert-manager",
 		SilenceUsage: true,
 	}
 
@@ -86,12 +86,17 @@ func makeInstallCertManager() *cobra.Command {
 			return err
 		}
 
-		err = kubectl("apply", "-f", "--validate", "false", "https://raw.githubusercontent.com/jetstack/cert-manager/release-0.11/deploy/manifests/00-crds.yaml")
+		log.Printf("Applying CRD\n")
+
+		res, err := kubectlTask("apply", "--validate=false", "-f", "https://raw.githubusercontent.com/jetstack/cert-manager/release-0.11/deploy/manifests/00-crds.yaml")
 		if err != nil {
 			return err
 		}
+		if len(res.Stderr) > 0 {
+			return fmt.Errorf("Error applying CRD: %s", res.Stderr)
+		}
 
-		err = kubectl("apply", "-n", namespace, "-R", "-f", outputPath)
+		err = kubectl("apply", "-R", "-f", outputPath)
 		if err != nil {
 			return err
 		}
