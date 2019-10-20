@@ -30,7 +30,7 @@ func makeInstallInletsOperator() *cobra.Command {
 		namespace, _ := command.Flags().GetString("namespace")
 
 		if namespace != "default" {
-			return fmt.Errorf(`to override the "default", install via tiller`)
+			return fmt.Errorf(`to override the namespace, edit the YAML files on GitHub`)
 		}
 		secretFileName, _ := command.Flags().GetString("token-file")
 
@@ -40,7 +40,7 @@ func makeInstallInletsOperator() *cobra.Command {
 
 		res, err := kubectlTask("create", "secret", "generic",
 			"inlets-access-key",
-			"--from-file", secretFileName, "-n", namespace)
+			"--from-file", "inlets-access-key="+secretFileName)
 
 		if len(res.Stderr) > 0 {
 			return fmt.Errorf("Error from kubectl\n%q", res.Stderr)
@@ -57,7 +57,7 @@ func makeInstallInletsOperator() *cobra.Command {
 		}
 
 		for _, yaml := range yamls {
-			err = kubectl("apply", "-f", yaml, "-n", namespace)
+			err = kubectl("apply", "-f", yaml)
 
 			if err != nil {
 				return err
@@ -69,7 +69,7 @@ func makeInstallInletsOperator() *cobra.Command {
 =======================================================================
 
 # The default configuration is for DigitalOcean and your secret is
-# stored as "do-access-key" in the "kube-system" namespace.
+# stored as "inlets-access-key" in the "default" namespace.
 
 # To get your first Public IP run the following:
 kubectl run nginx-1 --image=nginx --port=80 --restart=Always
