@@ -172,6 +172,9 @@ faas-cli list
 faas-cli store deploy figlet \
  -u https://raw.githubusercontent.com/openfaas/store/master/store-armhf.json
 
+# Find out more at:
+# https://github.com/openfaas/faas
+
 Thank you for using k3sup!`)
 
 		return nil

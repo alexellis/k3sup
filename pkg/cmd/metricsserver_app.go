@@ -105,6 +105,10 @@ kubectl top pod
 
 kubectl top node
 
+
+# Find out more at:
+# https://github.com/helm/charts/tree/master/stable/metrics-server
+
 Thank you for using k3sup!`)
 
 		return nil
