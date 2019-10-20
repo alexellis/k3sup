@@ -36,7 +36,7 @@ func MakeVersion() *cobra.Command {
 	return command
 }
 
-const k3supFigletStr = `_    _____                 
+const k3supFigletStr = ` _    _____                 
 | | _|___ / ___ _   _ _ __  
 | |/ / |_ \/ __| | | | '_ \ 
 |   < ___) \__ \ |_| | |_) |
