@@ -112,6 +112,9 @@ k3sup app install metrics-server    # PC only
 # Get a public IP / Service LoadBalancer via DigitalOcean
 # or Packet.com
 k3sup app install inlets-operator   # PC only
+
+# cert-manager - obtain free TLS certificates from LetsEncrypt
+k3sup app install cert-manager
 ```
 
 Find out more:

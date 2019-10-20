@@ -43,6 +43,12 @@ func getArchitecture() string {
 
 func templateChart(basePath, chart, namespace, outputPath, values string, overrides map[string]string) error {
 
+	rmErr := os.RemoveAll(outputPath)
+
+	if rmErr != nil {
+		log.Printf("Error cleaning up: %s, %s\n", outputPath, rmErr.Error())
+	}
+
 	mkErr := os.MkdirAll(outputPath, 0700)
 	if mkErr != nil {
 		return mkErr
