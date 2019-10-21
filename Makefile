@@ -7,7 +7,7 @@ PLATFORM := $(shell ./hack/platform-tag.sh)
 
 .PHONY: test
 test:
-	CGO_ENABLED=0 go test $(go list ./... | grep -v /vendor/) -cover
+	CGO_ENABLED=0 go test $(shell go list ./... | grep -v /vendor/|xargs echo) -cover
 
 .PHONY: dist
 dist:
