@@ -49,20 +49,9 @@ func makeInstallOpenFaaS() *cobra.Command {
 		}
 
 		arch := getArchitecture()
-		fmt.Printf("Node architecture: %s\n", arch)
+		fmt.Printf("Node architecture: %q\n", arch)
 
-		var valuesSuffix string
-		switch arch {
-		case "arm":
-			valuesSuffix = "-armhf"
-			break
-		case "arm64":
-		case "aarch64":
-			valuesSuffix = "-arm64"
-			break
-		default:
-			valuesSuffix = ""
-		}
+		valuesSuffix := getValuesSuffix(arch)
 
 		userPath, err := config.InitUserDir()
 		if err != nil {
@@ -71,7 +60,7 @@ func makeInstallOpenFaaS() *cobra.Command {
 
 		clientArch, clientOS := getClientArch()
 
-		fmt.Printf("Client: %s, %s\n", clientArch, clientOS)
+		fmt.Printf("Client: %q, %q\n", clientArch, clientOS)
 
 		log.Printf("User dir established as: %s\n", userPath)
 
@@ -183,6 +172,7 @@ Thank you for using k3sup!`)
 	return openfaas
 }
 
+// getClientArch returns a pair of arch and os
 func getClientArch() (string, string) {
 	task := execute.ExecTask{Command: "uname", Args: []string{"-m"}}
 	res, err := task.Execute()
@@ -234,4 +224,19 @@ func downloadHelm(userPath, clientArch, clientOS string) error {
 	}
 
 	return nil
+}
+
+func getValuesSuffix(arch string) string {
+	var valuesSuffix string
+	switch arch {
+	case "arm":
+		valuesSuffix = "-armhf"
+		break
+	case "arm64", "aarch64":
+		valuesSuffix = "-arm64"
+		break
+	default:
+		valuesSuffix = ""
+	}
+	return valuesSuffix
 }
