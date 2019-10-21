@@ -3,6 +3,8 @@ package cmd
 import (
 	"io/ioutil"
 	"os"
+	"regexp"
+	"strings"
 	"testing"
 )
 
@@ -26,6 +28,28 @@ WBDTI4J6Jw0muGSRQGIO9FCCH2mU/l/JOQ8+dzeMspYq9CY0tqRI6HweDyKR7nII
 -----END RSA PRIVATE KEY-----
 `
 
+const kubeconfigExample = `
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority-data: DATA+OMITTED
+    server: https://localhost:6443
+  name: default
+contexts:
+- context:
+    cluster: default
+    user: default
+  name: default
+current-context: default
+kind: Config
+preferences: {}
+users:
+- name: default
+  user:
+    password: 5ceb3a3e93621d265fd147929f3ace84
+    username: admin
+`
+
 func Test_loadPublickeyEncrypted(t *testing.T) {
 	expected := "x509: decryption password incorrect"
 
@@ -40,8 +64,60 @@ func Test_loadPublickeyEncrypted(t *testing.T) {
 	}
 
 	tmpfile.Close()
-	_, err = loadPublickey(tmpfile.Name())
+	_, _, err = loadPublickey(tmpfile.Name())
 	if err.Error() != expected {
 		t.Errorf("Unexpected error, got: %q, want: %q.", err.Error(), expected)
+	}
+}
+
+func Test_RewriteKubeconfig(t *testing.T) {
+	var ip = "192.168.0.25"
+	var context = "context-test"
+
+	// Test master ip rewrite
+	kubeconfig = rewriteKubeconfig(kubeconfigExample, ip, context)
+
+	re := regexp.MustCompile(`server:\s?https://(.*):\d+`)
+	group := re.FindSubmatch(kubeconfig)
+
+	if len(group) == 0 || string(group[1]) != ip {
+		t.Errorf("Unexpected error, got: %q, want: %q.", string(group[1]), ip)
+	}
+
+	kubeconfigExampleIPLocal := strings.Replace(kubeconfigExample, "localhost", "127.0.0.1", -1)
+	kubeconfig = rewriteKubeconfig(kubeconfigExampleIPLocal, ip, context)
+
+	group = re.FindSubmatch(kubeconfig)
+	if len(group) == 0 || string(group[1]) != ip {
+		t.Errorf("Unexpected error, got: %q, want: %q.", string(group[1]), ip)
+	}
+
+	// Test context
+	re = regexp.MustCompile(`default`)
+	expectedContextsToReplace := re.FindAllStringIndex(kubeconfigExample, -1)
+
+	kubeconfig = rewriteKubeconfig(kubeconfigExample, ip, "")
+	match := re.FindAllIndex(kubeconfig, -1)
+
+	if len(match) != len(expectedContextsToReplace) {
+		t.Errorf("Unexpected error, got: %q, want: %q.", len(match), len(expectedContextsToReplace))
+	}
+
+	kubeconfig = rewriteKubeconfig(kubeconfigExample, ip, context)
+
+	re = regexp.MustCompile(`context-test`)
+	match = re.FindAllIndex(kubeconfig, -1)
+
+	if len(match) != len(expectedContextsToReplace) {
+		t.Errorf("Unexpected error, got: %q, want: %q.", len(match), len(expectedContextsToReplace))
+	}
+}
+
+func Test_getHelmURL(t *testing.T) {
+	got := getHelmURL("amd64", "darwin", "v2.14.3")
+	want := "https://get.helm.sh/helm-v2.14.3-darwin-amd64.tar.gz"
+
+	if want != got {
+		t.Errorf("want %s, got %s", want, got)
 	}
 }

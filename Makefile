@@ -5,6 +5,10 @@ PLATFORM := $(shell ./hack/platform-tag.sh)
 
 .PHONY: all
 
+.PHONY: test
+test:
+	CGO_ENABLED=0 go test $(shell go list ./... | grep -v /vendor/|xargs echo) -cover
+
 .PHONY: dist
 dist:
 	mkdir -p bin

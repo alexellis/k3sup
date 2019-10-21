@@ -2,3 +2,4 @@ k3sup
 bin/**
 kubeconfig
 vendor
+.DS_Store

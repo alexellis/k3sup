@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	config "github.com/alexellis/k3sup/pkg/config"
 	kssh "github.com/alexellis/k3sup/pkg/ssh"
 
 	homedir "github.com/mitchellh/go-homedir"
@@ -38,7 +39,10 @@ func MakeInstall() *cobra.Command {
 	command.Flags().Int("ssh-port", 22, "The port on which to connect for ssh")
 	command.Flags().Bool("skip-install", false, "Skip the k3s installer")
 	command.Flags().String("local-path", "kubeconfig", "Local path to save the kubeconfig file")
+	command.Flags().String("context", "default", "Set the name of the kubeconfig context.")
+	command.Flags().String("k3s-extra-args", "", "Optional extra arguments to pass to k3s installer, wrapped in quotes (e.g. --k3s-extra-args '--no-deploy servicelb')")
 	command.Flags().Bool("merge", false, "Merge the config with existing kubeconfig if it already exists.\nProvide the --local-path flag with --merge if a kubeconfig already exists in some other directory")
+	command.Flags().String("k3s-version", config.K3sVersion, "Optional version to install, pinned at a default")
 
 	command.RunE = func(command *cobra.Command, args []string) error {
 
@@ -54,6 +58,10 @@ func MakeInstall() *cobra.Command {
 		user, _ := command.Flags().GetString("user")
 		sshKey, _ := command.Flags().GetString("ssh-key")
 		merge, _ := command.Flags().GetBool("merge")
+		k3sExtraArgs, _ := command.Flags().GetString("k3s-extra-args")
+		context, _ := command.Flags().GetString("context")
+
+		k3sVersion, _ := command.Flags().GetString("k3s-version")
 
 		sshKeyPath := expandPath(sshKey)
 		fmt.Printf("ssh -i %s %s@%s\n", sshKeyPath, user, ip.String())
@@ -83,7 +91,8 @@ func MakeInstall() *cobra.Command {
 		defer operator.Close()
 
 		if !skipInstall {
-			installK3scommand := fmt.Sprintf("curl -sLS https://get.k3s.io | INSTALL_K3S_EXEC='server --tls-san %s' sh -\n", ip)
+			installK3scommand := fmt.Sprintf("curl -sLS https://get.k3s.io | INSTALL_K3S_EXEC='server --tls-san %s %s' INSTALL_K3S_VERSION='%s' sh -\n", ip, strings.TrimSpace(k3sExtraArgs), k3sVersion)
+
 			fmt.Printf("ssh: %s\n", installK3scommand)
 			res, err := operator.Execute(installK3scommand)
 
@@ -107,7 +116,7 @@ func MakeInstall() *cobra.Command {
 
 		absPath, _ := filepath.Abs(localKubeconfig)
 
-		kubeconfig := []byte(strings.Replace(string(res.StdOut), "localhost", ip.String(), -1))
+		kubeconfig := rewriteKubeconfig(string(res.StdOut), ip.String(), context)
 
 		if merge {
 			// Create a merged kubeconfig
@@ -116,18 +125,12 @@ func MakeInstall() *cobra.Command {
 				return err
 			}
 		}
+
 		// Create a new kubeconfig
 		if writeErr := writeConfig(absPath, []byte(kubeconfig), false); writeErr != nil {
 			return writeErr
 		}
 
-		// Switch context
-		fmt.Println("Switching to the current context: default")
-		cmd := exec.Command("kubectl", "config", "set", "current-context", "default")
-		if err := cmd.Run(); err != nil {
-			return fmt.Errorf("Could not switch to 'default' context")
-		}
-		fmt.Println("Context switched to 'default'")
 		return nil
 	}
 
@@ -259,4 +262,18 @@ func loadPublickey(path string) (ssh.AuthMethod, func() error, error) {
 	}
 
 	return ssh.PublicKeys(signer), noopCloseFunc, nil
+}
+
+func rewriteKubeconfig(kubeconfig string, ip string, context string) []byte {
+	if context == "" {
+		context = "default"
+	}
+
+	kubeconfigReplacer := strings.NewReplacer(
+		"127.0.0.1", ip,
+		"localhost", ip,
+		"default", context,
+	)
+
+	return []byte(kubeconfigReplacer.Replace(kubeconfig))
 }

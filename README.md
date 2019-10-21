@@ -6,6 +6,10 @@ The tool is written in Go and is cross-compiled for Linux, Windows, MacOS and ev
 
 How do you say it? Ketchup, as in tomato.
 
+[![Go Report Card](https://goreportcard.com/badge/github.com/alexellis/k3sup)](https://goreportcard.com/report/github.com/alexellis/k3sup) [![Build
+Status](https://travis-ci.org/alexellis/k3sup.svg?branch=master)](https://travis-ci.org/alexellis/k3sup) [![GoDoc](https://godoc.org/github.com/alexellis/k3sup?status.svg)](https://godoc.org/github.com/alexellis/k3sup) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+![GitHub All Releases](https://img.shields.io/github/downloads/alexellis/k3sup/total)
+
 ## What's this for? 💻
 
 This tool uses `ssh` to install `k3s` to a remote Linux host. You can also use it to join existing Linux hosts into a k3s cluster as `agents`. First, `k3s` is installed using the utility script from Rancher, along with a flag for your host's public IP so that TLS works properly. The `kubeconfig` file on the server is then fetched and updated so that you can connect from your laptop using `kubectl`.
@@ -17,7 +21,7 @@ k3sup was developed to automate what can be a very manual and confusing process 
 Uses:
 
 * Bootstrap Kubernetes with k3s onto any VM - either manually, during CI or through `cloudinit`
-* Get from zero to `kubectl` with `k3s` on Raspberry Pi (RPi), VMs, AWS EC2, DigitalOcean, Civo, Scaleway and more
+* Get from zero to `kubectl` with `k3s` on Raspberry Pi (RPi), VMs, AWS EC2, Packet bare-metal, DigitalOcean, Civo, Scaleway, and others
 * Fetch a working KUBECONFIG from an existing `k3s` cluster
 * Join nodes into an existing `k3s` cluster with `k3sup join`
 
@@ -46,11 +50,19 @@ Watch the demo:
 
 [![asciicast](https://asciinema.org/a/262630.svg)](https://asciinema.org/a/262630)
 
+## Who is the author? 👏
+
+`k3sup` is Open Source Software (OSS) and was created by [Alex Ellis](https://www.alexellis.io/) - the Founder of [OpenFaaS &reg;](https://www.openfaas.com/) and a voluntary [CNCF Ambassador](https://www.cncf.io/people/ambassadors/).
+
+Do you like `k3sup` or enjoy any of Alex's other work? 🍻
+
+Join dozens of other developers 🏆 in supporting Alex and his work through [GitHub Sponsors](https://github.com/users/alexellis/sponsorship) today. You'll get into the Insiders Track and access to regular email updates on all his work.
+
 ## Usage ✅
 
 The `k3sup` tool is designed to be run on your desktop/laptop computer, but binaries are provided for MacOS, Windows, and Linux (including ARM).
 
-### Setup a Kubernetes server
+### Setup a Kubernetes *server* with `k3sup`
 
 You can setup a server and stop here, or go on to use the `join` command to add some "agents" aka `nodes` or `workers` into the cluster to expand its compute capacity.
 
@@ -72,7 +84,10 @@ Other options for `install`:
 * `--skip-install` - if you already have k3s installed, you can just run this command to get the `kubeconfig`
 * `--ssh-key` - specify a specific path for the SSH key for remote login
 * `--local-path` - default is `./kubeconfig` - set the path into which you want to save your VM's `kubeconfig`
+* `--context` - default is `default` - set the name of the kubeconfig context.
 * `--ssh-port` - default is `22`, but you can specify an alternative port i.e. `2222`
+* `--k3s-extra-args` - Optional extra arguments to pass to k3s installer, wrapped in quotes, i.e. `--k3s-extra-args '--no-deploy traefik'` or `--k3s-extra-args '---docker'`.
+* `--k3s-version` - set the specific version of k3s, i.e. `v0.9.1`
 
 * Now try the access:
 
@@ -80,6 +95,37 @@ Other options for `install`:
 export KUBECONFIG=`pwd`/kubeconfig
 kubectl get node
 ```
+
+### Install an `app` with `k3sup`
+
+Install apps with `k3sup` `>=0.4.0` directly into any Kubernetes cluster, all you need is `kubectl` access.
+
+You can install [openfaas](https://github.com/openfaas/faas) for Kubernetes in a single command, it will detect whether you're using a Raspberry Pi or a regular computer.
+
+```sh
+# OpenFaaS - microservices and functions for Kubernetes
+k3sup app install openfaas          # PC, RPi, ARM64
+
+# Metrics for Pods and Nodes
+k3sup app install metrics-server    # PC only
+
+# Get a public IP / Service LoadBalancer via DigitalOcean
+# or Packet.com
+k3sup app install inlets-operator   # PC only
+
+# cert-manager - obtain free TLS certificates from LetsEncrypt
+k3sup app install cert-manager
+```
+
+Find out more:
+
+```sh
+k3sup app --help
+k3sup app install --help
+k3sup app install APP_NAME --help
+```
+
+Want to request an app? [Raise an issue](https://github.com/alexellis/k3sup/issues) or let me know on [Slack](https://slack.openfaas.io).
 
 ### Join some agents to your Kubernetes server
 
@@ -175,9 +221,11 @@ k3sup --ip $IP --user user
 
 * [Multi-node Kubernetes on Civo in 5 minutes flat with k3sup!](https://www.civo.com/learn/kubernetes-on-civo-in-5-minutes-flat) - Civo Learn guide
 
-* [k3sup mentioned on Kubernetes Podcast episode 67](https://kubernetespodcast.com/episode/067-orka/) by Craig Box & Adam Glick
+* [Zero to k3s Kubeconfig in seconds on AWS EC2 with k3sup](https://rancher.com/blog/2019/k3s-kubeconfig-in-seconds) by Saiyam Pathak
 
-* [Zero to k3s Kubeconfig in seconds with k3sup](https://rancher.com/blog/2019/k3s-kubeconfig-in-seconds) by Saiyam Pathak
+* [Create a 3-node k3s cluster with k3sup & DigitalOcean](https://blog.alexellis.io/create-a-3-node-k3s-cluster-with-k3sup-digitalocean/)
+
+* [k3sup mentioned on Kubernetes Podcast episode 67](https://kubernetespodcast.com/episode/067-orka/) by Craig Box & Adam Glick
 
 * Blog post by Ruan Bekker:
 
@@ -218,11 +266,11 @@ MIT
 
 ### Blog posts & tweets
 
-Blogs posts, tutorials, and Tweets about k3sup are appreciated. Please send a PR to the README.md file to add yours.
+Blogs posts, tutorials, and Tweets about k3sup (`#k3sup`) are appreciated. Please send a PR to the README.md file to add yours.
 
-### Say thanks
+### Say thanks ☕️ 👏
 
-Buy the author a coffee and show your support for `k3sup` through [GitHub Sponsors](https://github.com/users/alexellis/sponsorship).
+Show your support for `k3sup` through [GitHub Sponsors](https://github.com/users/alexellis/sponsorship) from 5USD.
 
 ### Contributing via GitHub
 
