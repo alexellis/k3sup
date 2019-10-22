@@ -101,6 +101,19 @@ getPackage() {
             echo
             echo "Running with sufficient permissions to attempt to move $REPO to $BINLOCATION"
 
+            if [ ! -w "$BINLOCATION/$REPO" ] && [ -f "$BINLOCATION/$REPO" ]; then
+
+            echo
+            echo "================================================================"
+            echo "==  $BINLOCATION/$REPO already exists and is not writeable  =="
+            echo "==  by the current user.  Please adjust the binary ownership  =="
+            echo "==  or run with sudo:  curl -SLs get.k3sup.dev | sudo sh      ==" 
+            echo "================================================================"
+            echo
+            exit 1
+
+            fi
+
             mv $targetFile $BINLOCATION/$REPO
 
             if [ "$?" = "0" ]; then
