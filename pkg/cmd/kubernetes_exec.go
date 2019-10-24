@@ -1,9 +1,11 @@
 package cmd
 
 import (
+	"bytes"
 	"fmt"
 	"log"
 	"os"
+	"os/exec"
 	"path"
 	"strings"
 
@@ -173,6 +175,24 @@ func kubectl(parts ...string) error {
 	if res.ExitCode != 0 {
 		return fmt.Errorf("exit code %d", res.ExitCode)
 	}
+	return nil
+}
+
+func kubectlStdIn(input []byte, parts ...string) error {
+	var out bytes.Buffer
+	cmd := exec.Command("kubectl", parts...)
+
+	cmd.Stdin = bytes.NewBuffer(input)
+
+	cmd.Stderr = &out
+	err := cmd.Run()
+	if err != nil {
+		log.Print(out.String())
+		log.Print(string(out.Bytes()))
+
+		return err
+	}
+	log.Print(out.String())
 	return nil
 }
 
