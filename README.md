@@ -1,6 +1,6 @@
 # k3sup 🚀 (said 'ketchup')
 
-k3sup is a light-weight utility to get from zero to KUBECONFIG with [k3s](https://k3s.io/) on any local or remote VM. All you need is `ssh` access and the `k3sup` binary to get `kubectl` access immediately.
+k3sup is a light-weight utility to get from zero to KUBECONFIG with [k3s](https://k3s.io/) on any local or remote VM. All you need is `ssh` access and the `k3sup` binary to get `kubectl` access immediately. `k3sup app install` then provides several tillerless-helm charts out of the box.
 
 The tool is written in Go and is cross-compiled for Linux, Windows, MacOS and even on Raspberry Pi.
 
@@ -24,6 +24,7 @@ Uses:
 * Get from zero to `kubectl` with `k3s` on Raspberry Pi (RPi), VMs, AWS EC2, Packet bare-metal, DigitalOcean, Civo, Scaleway, and others
 * Fetch a working KUBECONFIG from an existing `k3s` cluster
 * Join nodes into an existing `k3s` cluster with `k3sup join`
+* Install selected helm charts without `tiller` with `k3sup app install`
 
 ![](./docs/k3sup-cloud.png)
 *Conceptual architecture, showing `k3sup` running locally against any VM such as AWS EC2 or a VPS such as DigitalOcean.*
@@ -38,6 +39,8 @@ sudo install k3sup /usr/local/bin/
 
 k3sup --help
 ```
+
+> Note: `k3sup` is made available free-of-charge, but you can support its ongoing development through [GitHub Sponsors](https://insiders.openfaas.io/) 💪
 
 ## Demo 📼
 
@@ -62,7 +65,7 @@ Join dozens of other developers 🏆 in supporting Alex and his work through [Gi
 
 The `k3sup` tool is designed to be run on your desktop/laptop computer, but binaries are provided for MacOS, Windows, and Linux (including ARM).
 
-### Setup a Kubernetes *server* with `k3sup`
+### 👑 Setup a Kubernetes *server* with `k3sup`
 
 You can setup a server and stop here, or go on to use the `join` command to add some "agents" aka `nodes` or `workers` into the cluster to expand its compute capacity.
 
@@ -96,7 +99,7 @@ export KUBECONFIG=`pwd`/kubeconfig
 kubectl get node
 ```
 
-### Install an `app` with `k3sup`
+### 🎬 Install an `app` with `k3sup`
 
 Install apps with `k3sup` `>=0.4.0` directly into any Kubernetes cluster, all you need is `kubectl` access.
 
@@ -127,7 +130,7 @@ k3sup app install APP_NAME --help
 
 Want to request an app? [Raise an issue](https://github.com/alexellis/k3sup/issues) or let me know on [Slack](https://slack.openfaas.io).
 
-### Join some agents to your Kubernetes server
+### 😸 Join some agents to your Kubernetes server
 
 Let's say that you have a server, and have already run the following:
 
@@ -151,7 +154,7 @@ k3sup join --ip $AGENT_IP --server-ip $SERVER_IP --user $USER
 
 That's all, so with the above command you can have a two-node cluster up and running, whether that's using VMs on-premises, using Raspberry Pis, 64-bit ARM or even cloud VMs on EC2.
 
-### Micro-tutorial for Raspberry Pi (2, 3, or 4) 🥧
+### 👨‍💻 Micro-tutorial for Raspberry Pi (2, 3, or 4) 🥧
 
 In a few moments you will have Kubernetes up and running on your Raspberry Pi 2, 3 or 4. Stand by for the fastest possible install. At the end you will have a KUBECONFIG file on your local computer that you can use to access your cluster remotely.
 
@@ -217,7 +220,30 @@ You can now just run k3sup as usual. No special parameters are necessary.
 k3sup --ip $IP --user user
 ```
 
-## What are people saying about `k3sup`?
+## Contributing
+
+### Say thanks ☕️ 👏
+
+Show your support for `k3sup` and through [GitHub Sponsors](https://github.com/users/alexellis/sponsorship) today, pay whatever you want.
+
+### Blog posts & tweets
+
+Blogs posts, tutorials, and Tweets about k3sup (`#k3sup`) are appreciated. Please send a PR to the README.md file to add yours.
+
+### Contributing via GitHub
+
+Before contributing code, please see the [CONTRIBUTING guide](https://github.com/alexellis/inlets/blob/master/CONTRIBUTING.md). Note that k3sup uses the same guide as [inlets.dev](https://inlets.dev/).
+
+Both Issues and PRs have their own templates. Please fill out the whole template.
+
+All commits must be signed-off as part of the [Developer Certificate of Origin (DCO)](https://developercertificate.org)
+
+### License
+
+MIT
+
+
+## 📢 What are people saying about `k3sup`?
 
 * [Multi-node Kubernetes on Civo in 5 minutes flat with k3sup!](https://www.civo.com/learn/kubernetes-on-civo-in-5-minutes-flat) - Civo Learn guide
 
@@ -257,25 +283,3 @@ Related tools:
 * [kind](https://github.com/kubernetes-sigs/kind) - kind can run a Kubernetes cluster within a Docker container for local development. k3s is also suitable for this purpose through `k3d`. KinD is not suitable for running a remote cluster for development.
 * [kubeadm](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/) - a tool to create fully-loaded, production-ready Kubernetes clusters with or without high-availability (HA). Tends to be heavier-weight and slower than k3s. It is aimed at cloud VMs or bare-metal computers which means it doesn't always work well with low-powered ARM devices.
 * [k3v](https://github.com/ibuildthecloud/k3v) - "virtual kubernetes" - a very early PoC from the author of k3s aiming to slice up a single cluster for multiple tenants
-
-## License
-
-MIT
-
-## Contributing
-
-### Blog posts & tweets
-
-Blogs posts, tutorials, and Tweets about k3sup (`#k3sup`) are appreciated. Please send a PR to the README.md file to add yours.
-
-### Say thanks ☕️ 👏
-
-Show your support for `k3sup` through [GitHub Sponsors](https://github.com/users/alexellis/sponsorship) from 5USD.
-
-### Contributing via GitHub
-
-Before contributing code, please see the [CONTRIBUTING guide](https://github.com/alexellis/inlets/blob/master/CONTRIBUTING.md). Note that k3sup uses the same guide as [inlets.dev](https://inlets.dev/).
-
-Both Issues and PRs have their own templates. Please fill out the whole template.
-
-All commits must be signed-off as part of the [Developer Certificate of Origin (DCO)](https://developercertificate.org)
