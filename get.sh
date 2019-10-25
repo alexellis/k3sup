@@ -88,9 +88,9 @@ getPackage() {
 
             echo
             echo "============================================================"
-            echo "==   The script was run as a user who is unable to write  =="
-            echo "==   to $BINLOCATION. To complete the installation the  =="
-            echo "==   following commands may need to be run manually.      =="
+            echo "  The script was run as a user who is unable to write"
+            echo "  to $BINLOCATION. To complete the installation the"
+            echo "  following commands may need to be run manually."
             echo "============================================================"
             echo
             echo "  sudo cp $REPO $BINLOCATION/$REPO"
@@ -105,9 +105,9 @@ getPackage() {
 
             echo
             echo "================================================================"
-            echo "==  $BINLOCATION/$REPO already exists and is not writeable  =="
-            echo "==  by the current user.  Please adjust the binary ownership  =="
-            echo "==  or run with sudo:  curl -SLs get.k3sup.dev | sudo sh      ==" 
+            echo "  $BINLOCATION/$REPO already exists and is not writeable"
+            echo "  by the current user.  Please adjust the binary ownership"
+            echo "  or run sh/bash with sudo." 
             echo "================================================================"
             echo
             exit 1
