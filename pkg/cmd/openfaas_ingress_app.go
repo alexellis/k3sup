@@ -44,7 +44,7 @@ func makeInstallOpenFaaSIngress() *cobra.Command {
 
 		yamlBytes, templateErr := buildYaml(domain, email)
 		if templateErr != nil {
-			log.Print("Unable to isntall the application. Could not build the templated yaml file for the resources")
+			log.Print("Unable to install the application. Could not build the templated yaml file for the resources")
 			return templateErr
 		}
 
@@ -76,7 +76,7 @@ func makeInstallOpenFaaSIngress() *cobra.Command {
 # This is used to validate your ownership of this domain by LetsEncrypt
 # and then you can use https with your installation. 
 
-# Ingress to your domain has been installed for OpenFaas
+# Ingress to your domain has been installed for OpenFaaS
 # to see the ingress record run
 
 kubectl get -n openfaas ingress openfaas-gateway

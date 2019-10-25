@@ -32,6 +32,7 @@ func makeInstallOpenFaaS() *cobra.Command {
 	openfaas.Flags().BoolP("basic-auth", "a", true, "Enable authentication")
 	openfaas.Flags().BoolP("load-balancer", "l", false, "Add a loadbalancer")
 	openfaas.Flags().StringP("namespace", "n", "openfaas", "The namespace for the core services")
+	openfaas.Flags().Bool("update-repo", true, "Update the helm repo")
 
 	openfaas.RunE = func(command *cobra.Command, args []string) error {
 		kubeConfigPath := getDefaultKubeconfig()
@@ -76,7 +77,14 @@ func makeInstallOpenFaaS() *cobra.Command {
 			return err
 		}
 
-		err = updateHelmRepos()
+		updateRepo, _ := openfaas.Flags().GetBool("update-repo")
+
+		if updateRepo {
+			err = updateHelmRepos()
+			if err != nil {
+				return err
+			}
+		}
 
 		if err != nil {
 			return err

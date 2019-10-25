@@ -20,6 +20,7 @@ func makeInstallCertManager() *cobra.Command {
 	}
 
 	certManager.Flags().StringP("namespace", "n", "cert-manager", "The namespace to install cert-manager")
+	certManager.Flags().Bool("update-repo", true, "Update the helm repo")
 
 	certManager.RunE = func(command *cobra.Command, args []string) error {
 		kubeConfigPath := getDefaultKubeconfig()
@@ -35,9 +36,6 @@ func makeInstallCertManager() *cobra.Command {
 		if namespace != "cert-manager" {
 			return fmt.Errorf(`To override the "cert-manager" namespace, install cert-manager via helm manually`)
 		}
-
-		arch := getArchitecture()
-		fmt.Printf("Node architecture: %s\n", arch)
 
 		userPath, err := config.InitUserDir()
 		if err != nil {
@@ -61,10 +59,13 @@ func makeInstallCertManager() *cobra.Command {
 		if err != nil {
 			return err
 		}
+		updateRepo, _ := certManager.Flags().GetBool("update-repo")
 
-		err = updateHelmRepos()
-		if err != nil {
-			return err
+		if updateRepo {
+			err = updateHelmRepos()
+			if err != nil {
+				return err
+			}
 		}
 
 		err = kubectl("create", "namespace", namespace)

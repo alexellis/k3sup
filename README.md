@@ -106,18 +106,21 @@ Install apps with `k3sup` `>=0.4.0` directly into any Kubernetes cluster, all yo
 You can install [openfaas](https://github.com/openfaas/faas) for Kubernetes in a single command, it will detect whether you're using a Raspberry Pi or a regular computer.
 
 ```sh
-# OpenFaaS - microservices and functions for Kubernetes
-k3sup app install openfaas          # PC, RPi, ARM64
+# OpenFaaS - microservices and functions for Kubernetes, PC, RPi, ARM64
+k3sup app install openfaas
 
-# Metrics for Pods and Nodes
-k3sup app install metrics-server    # PC only
+# Metrics for Pods and Nodes, PC only
+k3sup app install metrics-server
 
 # Get a public IP / Service LoadBalancer via DigitalOcean
-# or Packet.com
-k3sup app install inlets-operator   # PC only
+# or Packet.com, PC Only
+k3sup app install inlets-operator
 
-# cert-manager - obtain free TLS certificates from LetsEncrypt
+# cert-manager - obtain free TLS certificates from LetsEncrypt, PC only
 k3sup app install cert-manager
+
+# nginx - install the Nginx IngressController, PC only
+k3sup app install nginx-ingress
 ```
 
 Find out more:
