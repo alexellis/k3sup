@@ -14,16 +14,15 @@ import (
 )
 
 type InputData struct {
-	IngressDomain 	string
-	CertmanagerEmail	string
+	IngressDomain    string
+	CertmanagerEmail string
 }
-
 
 func makeInstallOpenFaaSIngress() *cobra.Command {
 	var openfaasIngress = &cobra.Command{
 		Use:          "openfaas-ingress",
 		Short:        "Install openfaas ingress with TLS",
-		Long:         `Install openfaas ingress. Requires cert-manager installation in the cluster. Please set --domain to your custom domain and set --email to your email - this email is used by letsencrypt for domain expiry etc.`,
+		Long:         `Install openfaas ingress. Requires cert-manager 0.11.0 or higher installation in the cluster. Please set --domain to your custom domain and set --email to your email - this email is used by letsencrypt for domain expiry etc.`,
 		Example:      `  k3sup app install openfaas-ingress --domain openfaas.example.com --email openfaas@example.com`,
 		SilenceUsage: true,
 	}
@@ -42,9 +41,18 @@ func makeInstallOpenFaaSIngress() *cobra.Command {
 
 		email, _ := command.Flags().GetString("email")
 		domain, _ := command.Flags().GetString("domain")
-		yamlBytes := buildYaml(domain, email)
 
-		tempFile := writeTempFile(yamlBytes)
+		yamlBytes, templateErr := buildYaml(domain, email)
+		if templateErr != nil {
+			log.Print("Unable to isntall the application. Could not build the templated yaml file for the resources")
+			return templateErr
+		}
+
+		tempFile, tempFileErr := writeTempFile(yamlBytes)
+		if tempFileErr != nil {
+			log.Print("Unable to save generated yaml file into the temporary directory")
+			return tempFileErr
+		}
 
 		res, err := kubectlTask("apply", "-f", tempFile)
 
@@ -54,13 +62,9 @@ func makeInstallOpenFaaSIngress() *cobra.Command {
 		}
 
 		if res.Stderr != "" {
-			log.Printf("Unable to install this application. Have you got OpenFaas running in the openfaas namespace and cert-managet installed in cert-manager namespace? %s", res.Stderr)
+			log.Printf("Unable to install this application. Have you got OpenFaaS running in the openfaas namespace and cert-manager 0.11.0 or higher installed in cert-manager namespace? %s", res.Stderr)
 			return err
 		}
-
-
-
-
 
 		fmt.Println(`=======================================================================
 = OpenFaaS Ingress and cert-manager ClusterIssuer have been installed  =
@@ -75,17 +79,17 @@ func makeInstallOpenFaaSIngress() *cobra.Command {
 # Ingress to your domain has been installed for OpenFaas
 # to see the ingress record run
 
-kubectl get -n openfaas Ingress openfaas-gateway
+kubectl get -n openfaas ingress openfaas-gateway
 
 # A cert-manager ClusterIssuer has been installed into the default
 # namespace - to see the resource run
 kubectl describe ClusterIssuer letsencrypt-prod
 
 # To check the status of your certificate you can run
-kubectl describe -n openfaas Certificate gw-openfaas
+kubectl describe -n openfaas Certificate openfaas-gateway
 
 # It may take a while to be issued by LetsEncrypt, in the meantime a 
-# Self Signed cert will be installed
+# self-signed cert will be installed
 
 
 Thank you for using k3sup!`)
@@ -96,39 +100,56 @@ Thank you for using k3sup!`)
 	return openfaasIngress
 }
 
-
-func writeTempFile(input []byte) string {
-	var filename = filepath.Join(os.TempDir(), "temp_openfaas_ingress.yaml")
-
-	err := ioutil.WriteFile(filename,input, 0644)
-	if err != nil {
-		log.Panic("Could not open a temporary file to write our Yaml")
+func createTempDirectory(directory string) (string, error) {
+	tempDirectory := filepath.Join(os.TempDir(), directory)
+	if _, err := os.Stat(tempDirectory); os.IsNotExist(err) {
+		log.Printf(tempDirectory)
+		errr := os.Mkdir(tempDirectory, 0744)
+		if errr != nil {
+			log.Printf("couldnt make dir %s", err)
+			return "", err
+		}
 	}
-	return filename
+
+	return tempDirectory, nil
 }
 
-func buildYaml(domain string, email string) []byte {
+func writeTempFile(input []byte) (string, error) {
+	var tempDirectory, dirErr = createTempDirectory(".k3sup/")
+	if dirErr != nil {
+		return "", dirErr
+	}
+
+	filename := filepath.Join(tempDirectory, "temp_openfaas_ingress.yaml")
+
+	err := ioutil.WriteFile(filename, input, 0744)
+	if err != nil {
+		return "", err
+	}
+	return filename, nil
+}
+
+func buildYaml(domain string, email string) ([]byte, error) {
 	tmpl, err := template.New("yaml").Parse(yamlTemplate)
 
 	if err != nil {
-		log.Panic("Error loading Yaml Template: ", err)
+		return nil, err
 	}
 
 	inputData := InputData{
-		IngressDomain: 		domain,
-		CertmanagerEmail:	email,
+		IngressDomain:    domain,
+		CertmanagerEmail: email,
 	}
 	var tpl bytes.Buffer
 
 	err = tmpl.Execute(&tpl, inputData)
 
 	if err != nil {
-		log.Panic("Error executing template: ", err)
+		return nil, err
 	}
 
-	return tpl.Bytes()
+	return tpl.Bytes(), nil
 }
-
 
 var yamlTemplate = `
 apiVersion: extensions/v1beta1 
@@ -137,7 +158,6 @@ metadata:
   name: openfaas-gateway
   namespace: openfaas
   annotations:
-    certmanager.k8s.io/acme-challenge-type: http01
     cert-manager.io/cluster-issuer: letsencrypt-prod
     kubernetes.io/ingress.class: nginx
 spec:
@@ -152,7 +172,7 @@ spec:
   tls:
   - hosts:
     - {{.IngressDomain}}
-    secretName: gw-openfaas
+    secretName: openfaas-gateway
 ---
 apiVersion: cert-manager.io/v1alpha2
 kind: ClusterIssuer
@@ -160,15 +180,10 @@ metadata:
   name: letsencrypt-prod
 spec:
   acme:
-    # You must replace this email address with your own.
-    # Let's Encrypt will use this to contact you about expiring
-    # certificates, and issues related to your account.
     email: {{.CertmanagerEmail}}
     server: https://acme-v02.api.letsencrypt.org/directory
     privateKeySecretRef:
-      # Secret resource used to store the account's private key.
       name: example-issuer-account-key
-    # Add a single challenge solver, HTTP01 using nginx
     solvers:
     - http01:
         ingress:
