@@ -37,6 +37,7 @@ func MakeInstall() *cobra.Command {
 
 	command.Flags().String("ssh-key", "~/.ssh/id_rsa", "The ssh key to use for remote login")
 	command.Flags().Int("ssh-port", 22, "The port on which to connect for ssh")
+	command.Flags().Bool("sudo", true, "Use sudo for installation. e.g. set to false when using the root user and no sudo is available.")
 	command.Flags().Bool("skip-install", false, "Skip the k3s installer")
 	command.Flags().String("local-path", "kubeconfig", "Local path to save the kubeconfig file")
 	command.Flags().String("context", "default", "Set the name of the kubeconfig context.")
@@ -49,6 +50,12 @@ func MakeInstall() *cobra.Command {
 		localKubeconfig, _ := command.Flags().GetString("local-path")
 
 		skipInstall, _ := command.Flags().GetBool("skip-install")
+
+		useSudo, _ := command.Flags().GetBool("sudo")
+		sudoPrefix := ""
+		if useSudo {
+			sudoPrefix = "sudo "
+		}
 
 		port, _ := command.Flags().GetInt("ssh-port")
 
@@ -103,7 +110,7 @@ func MakeInstall() *cobra.Command {
 			fmt.Printf("Result: %s %s\n", string(res.StdOut), string(res.StdErr))
 		}
 
-		getConfigcommand := fmt.Sprintf("sudo cat /etc/rancher/k3s/k3s.yaml\n")
+		getConfigcommand := fmt.Sprintf(sudoPrefix + "cat /etc/rancher/k3s/k3s.yaml\n")
 		fmt.Printf("ssh: %s\n", getConfigcommand)
 
 		res, err := operator.Execute(getConfigcommand)
