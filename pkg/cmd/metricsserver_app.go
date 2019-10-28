@@ -66,7 +66,7 @@ func makeInstallMetricsServer() *cobra.Command {
 		}
 
 		overrides := map[string]string{}
-		overrides["args"] = `{--kubelet-insecure-tls,--kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname}`
+		overrides["args"] = `{--kubelet-insecure-tls,--kubelet-preferred-address-types=InternalIP\,ExternalIP\,Hostname}`
 		fmt.Println("Chart path: ", chartPath)
 		outputPath := path.Join(chartPath, "metrics-server/rendered")
 
