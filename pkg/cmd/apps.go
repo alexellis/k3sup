@@ -50,5 +50,5 @@ func MakeApps() *cobra.Command {
 }
 
 func getApps() []string {
-	return []string{"openfaas", "nginx-ingress", "cert-manager", "openfaas-ingress", "inlets-operator", "metrics-server"}
+	return []string{"openfaas", "nginx-ingress", "cert-manager", "openfaas-ingress", "inlets-operator", "metrics-server", "chart", "tiller"}
 }
