@@ -51,7 +51,7 @@ func makeInstallNginx() *cobra.Command {
 
 		os.Setenv("HELM_HOME", path.Join(userPath, ".helm"))
 
-		err = tryDownloadHelm(userPath, clientArch, clientOS)
+		_, err = tryDownloadHelm(userPath, clientArch, clientOS)
 		if err != nil {
 			return err
 		}
