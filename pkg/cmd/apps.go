@@ -43,6 +43,7 @@ func MakeApps() *cobra.Command {
 	install.AddCommand(makeInstallCertManager())
 	install.AddCommand(makeInstallOpenFaaSIngress())
 	install.AddCommand(makeInstallNginx())
+	install.AddCommand(makeInstallChart())
 
 	return command
 }

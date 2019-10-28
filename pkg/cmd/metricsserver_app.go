@@ -116,15 +116,3 @@ Thank you for using k3sup!`)
 
 	return metricsServer
 }
-
-func tryDownloadHelm(userPath, clientArch, clientOS string) error {
-	if _, statErr := os.Stat(path.Join(path.Join(userPath, ".bin"), "helm")); statErr != nil {
-		downloadHelm(userPath, clientArch, clientOS)
-
-		err := helmInit()
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
