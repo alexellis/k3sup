@@ -11,7 +11,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/alexellis/go-execute"
+	execute "github.com/alexellis/go-execute/pkg/v1"
 
 	"github.com/sethvargo/go-password/password"
 

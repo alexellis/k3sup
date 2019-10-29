@@ -2,12 +2,12 @@
 
 
 [[projects]]
-  digest = "1:5f3df16029b0602205733ba18f315ef0980c6d50cb83a5e033a18f5e25b21b88"
+  digest = "1:72e7e0f8fdddb762535bc00934efb311db71d5ccdb4076128bac4b68f3e08e7d"
   name = "github.com/alexellis/go-execute"
-  packages = ["."]
+  packages = ["pkg/v1"]
   pruneopts = "UT"
-  revision = "f43ca01b248ab8a3302c50770c30945d18546851"
-  version = "0.1.1"
+  revision = "d17947259f74333b6272fb04c809d5e6df7709a8"
+  version = "0.2.1"
 
 [[projects]]
   digest = "1:870d441fe217b8e689d7949fef6e43efbc787e50f200cb1e70dbca9204a1d6be"
@@ -99,7 +99,7 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
-    "github.com/alexellis/go-execute",
+    "github.com/alexellis/go-execute/pkg/v1",
     "github.com/mitchellh/go-homedir",
     "github.com/morikuni/aec",
     "github.com/pkg/errors",

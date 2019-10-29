@@ -6,7 +6,7 @@ import (
 	"os"
 	"path"
 
-	"github.com/alexellis/go-execute"
+	execute "github.com/alexellis/go-execute/pkg/v1"
 
 	"github.com/alexellis/k3sup/pkg/config"
 

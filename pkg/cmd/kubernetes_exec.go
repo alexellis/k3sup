@@ -7,7 +7,7 @@ import (
 	"path"
 	"strings"
 
-	"github.com/alexellis/go-execute"
+	execute "github.com/alexellis/go-execute/pkg/v1"
 )
 
 func fetchChart(path, chart string) error {
