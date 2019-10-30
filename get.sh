@@ -36,6 +36,9 @@ getPackage() {
     "Darwin")
     suffix="-darwin"
     ;;
+    "MINGW")
+    suffix=".exe"
+    ;;
     "Linux")
         arch=$(uname -m)
         echo $arch
