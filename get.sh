@@ -32,16 +32,18 @@ getPackage() {
     userid=$(id -u)
 
     suffix=""
+
     case $uname in
     "Darwin")
     suffix="-darwin"
     ;;
-    "MINGW")
+    "MINGW"*)
     suffix=".exe"
     ;;
     "Linux")
         arch=$(uname -m)
         echo $arch
+
         case $arch in
         "aarch64")
         suffix="-arm64"
