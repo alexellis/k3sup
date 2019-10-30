@@ -39,6 +39,9 @@ getPackage() {
     ;;
     "MINGW"*)
     suffix=".exe"
+    BINLOCATION="$HOME/bin"
+    mkdir -p $BINLOCATION
+
     ;;
     "Linux")
         arch=$(uname -m)
