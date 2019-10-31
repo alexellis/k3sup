@@ -25,9 +25,11 @@ func MakeJoin() *cobra.Command {
 	command.Flags().IP("ip", nil, "Public IP of node on which to install agent")
 
 	command.Flags().String("user", "root", "Username for SSH login")
+	command.Flags().String("server-user", "root", "Server username for SSH login (Default to --user)")
 
 	command.Flags().String("ssh-key", "~/.ssh/id_rsa", "The ssh key to use for remote login")
 	command.Flags().Int("ssh-port", 22, "The port on which to connect for ssh")
+	command.Flags().Int("server-ssh-port", 22, "The port on which to connect to server for ssh (Default to --ssh-port)")
 	command.Flags().Bool("skip-install", false, "Skip the k3s installer")
 	command.Flags().Bool("sudo", true, "Use sudo for installation. e.g. set to false when using the root user and no sudo is available.")
 	command.Flags().String("k3s-extra-args", "", "Optional extra arguments to pass to k3s installer, wrapped in quotes (e.g. --k3s-extra-args '--node-taint key=value:NoExecute')")
@@ -42,9 +44,18 @@ func MakeJoin() *cobra.Command {
 		fmt.Println("Server IP: " + serverIP.String())
 
 		user, _ := command.Flags().GetString("user")
+		serverUser := user
+		if command.Flags().Changed("server-user") {
+			serverUser, _ = command.Flags().GetString("server-user")
+		}
+
 		sshKey, _ := command.Flags().GetString("ssh-key")
 
 		port, _ := command.Flags().GetInt("ssh-port")
+		serverPort := port
+		if command.Flags().Changed("server-ssh-port") {
+			serverPort, _ = command.Flags().GetInt("server-ssh-port")
+		}
 
 		k3sExtraArgs, _ := command.Flags().GetString("k3s-extra-args")
 
@@ -57,7 +68,7 @@ func MakeJoin() *cobra.Command {
 		}
 
 		sshKeyPath := expandPath(sshKey)
-		fmt.Printf("ssh -i %s %s@%s\n", sshKeyPath, user, serverIP.String())
+		fmt.Printf("ssh -i %s -p %v %s@%s\n", sshKeyPath, serverPort, serverUser, serverIP.String())
 
 		authMethod, closeSSHAgent, err := loadPublickey(sshKeyPath)
 		if err != nil {
@@ -74,7 +85,7 @@ func MakeJoin() *cobra.Command {
 			HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 		}
 
-		address := fmt.Sprintf("%s:%d", serverIP.String(), port)
+		address := fmt.Sprintf("%s:%d", serverIP.String(), serverPort)
 		operator, err := kssh.NewSSHOperator(address, config)
 
 		if err != nil {
