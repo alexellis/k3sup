@@ -2,13 +2,18 @@ package cmd
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
+	"net/http"
+	"net/url"
 	"os"
 	"path"
 	"strings"
 
 	execute "github.com/alexellis/go-execute/pkg/v1"
 )
+
+const helmVersion = "v2.15.2"
 
 func fetchChart(path, chart string) error {
 	mkErr := os.MkdirAll(path, 0700)
@@ -197,4 +202,58 @@ func tryDownloadHelm(userPath, clientArch, clientOS string) (string, error) {
 		}
 	}
 	return helmBinaryPath, nil
+}
+
+// getClientArch returns a pair of arch and os
+func getClientArch() (string, string) {
+	task := execute.ExecTask{Command: "uname", Args: []string{"-m"}}
+	res, err := task.Execute()
+	if err != nil {
+		log.Println(err)
+	}
+
+	arch := strings.TrimSpace(res.Stdout)
+
+	taskOS := execute.ExecTask{Command: "uname", Args: []string{"-s"}}
+	resOS, errOS := taskOS.Execute()
+	if errOS != nil {
+		log.Println(errOS)
+	}
+
+	os := strings.TrimSpace(resOS.Stdout)
+
+	return arch, os
+}
+
+func getHelmURL(arch, os, version string) string {
+	archSuffix := "amd64"
+	osSuffix := strings.ToLower(os)
+
+	if strings.HasPrefix(arch, "armv7") {
+		archSuffix = "arm"
+	} else if strings.HasPrefix(arch, "aarch64") {
+		archSuffix = "arm64"
+	}
+
+	return fmt.Sprintf("https://get.helm.sh/helm-%s-%s-%s.tar.gz", version, osSuffix, archSuffix)
+}
+
+func downloadHelm(userPath, clientArch, clientOS string) error {
+	helmURL := getHelmURL(clientArch, clientOS, helmVersion)
+	fmt.Println(helmURL)
+	parsedURL, _ := url.Parse(helmURL)
+
+	res, err := http.DefaultClient.Get(parsedURL.String())
+	if err != nil {
+		return err
+	}
+
+	defer res.Body.Close()
+	r := ioutil.NopCloser(res.Body)
+	untarErr := Untar(r, path.Join(userPath, ".bin"))
+	if untarErr != nil {
+		return untarErr
+	}
+
+	return nil
 }
