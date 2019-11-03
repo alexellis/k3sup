@@ -55,6 +55,7 @@ func makeInstallTiller() *cobra.Command {
 		if err != nil {
 			return err
 		}
+
 		fmt.Println(task.Stdout, task.Stderr)
 
 		task, err = kubectlTask("create", "clusterrolebinding", "tiller", "--clusterrole", "cluster-admin", "--serviceaccount=kube-system:tiller")
@@ -63,8 +64,9 @@ func makeInstallTiller() *cobra.Command {
 		}
 		fmt.Println(task.Stdout, task.Stderr)
 
+		k3supBin := path.Join(userPath, ".bin")
 		helmInit := execute.ExecTask{
-			Command: "helm",
+			Command: path.Join(k3supBin, "helm"),
 			Args: []string{
 				"init",
 				"--skip-refresh", "--upgrade", "--service-account", "tiller",
