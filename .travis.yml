@@ -12,7 +12,7 @@ deploy:
   provider: releases
   api_key:
     secure: 1iDFLmHFnC09wvgitHGryj3Qzef4ydAYAFZiYoi85WV/MfEtvPqh/t5f3HIgKP6+1jPsQ1ejPyozWEEjLu1EMzyQsWc16RCnkJj1Qv7wP7ZD0UitAitdd9G5BSGvn3gE/SQZcbI27ke3vjhymxa4ANZElKXomxGHESzGyA1ZYbMUULJ2SFsKCXDwvpvpkWe6qa5GzUY8MMmgm1s5jX+TAFcyWtpYfZ3ENaUvlACrS2ZxSbFGdfYMtNvaGtM1XswJ6urT01bOot/eXOL+VPZ9Au3JmeQy+G/sZPg1lpBit2lWf2+/EuKyrZVvcETWPL8S2/5fBnASdl3luyL3qE+MFPgGA4I0nBL6HSyGdINeEnvhT6yw/i/BB1akyXEr+/dVqz7BTjKg2muuY/mUKpaEtCMK/L/FsCzTH+bjTKeba0k42BeCXsOsKPZgM2s8TwuAGp7YipFfl7iamvwDqyCqOUzZE646VI1+IYU4dZnoKaHqB3vTphTc0I/KWZZAVsHiMpxbLfeSG+mNX7dubavYpKiEFd1/VaVHLCoP4QBH5JE0mO9kfw0F0fsXgyT0D8mRwCukq2uYlzcKruuzhfIxv7l7zNvnOhAX0iNovHxbpVS2jiM9PPa1jByRs6E4TpJhwOXU7drX0SVPQiSqpkvfmIvFi7iZp9oaj0FavONUK5Y=
-  preRelease: false
+  prerelease: false
   overwrite: true
   file: 
   - bin/k3sup
