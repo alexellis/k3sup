@@ -15,13 +15,14 @@ func makeInstallNginx() *cobra.Command {
 	var nginx = &cobra.Command{
 		Use:          "nginx-ingress",
 		Short:        "Install nginx-ingress",
-		Long:         `Install nginx-ingress`,
+		Long:         `Install nginx-ingress. This app can be installed with Host networking for cases where an external LB is not available. please see the --host-mode flag and the nginx-ingress docs for more info`,
 		Example:      `  k3sup app install nginx-ingress --namespace default`,
 		SilenceUsage: true,
 	}
 
 	nginx.Flags().StringP("namespace", "n", "default", "The namespace used for installation")
 	nginx.Flags().Bool("update-repo", true, "Update the helm repo")
+	nginx.Flags().Bool("host-mode", false, "If we should install nginx-ingress in host mode.")
 
 	nginx.RunE = func(command *cobra.Command, args []string) error {
 		kubeConfigPath := getDefaultKubeconfig()
@@ -71,11 +72,22 @@ func makeInstallNginx() *cobra.Command {
 		}
 
 		overrides := map[string]string{}
+
+		hostMode, flagErr := command.Flags().GetBool("host-mode")
+		if flagErr != nil {
+			return flagErr
+		}
+		if hostMode {
+			fmt.Println("Running in host networking mode")
+			overrides["controller.hostNetwork"] = "true"
+			overrides["controller.daemonset.useHostPort"] = "true"
+			overrides["dnsPolicy"] = "ClusterFirstWithHostNet"
+			overrides["controller.kind"] = "DaemonSet"
+		}
 		fmt.Println("Chart path: ", chartPath)
 
 		outputPath := path.Join(chartPath, "nginx-ingress/rendered")
 
-		// ns:="kube-system"
 		ns := "default"
 		err = templateChart(chartPath,
 			"nginx-ingress",
