@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -27,10 +28,18 @@ func makeInstallOpenFaaSIngress() *cobra.Command {
 		SilenceUsage: true,
 	}
 
-	openfaasIngress.Flags().StringP("domain", "d", "openfaas.example.com", "Custom Ingress Domain")
-	openfaasIngress.Flags().StringP("email", "e", "openfaas@example.com", "Letsencrypt Email")
+	openfaasIngress.Flags().StringP("domain", "d", "", "Custom Ingress Domain")
+	openfaasIngress.Flags().StringP("email", "e", "", "Letsencrypt Email")
 
 	openfaasIngress.RunE = func(command *cobra.Command, args []string) error {
+
+		email, _ := command.Flags().GetString("email")
+		domain, _ := command.Flags().GetString("domain")
+
+		if email == "" || domain == "" {
+			return errors.New("both --email and --domain flags should be set and not empty, please set these values")
+		}
+
 		kubeConfigPath := getDefaultKubeconfig()
 
 		if command.Flags().Changed("kubeconfig") {
@@ -38,9 +47,6 @@ func makeInstallOpenFaaSIngress() *cobra.Command {
 		}
 
 		fmt.Printf("Using kubeconfig: %s\n", kubeConfigPath)
-
-		email, _ := command.Flags().GetString("email")
-		domain, _ := command.Flags().GetString("domain")
 
 		yamlBytes, templateErr := buildYaml(domain, email)
 		if templateErr != nil {
@@ -78,8 +84,10 @@ func makeInstallOpenFaaSIngress() *cobra.Command {
 
 # Ingress to your domain has been installed for OpenFaaS
 # to see the ingress record run
-
 kubectl get -n openfaas ingress openfaas-gateway
+
+# Check the cert-manager logs with:
+kubectl logs -n cert-manager deploy/cert-manager
 
 # A cert-manager ClusterIssuer has been installed into the default
 # namespace - to see the resource run
