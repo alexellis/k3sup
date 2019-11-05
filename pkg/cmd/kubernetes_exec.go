@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -256,4 +257,58 @@ func downloadHelm(userPath, clientArch, clientOS string) error {
 	}
 
 	return nil
+}
+
+func getLinkerdUrl(os, version string) string {
+	osSuffix := strings.ToLower(os)
+	return fmt.Sprintf("https://github.com/linkerd/linkerd2/releases/download/%s/linkerd2-cli-%s-%s", version, version, osSuffix)
+}
+
+func downloadLinkerd(userPath, clientOS string) error {
+	filePath := path.Join(path.Join(userPath, ".bin"), "linkerd")
+	if _, statErr := os.Stat(filePath); statErr != nil {
+		linkerdUrl := getLinkerdUrl(clientOS, "stable-2.6.0")
+		fmt.Println(linkerdUrl)
+		parsedURL, _ := url.Parse(linkerdUrl)
+
+		res, err := http.DefaultClient.Get(parsedURL.String())
+		if err != nil {
+			return err
+		}
+
+		defer res.Body.Close()
+		out, err := os.Create(filePath)
+		if err != nil {
+			return err
+		}
+		defer out.Close()
+
+		// Write the body to file
+		_, err = io.Copy(out, res.Body)
+
+		err = os.Chmod(filePath, 0755)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func linkerdCli(parts ...string) (execute.ExecResult, error) {
+	task := execute.ExecTask{
+		Command: fmt.Sprintf("%s", localBinary("linkerd")),
+		Args:    parts,
+		Env:     os.Environ(),
+	}
+	res, err := task.Execute()
+
+	if err != nil {
+		return res, err
+	}
+
+	if res.ExitCode != 0 {
+		return res, fmt.Errorf("exit code %d", res.ExitCode)
+	}
+
+	return res, nil
 }
