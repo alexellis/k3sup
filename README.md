@@ -39,8 +39,11 @@ sudo install k3sup /usr/local/bin/
 
 k3sup --help
 ```
+`k3sup` is made available free-of-charge, but you can support its ongoing development through [GitHub Sponsors](https://insiders.openfaas.io/) 💪
 
-> Note: `k3sup` is made available free-of-charge, but you can support its ongoing development through [GitHub Sponsors](https://insiders.openfaas.io/) 💪
+### A note for Windows users
+
+Windows users can use `k3sup install` and `k3sup join` with a normal "Windows command prompt", but the `k3sup app install` feature requires [Git Bash](https://git-scm.com/downloads) to be run first.
 
 ## Demo 📼
 
