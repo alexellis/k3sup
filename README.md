@@ -89,8 +89,8 @@ Other options for `install`:
 
 * `--skip-install` - if you already have k3s installed, you can just run this command to get the `kubeconfig`
 * `--ssh-key` - specify a specific path for the SSH key for remote login
-* `--local-path` - default is `./kubeconfig` - set the file where you want to save your cluster's `kubeconfig`.  By default
-  this file will be overwritten.  Use `--merge` to merge the new config with an existing one instead (e.g. `--local-path ~/.kube/config --merge`).
+* `--local-path` - default is `./kubeconfig` - set the file where you want to save your cluster's `kubeconfig`.  By default this file will be overwritten.
+* `--merge` - Merge config into existing file instead of overwriting (e.g. to add config to the default kubectl config, use `--local-path ~/.kube/config --merge`).
 * `--context` - default is `default` - set the name of the kubeconfig context.
 * `--ssh-port` - default is `22`, but you can specify an alternative port i.e. `2222`
 * `--k3s-extra-args` - Optional extra arguments to pass to k3s installer, wrapped in quotes, i.e. `--k3s-extra-args '--no-deploy traefik'` or `--k3s-extra-args '---docker'`.
