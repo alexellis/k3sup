@@ -43,7 +43,7 @@ k3sup --help
 
 ### A note for Windows users
 
-Windows users can use `k3sup install` and `k3sup join` with a normal "Windows command prompt", but the `k3sup app install` feature requires [Git Bash](https://git-scm.com/downloads) to be run first.
+Windows users can use `k3sup install` and `k3sup join` with a normal "Windows command prompt", but the `k3sup app install` feature needs to be run inside a [Git Bash](https://git-scm.com/downloads) terminal.
 
 ## Demo 📼
 
