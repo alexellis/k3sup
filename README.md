@@ -102,6 +102,8 @@ export KUBECONFIG=`pwd`/kubeconfig
 kubectl get node
 ```
 
+> Note: There is an issue in k3s involving iptables that can affect the network communication. See the [k3s issue](https://github.com/rancher/k3s/issues/703) and the corresponding [kubernetes one](https://github.com/kubernetes/kubernetes/issues/71305) for more information and workarounds.
+
 ### 🎬 Install an `app` with `k3sup`
 
 Install apps with `k3sup` `>=0.4.0` directly into any Kubernetes cluster, all you need is `kubectl` access.
