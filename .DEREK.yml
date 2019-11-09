@@ -24,7 +24,7 @@ custom_messages:
   - name: slack
     value: |
            --
-           The k3sup project the #kubernetes channel in the OpenFaaS Slack
+           The k3sup project the #k3sup channel in the OpenFaaS Slack
            community.
            Join Slack to connect with the community
            https://docs.openfaas.com/community
