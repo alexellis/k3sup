@@ -161,8 +161,11 @@ faas-cli store deploy figlet
 faas-cli list
 
 # For Raspberry Pi
+faas-cli store list \
+ --platform armhf
+
 faas-cli store deploy figlet \
- -u https://raw.githubusercontent.com/openfaas/store/master/store-armhf.json
+ --platform armhf
 
 # Find out more at:
 # https://github.com/openfaas/faas
