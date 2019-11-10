@@ -86,7 +86,7 @@ kubectl delete svc/nginx-1
 # Find out more at:
 # https://github.com/inlets/inlets-operator
 
-Thank you for using k3sup!`)
+` + thanksForUsing)
 
 		return nil
 	}

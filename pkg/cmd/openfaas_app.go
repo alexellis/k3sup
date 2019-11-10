@@ -140,10 +140,13 @@ func makeInstallOpenFaaS() *cobra.Command {
 			return err
 		}
 
-		err = kubectl("apply", "-R", "-f", outputPath)
+		applyRes, applyErr := kubectlTask("apply", "-R", "-f", outputPath)
+		if applyErr != nil {
+			return applyErr
+		}
 
-		if err != nil {
-			return err
+		if applyRes.ExitCode > 0 {
+			return fmt.Errorf("Error applying templated YAML files, error: %s", applyRes.Stderr)
 		}
 
 		fmt.Println(`=======================================================================
@@ -174,7 +177,7 @@ faas-cli store deploy figlet \
 # Find out more at:
 # https://github.com/openfaas/faas
 
-Thank you for using k3sup!`)
+` + thanksForUsing)
 
 		return nil
 	}

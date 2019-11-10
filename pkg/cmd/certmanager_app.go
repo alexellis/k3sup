@@ -59,6 +59,7 @@ func makeInstallCertManager() *cobra.Command {
 		if err != nil {
 			return err
 		}
+
 		updateRepo, _ := certManager.Flags().GetBool("update-repo")
 
 		if updateRepo {
@@ -68,9 +69,13 @@ func makeInstallCertManager() *cobra.Command {
 			}
 		}
 
-		err = kubectl("create", "namespace", namespace)
-		if err != nil {
-			return err
+		nsRes, nsErr := kubectlTask("create", "namespace", namespace)
+		if nsErr != nil {
+			return nsErr
+		}
+
+		if nsRes.ExitCode != 0 {
+			fmt.Printf("[Warning] unable to create namespace %s, may already exist: %s", namespace, nsRes.Stderr)
 		}
 
 		chartPath := path.Join(os.TempDir(), "charts")
@@ -88,18 +93,24 @@ func makeInstallCertManager() *cobra.Command {
 		}
 
 		log.Printf("Applying CRD\n")
-
-		res, err := kubectlTask("apply", "--validate=false", "-f", "https://raw.githubusercontent.com/jetstack/cert-manager/release-0.11/deploy/manifests/00-crds.yaml")
+		crdsURL := "https://raw.githubusercontent.com/jetstack/cert-manager/release-0.11/deploy/manifests/00-crds.yaml"
+		res, err := kubectlTask("apply", "--validate=false", "-f",
+			crdsURL)
 		if err != nil {
 			return err
 		}
-		if len(res.Stderr) > 0 {
-			return fmt.Errorf("Error applying CRD: %s", res.Stderr)
+
+		if res.ExitCode > 0 {
+			return fmt.Errorf("Error applying CRD from: %s, error: %s", crdsURL, res.Stderr)
 		}
 
-		err = kubectl("apply", "-R", "-f", outputPath)
-		if err != nil {
-			return err
+		applyRes, applyErr := kubectlTask("apply", "-R", "-f", outputPath)
+		if applyErr != nil {
+			return applyErr
+		}
+
+		if applyRes.ExitCode > 0 {
+			return fmt.Errorf("Error applying templated YAML files, error: %s", applyRes.Stderr)
 		}
 
 		fmt.Println(`=======================================================================

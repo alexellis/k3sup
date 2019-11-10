@@ -81,10 +81,13 @@ func makeInstallMetricsServer() *cobra.Command {
 			return err
 		}
 
-		err = kubectl("-n", namespace, "apply", "-R", "-f", outputPath)
+		applyRes, applyErr := kubectlTask("apply", "-R", "-f", outputPath)
+		if applyErr != nil {
+			return applyErr
+		}
 
-		if err != nil {
-			return err
+		if applyRes.ExitCode > 0 {
+			return fmt.Errorf("Error applying templated YAML files, error: %s", applyRes.Stderr)
 		}
 
 		fmt.Println(`=======================================================================
@@ -107,7 +110,7 @@ kubectl top node
 # Find out more at:
 # https://github.com/helm/charts/tree/master/stable/metrics-server
 
-Thank you for using k3sup!`)
+` + thanksForUsing)
 
 		return nil
 	}
