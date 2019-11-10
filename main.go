@@ -8,13 +8,10 @@ import (
 func main() {
 
 	cmdInstall := cmd.MakeInstall()
-
 	cmdVersion := cmd.MakeVersion()
-
 	cmdJoin := cmd.MakeJoin()
-
 	cmdApps := cmd.MakeApps()
-
+	cmdUpdate := cmd.MakeUpdate()
 	printk3supASCIIArt := cmd.PrintK3supASCIIArt
 
 	var rootCmd = &cobra.Command{
@@ -29,6 +26,7 @@ func main() {
 	rootCmd.AddCommand(cmdVersion)
 	rootCmd.AddCommand(cmdJoin)
 	rootCmd.AddCommand(cmdApps)
+	rootCmd.AddCommand(cmdUpdate)
 
 	rootCmd.Execute()
 }

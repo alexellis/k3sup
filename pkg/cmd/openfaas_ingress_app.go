@@ -67,9 +67,10 @@ func makeInstallOpenFaaSIngress() *cobra.Command {
 			return err
 		}
 
-		if res.Stderr != "" {
-			log.Printf("Unable to install this application. Have you got OpenFaaS running in the openfaas namespace and cert-manager 0.11.0 or higher installed in cert-manager namespace? %s", res.Stderr)
-			return err
+		if res.ExitCode != 0 {
+			return fmt.Errorf(`Unable to apply YAML files.
+Have you got OpenFaaS running in the openfaas namespace and cert-manager 0.11.0 or higher installed in cert-manager namespace? %s`,
+				res.Stderr)
 		}
 
 		fmt.Println(`=======================================================================
@@ -99,8 +100,7 @@ kubectl describe -n openfaas Certificate openfaas-gateway
 # It may take a while to be issued by LetsEncrypt, in the meantime a 
 # self-signed cert will be installed
 
-
-Thank you for using k3sup!`)
+` + thanksForUsing)
 
 		return nil
 	}

@@ -134,7 +134,7 @@ before using the generic helm chart installer command.`,
 chart ` + chartRepoName + ` installed.
 =======================================================================
 		
-Thank you for using k3sup!`)
+` + thanksForUsing)
 
 		return nil
 	}

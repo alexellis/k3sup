@@ -92,7 +92,7 @@ tiller has been installed
 
 ` + helmBinary + `
 
-Thank you for using k3sup!`)
+` + thanksForUsing)
 
 		return nil
 	}

@@ -122,7 +122,7 @@ kubectl get svc nginx-ingress-controller
 # Find out more at:
 # https://github.com/helm/charts/tree/master/stable/nginx-ingress
 
-Thank you for using k3sup!`)
+` + thanksForUsing)
 
 		return nil
 	}
