@@ -85,7 +85,7 @@ func makeInstallOpenFaaS() *cobra.Command {
 			return err
 		}
 
-		err = kubectl("apply", "-f",
+		_, err = kubectlTask("apply", "-f",
 			"https://raw.githubusercontent.com/openfaas/faas-netes/master/namespaces.yml")
 
 		if err != nil {
@@ -97,13 +97,17 @@ func makeInstallOpenFaaS() *cobra.Command {
 			return err
 		}
 
-		_, err = kubectlTask("-n", namespace, "create", "secret", "generic",
+		res, secretErr := kubectlTask("-n", namespace, "create", "secret", "generic",
 			"basic-auth",
 			"--from-literal=basic-auth-user=admin",
 			`--from-literal=basic-auth-password=`+pass)
 
-		if err != nil {
-			return err
+		if secretErr != nil {
+			return secretErr
+		}
+
+		if res.ExitCode != 0 {
+			fmt.Printf("[Warning] unable to create secret %s, may already exist: %s", "basic-auth", res.Stderr)
 		}
 
 		chartPath := path.Join(os.TempDir(), "charts")
