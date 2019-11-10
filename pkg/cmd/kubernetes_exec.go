@@ -13,7 +13,7 @@ import (
 	execute "github.com/alexellis/go-execute/pkg/v1"
 )
 
-const helmVersion = "v2.15.2"
+const helmVersion = "v2.16.0"
 
 func fetchChart(path, chart string) error {
 	mkErr := os.MkdirAll(path, 0700)
@@ -97,7 +97,7 @@ func templateChart(basePath, chart, namespace, outputPath, values string, overri
 
 func localBinary(name string) string {
 	home := os.Getenv("HOME")
-	return path.Join(path.Join(home, ".k3sup/.bin/"), name)
+	return path.Join(path.Join(home, ".k3sup/bin/"), name)
 }
 
 func addHelmRepo(name, url string) error {
@@ -194,7 +194,7 @@ func getDefaultKubeconfig() string {
 }
 
 func tryDownloadHelm(userPath, clientArch, clientOS string) (string, error) {
-	helmBinaryPath := path.Join(path.Join(userPath, ".bin"), "helm")
+	helmBinaryPath := path.Join(path.Join(userPath, "bin"), "helm")
 	if _, statErr := os.Stat(helmBinaryPath); statErr != nil {
 		downloadHelm(userPath, clientArch, clientOS)
 
@@ -241,7 +241,12 @@ func getHelmURL(arch, os, version string) string {
 }
 
 func downloadHelm(userPath, clientArch, clientOS string) error {
-	helmURL := getHelmURL(clientArch, clientOS, helmVersion)
+	useHelmVersion := helmVersion
+	if val, ok := os.LookupEnv("HELM_VERSION"); ok && len(val) > 0 {
+		useHelmVersion = val
+	}
+
+	helmURL := getHelmURL(clientArch, clientOS, useHelmVersion)
 	fmt.Println(helmURL)
 	parsedURL, _ := url.Parse(helmURL)
 
@@ -252,7 +257,7 @@ func downloadHelm(userPath, clientArch, clientOS string) error {
 
 	defer res.Body.Close()
 	r := ioutil.NopCloser(res.Body)
-	untarErr := Untar(r, path.Join(userPath, ".bin"))
+	untarErr := Untar(r, path.Join(userPath, "bin"))
 	if untarErr != nil {
 		return untarErr
 	}

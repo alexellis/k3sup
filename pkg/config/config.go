@@ -17,7 +17,7 @@ func InitUserDir() (string, error) {
 		return home, fmt.Errorf("env-var HOME, not set")
 	}
 
-	binPath := path.Join(root, "/.bin/")
+	binPath := path.Join(root, "/bin/")
 	err := os.MkdirAll(binPath, 0700)
 	if err != nil {
 		return binPath, err

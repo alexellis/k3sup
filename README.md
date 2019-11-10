@@ -250,7 +250,6 @@ All commits must be signed-off as part of the [Developer Certificate of Origin (
 
 MIT
 
-
 ## 📢 What are people saying about `k3sup`?
 
 * [Multi-node Kubernetes on Civo in 5 minutes flat with k3sup!](https://www.civo.com/learn/kubernetes-on-civo-in-5-minutes-flat) - Civo Learn guide

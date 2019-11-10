@@ -64,7 +64,7 @@ func makeInstallTiller() *cobra.Command {
 		}
 		fmt.Println(task.Stdout, task.Stderr)
 
-		k3supBin := path.Join(userPath, ".bin")
+		k3supBin := path.Join(userPath, "bin")
 		helmInit := execute.ExecTask{
 			Command: path.Join(k3supBin, "helm"),
 			Args: []string{
