@@ -176,7 +176,9 @@ func kubectl(parts ...string) error {
 	}
 
 	if res.ExitCode != 0 {
-		return fmt.Errorf("exit code %d", res.ExitCode)
+		return fmt.Errorf("kubectl exit code %d, stderr: %s",
+			res.ExitCode,
+			res.Stderr)
 	}
 	return nil
 }
