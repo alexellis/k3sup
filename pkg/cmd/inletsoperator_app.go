@@ -2,7 +2,12 @@ package cmd
 
 import (
 	"fmt"
+	"log"
+	"os"
+	"path"
+	"strings"
 
+	"github.com/alexellis/k3sup/pkg/config"
 	"github.com/spf13/cobra"
 )
 
@@ -16,7 +21,14 @@ func makeInstallInletsOperator() *cobra.Command {
 	}
 
 	inletsOperator.Flags().StringP("namespace", "n", "default", "The namespace used for installation")
-	inletsOperator.Flags().StringP("token-file", "t", "", "Text file for your DigitalOcean token")
+	inletsOperator.Flags().StringP("license", "l", "", "The license key if using inlets-pro")
+	inletsOperator.Flags().StringP("provider", "p", "gce", "The default provider to use")
+	inletsOperator.Flags().StringP("zone", "z", "us-central1-a", "The zone to provision the exit node (Used by GCE")
+	inletsOperator.Flags().String("project-id", "", "Project ID to be used (Used by GCE and packet)")
+	inletsOperator.Flags().StringP("region", "r", "ams1", "The default region to provisoin the exit node (Used by Digital Ocean, packet and Scaleway")
+	inletsOperator.Flags().String("organization-id", "", "The organization id (Used by Scaleway")
+	inletsOperator.Flags().StringP("token-file", "t", "", "Text file containing token or a service account JSON file")
+	inletsOperator.Flags().Bool("update-repo", true, "Update the helm repo")
 
 	inletsOperator.RunE = func(command *cobra.Command, args []string) error {
 		kubeConfigPath := getDefaultKubeconfig()
@@ -30,12 +42,60 @@ func makeInstallInletsOperator() *cobra.Command {
 		namespace, _ := command.Flags().GetString("namespace")
 
 		if namespace != "default" {
-			return fmt.Errorf(`to override the namespace, edit the YAML files on GitHub`)
+			return fmt.Errorf(`to override the namespace, install inlets-operator via helm manually`)
 		}
+
+		arch := getArchitecture()
+		fmt.Printf("Node architecture: %q\n", arch)
+
+		userPath, err := config.InitUserDir()
+		if err != nil {
+			return err
+		}
+
+		clientArch, clientOS := getClientArch()
+
+		fmt.Printf("Client: %q, %q\n", clientArch, clientOS)
+
+		log.Printf("User dir established as: %s\n", userPath)
+
+		os.Setenv("HELM_HOME", path.Join(userPath, ".helm"))
+
+		_, err = tryDownloadHelm(userPath, clientArch, clientOS)
+		if err != nil {
+			return err
+		}
+
+		err = addHelmRepo("inlets", "https://inlets.github.io/inlets-operator/")
+		if err != nil {
+			return err
+		}
+
+		updateRepo, _ := inletsOperator.Flags().GetBool("upadte-repo")
+
+		if updateRepo {
+			err = updateHelmRepos()
+			if err != nil {
+				return err
+			}
+		}
+
+		chartPath := path.Join(os.TempDir(), "charts")
+
+		err = fetchChart(chartPath, "inlets/inlets-operator")
+		if err != nil {
+			return err
+		}
+
+		_, err = kubectlTask("apply", "-f", "https://raw.githubusercontent.com/inlets/inlets-operator/master/artifacts/crd.yaml")
+		if err != nil {
+			return err
+		}
+
 		secretFileName, _ := command.Flags().GetString("token-file")
 
 		if len(secretFileName) == 0 {
-			return fmt.Errorf(`--token-file is a required field for your cloud API token`)
+			return fmt.Errorf(`--token-file is a required field for your cloud API token or service account JSON file`)
 		}
 
 		res, err := kubectlTask("create", "secret", "generic",
@@ -50,18 +110,29 @@ func makeInstallInletsOperator() *cobra.Command {
 			return err
 		}
 
-		yamls := []string{
-			"https://raw.githubusercontent.com/inlets/inlets-operator/master/artifacts/crd.yaml",
-			"https://raw.githubusercontent.com/inlets/inlets-operator/master/artifacts/operator-rbac.yaml",
-			"https://raw.githubusercontent.com/inlets/inlets-operator/master/artifacts/operator.yaml",
+		overrides := getOverridesWithPlatform(command)
+
+		region, _ := command.Flags().GetString("region")
+		overrides["region"] = region
+
+		license, _ := command.Flags().GetString("license")
+		if len(license) > 0 {
+			overrides["inletsProLicense"] = license
 		}
 
-		for _, yaml := range yamls {
-			err = kubectl("apply", "-f", yaml)
+		outputPath := path.Join(chartPath, "inlets-operator/rendered")
+		err = templateChart(chartPath, "inlets-operator", namespace, outputPath, "values.yaml", overrides)
+		if err != nil {
+			return err
+		}
 
-			if err != nil {
-				return err
-			}
+		applyRes, applyErr := kubectlTask("apply", "-R", "-f", outputPath)
+		if applyErr != nil {
+			return applyErr
+		}
+
+		if applyRes.ExitCode > 0 {
+			return fmt.Errorf("Error applying templated YAML files, error: %s", applyRes.Stderr)
 		}
 
 		fmt.Println(`=======================================================================
@@ -92,4 +163,28 @@ kubectl delete svc/nginx-1
 	}
 
 	return inletsOperator
+}
+
+func getOverridesWithPlatform(command *cobra.Command) map[string]string {
+	overrides := map[string]string{}
+	provider, _ := command.Flags().GetString("provider")
+	overrides["provider"] = strings.ToLower(provider)
+
+	if provider == "gce" {
+		gcpProjectID, _ := command.Flags().GetString("project-id")
+		overrides["gcpProjectID"] = gcpProjectID
+
+		zone, _ := command.Flags().GetString("zone")
+		overrides["zone"] = strings.ToLower(zone)
+
+	} else if provider == "packet" {
+		packetProjectID, _ := command.Flags().GetString("project-id")
+		overrides["packetProjectID"] = packetProjectID
+
+	} else if provider == "scaleway" {
+		orgID, _ := command.Flags().GetString("organization-id")
+		overrides["organization-id"] = orgID
+	}
+
+	return overrides
 }
