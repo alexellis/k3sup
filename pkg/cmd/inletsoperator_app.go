@@ -22,7 +22,7 @@ func makeInstallInletsOperator() *cobra.Command {
 
 	inletsOperator.Flags().StringP("namespace", "n", "default", "The namespace used for installation")
 	inletsOperator.Flags().StringP("license", "l", "", "The license key if using inlets-pro")
-	inletsOperator.Flags().StringP("provider", "p", "gce", "The default provider to use")
+	inletsOperator.Flags().StringP("provider", "p", "digitalocean", "The default provider to use")
 	inletsOperator.Flags().StringP("zone", "z", "us-central1-a", "The zone to provision the exit node (Used by GCE")
 	inletsOperator.Flags().String("project-id", "", "Project ID to be used (Used by GCE and packet)")
 	inletsOperator.Flags().StringP("region", "r", "ams1", "The default region to provisoin the exit node (Used by Digital Ocean, packet and Scaleway")
@@ -71,7 +71,7 @@ func makeInstallInletsOperator() *cobra.Command {
 			return err
 		}
 
-		updateRepo, _ := inletsOperator.Flags().GetBool("upadte-repo")
+		updateRepo, _ := inletsOperator.Flags().GetBool("update-repo")
 
 		if updateRepo {
 			err = updateHelmRepos()
@@ -179,7 +179,7 @@ func getOverridesWithPlatform(command *cobra.Command) map[string]string {
 
 	} else if provider == "packet" {
 		packetProjectID, _ := command.Flags().GetString("project-id")
-		overrides["packetProjectID"] = packetProjectID
+		overrides["packetProjectId"] = packetProjectID
 
 	} else if provider == "scaleway" {
 		orgID, _ := command.Flags().GetString("organization-id")
