@@ -25,7 +25,7 @@ func makeInstallInletsOperator() *cobra.Command {
 	inletsOperator.Flags().StringP("provider", "p", "digitalocean", "The default provider to use")
 	inletsOperator.Flags().StringP("zone", "z", "us-central1-a", "The zone to provision the exit node (Used by GCE")
 	inletsOperator.Flags().String("project-id", "", "Project ID to be used (Used by GCE and packet)")
-	inletsOperator.Flags().StringP("region", "r", "ams1", "The default region to provisoin the exit node (Used by Digital Ocean, packet and Scaleway")
+	inletsOperator.Flags().StringP("region", "r", "lon1", "The default region to provision the exit node (Used by Digital Ocean, Packet and Scaleway")
 	inletsOperator.Flags().String("organization-id", "", "The organization id (Used by Scaleway")
 	inletsOperator.Flags().StringP("token-file", "t", "", "Text file containing token or a service account JSON file")
 	inletsOperator.Flags().Bool("update-repo", true, "Update the helm repo")
