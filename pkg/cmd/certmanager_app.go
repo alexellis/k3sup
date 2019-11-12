@@ -120,7 +120,7 @@ func makeInstallCertManager() *cobra.Command {
 # Get started with cert-manager here:
 # https://docs.cert-manager.io/en/latest/tutorials/acme/http-validation.html
 		
-Thank you for using k3sup!`)
+`+thanksForUsing)
 
 		return nil
 	}
