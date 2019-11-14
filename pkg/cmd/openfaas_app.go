@@ -28,6 +28,8 @@ func makeInstallOpenFaaS() *cobra.Command {
 	openfaas.Flags().BoolP("load-balancer", "l", false, "Add a loadbalancer")
 	openfaas.Flags().StringP("namespace", "n", "openfaas", "The namespace for the core services")
 	openfaas.Flags().Bool("update-repo", true, "Update the helm repo")
+	openfaas.Flags().String("pull-policy", "IfNotPresent", "Pull policy for OpenFaaS core services")
+	openfaas.Flags().String("function-pull-policy", "IfNotPresent", "Pull policy for functions")
 
 	openfaas.RunE = func(command *cobra.Command, args []string) error {
 		kubeConfigPath := getDefaultKubeconfig()
@@ -120,8 +122,23 @@ func makeInstallOpenFaaS() *cobra.Command {
 
 		overrides := map[string]string{}
 
+		pullPolicy, _ := command.Flags().GetString("pull-policy")
+		if len(pullPolicy) == 0 {
+			return fmt.Errorf("you must give a value for pull-policy such as IfNotPresent or Always")
+		}
+		functionPullPolicy, _ := command.Flags().GetString("function-pull-policy")
+		if len(pullPolicy) == 0 {
+			return fmt.Errorf("you must give a value for function-pull-policy such as IfNotPresent or Always")
+		}
+
+		overrides["openfaasImagePullPolicy"] = pullPolicy
+		overrides["faasnetes.imagePullPolicy"] = functionPullPolicy
+		overrides["basicAuthPlugin.replicas"] = "1"
+
 		basicAuth, _ := command.Flags().GetBool("basic-auth")
-		overrides["basicAuth"] = strings.ToLower(strconv.FormatBool(basicAuth))
+
+		// the value in the template is "basic_auth" not the more usual basicAuth
+		overrides["basic_auth"] = strings.ToLower(strconv.FormatBool(basicAuth))
 
 		overrides["serviceType"] = "NodePort"
 		lb, _ := command.Flags().GetBool("load-balancer")
