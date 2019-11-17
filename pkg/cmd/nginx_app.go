@@ -73,6 +73,8 @@ func makeInstallNginx() *cobra.Command {
 
 		overrides := map[string]string{}
 
+		overrides["defaultBackend.enabled"] = "false"
+
 		hostMode, flagErr := command.Flags().GetBool("host-mode")
 		if flagErr != nil {
 			return flagErr
@@ -114,7 +116,7 @@ func makeInstallNginx() *cobra.Command {
 # If you're using a local environment such as "minikube" or "KinD",
 # then try the inlets operator with "k3sup app install inlets-operator"
 
-# If you're using a managed Kubernetes service, then you'll find 
+# If you're using a managed Kubernetes service, then you'll find
 # your LoadBalancer's IP under "EXTERNAL-IP" via:
 
 kubectl get svc nginx-ingress-controller
