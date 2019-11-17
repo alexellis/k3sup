@@ -124,8 +124,19 @@ k3sup app install inlets-operator
 # cert-manager - obtain free TLS certificates from LetsEncrypt, PC only
 k3sup app install cert-manager
 
-# nginx - install the Nginx IngressController, PC only
+# nginx - install the Nginx IngressController
 k3sup app install nginx-ingress
+
+# For an arm or arm64 cluster is required to set the right image for the architecture.
+# This is required until PR https://github.com/kubernetes/ingress-nginx/pull/4271 is merged
+kubectl set image deployment/nginx-ingress-controller \
+    nginx-ingress-controller=quay.io/kubernetes-ingress-controller/nginx-ingress-controller-arm:0.26.1
+
+# or
+
+kubectl set image deployment/nginx-ingress-controller \
+    nginx-ingress-controller=quay.io/kubernetes-ingress-controller/nginx-ingress-controller-arm64:0.26.1
+
 ```
 
 Find out more:
