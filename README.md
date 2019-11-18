@@ -124,7 +124,7 @@ k3sup app install inlets-operator
 # cert-manager - obtain free TLS certificates from LetsEncrypt, PC only
 k3sup app install cert-manager
 
-# nginx - install the Nginx IngressController, PC only
+# nginx - install the Nginx IngressController
 k3sup app install nginx-ingress
 ```
 
