@@ -75,6 +75,18 @@ func makeInstallNginx() *cobra.Command {
 
 		overrides["defaultBackend.enabled"] = "false"
 
+		arch := getArchitecture()
+		fmt.Printf("Node architecture: %q\n", arch)
+
+		switch arch {
+		case "amd64":
+			// use default image
+		case "arm", "arm64":
+			overrides["controller.image.repository"] = fmt.Sprintf("quay.io/kubernetes-ingress-controller/nginx-ingress-controller-%v", arch)
+		default:
+			return fmt.Errorf("architecture %v is not supported by ingress-nginx", arch)
+		}
+
 		hostMode, flagErr := command.Flags().GetBool("host-mode")
 		if flagErr != nil {
 			return flagErr
