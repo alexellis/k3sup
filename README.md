@@ -39,6 +39,8 @@ Install selected helm charts without `tiller` using `k3sup app install`. The com
 
 You can run `k3sup app install` against any Kubernetes cluster, not just k3s.
 
+[Click here for a list of apps available](https://github.com/alexellis/k3sup#-install-an-app-with-k3sup) or request [your favourite chart here](https://github.com/alexellis/k3sup/issues).
+
 ## Download `k3sup` (tl;dr)
 
 `k3sup` is distributed as a static Go binary. You can use the installer on MacOS and Linux, or visit the [Releases page](https://github.com/alexellis/k3sup/releases) to download the executable for Windows.
