@@ -18,7 +18,7 @@ You may wonder why a tool like this needs to exist when you can do this sort of 
 
 k3sup was developed to automate what can be a very manual and confusing process for many developers, who are already short on time. Once you've provisioned a VM with your favourite tooling, `k3sup` means you are only 60 seconds away from running `kubectl get pods` on your own computer. With version 0.2.0, you can even `join` other nodes into any existing k3s cluster.
 
-Uses:
+### Uses
 
 * Bootstrap Kubernetes with k3s onto any VM - either manually, during CI or through `cloudinit`
 * Get from zero to `kubectl` with `k3s` on Raspberry Pi (RPi), VMs, AWS EC2, Packet bare-metal, DigitalOcean, Civo, Scaleway, and others
@@ -26,8 +26,18 @@ Uses:
 * Join nodes into an existing `k3s` cluster with `k3sup join`
 * Install selected helm charts without `tiller` with `k3sup app install`
 
+### Use-case 1: Bootstrapping Kubernetes
+
 ![](./docs/k3sup-cloud.png)
 *Conceptual architecture, showing `k3sup` running locally against any VM such as AWS EC2 or a VPS such as DigitalOcean.*
+
+### Use-case 2: Strongly typed Helm charts aka `k3sup app install`
+
+Install selected helm charts without `tiller` using `k3sup app install`. The community has encoded default values and the steps required to install projects like openfaas and cert-manager so that you can get up and running with a single command.
+
+![](./docs/k3sup-app-install.png)
+
+You can run `k3sup app install` against any Kubernetes cluster, not just k3s.
 
 ## Download `k3sup` (tl;dr)
 
