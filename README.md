@@ -132,6 +132,7 @@ k3sup app install metrics-server
 k3sup app install inlets-operator
 
 # cert-manager - obtain free TLS certificates from LetsEncrypt, PC only
+# ARM will be available in 0.12.0
 k3sup app install cert-manager
 
 # nginx - install the Nginx IngressController, PC only
