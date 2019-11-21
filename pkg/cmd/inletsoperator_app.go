@@ -117,14 +117,12 @@ func makeInstallInletsOperator() *cobra.Command {
 		region, _ := command.Flags().GetString("region")
 		overrides["region"] = region
 
-		license, _ := command.Flags().GetString("license")
-		if len(license) > 0 {
-			overrides["inletsProLicense"] = license
+		if val, _ := command.Flags().GetString("license"); len(val) > 0 {
+			overrides["inletsProLicense"] = val
 		}
 
-		proClientImage, _ := command.Flags().GetString("pro-client-image")
-		if len(proClientImage) > 0 {
-			overrides["proClientImage"] = license
+		if val, _ := command.Flags().GetString("pro-client-image"); len(val) > 0 {
+			overrides["proClientImage"] = val
 		}
 
 		outputPath := path.Join(chartPath, "inlets-operator/rendered")
