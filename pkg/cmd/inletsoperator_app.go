@@ -30,6 +30,8 @@ func makeInstallInletsOperator() *cobra.Command {
 	inletsOperator.Flags().StringP("token-file", "t", "", "Text file containing token or a service account JSON file")
 	inletsOperator.Flags().Bool("update-repo", true, "Update the helm repo")
 
+	inletsOperator.Flags().String("pro-client-image", "", "Docker image for inlets-pro's client")
+
 	inletsOperator.RunE = func(command *cobra.Command, args []string) error {
 		kubeConfigPath := getDefaultKubeconfig()
 
@@ -118,6 +120,11 @@ func makeInstallInletsOperator() *cobra.Command {
 		license, _ := command.Flags().GetString("license")
 		if len(license) > 0 {
 			overrides["inletsProLicense"] = license
+		}
+
+		proClientImage, _ := command.Flags().GetString("pro-client-image")
+		if len(proClientImage) > 0 {
+			overrides["proClientImage"] = license
 		}
 
 		outputPath := path.Join(chartPath, "inlets-operator/rendered")
