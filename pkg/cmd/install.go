@@ -11,7 +11,7 @@ import (
 	"strings"
 
 	config "github.com/alexellis/k3sup/pkg/config"
-	kssh "github.com/alexellis/k3sup/pkg/ssh"
+	operator "github.com/alexellis/k3sup/pkg/operator"
 
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/pkg/errors"
@@ -32,7 +32,7 @@ func MakeInstall() *cobra.Command {
 		SilenceUsage: true,
 	}
 
-	command.Flags().IP("ip", nil, "Public IP of node")
+	command.Flags().IP("ip", net.ParseIP("127.0.0.1"), "Public IP of node")
 	command.Flags().String("user", "root", "Username for SSH login")
 
 	command.Flags().String("ssh-key", "~/.ssh/id_rsa", "The ssh key to use for remote login")
@@ -44,6 +44,8 @@ func MakeInstall() *cobra.Command {
 	command.Flags().String("k3s-extra-args", "", "Optional extra arguments to pass to k3s installer, wrapped in quotes (e.g. --k3s-extra-args '--no-deploy servicelb')")
 	command.Flags().Bool("merge", false, "Merge the config with existing kubeconfig if it already exists.\nProvide the --local-path flag with --merge if a kubeconfig already exists in some other directory")
 	command.Flags().String("k3s-version", config.K3sVersion, "Optional version to install, pinned at a default")
+
+	command.Flags().Bool("local", false, "Perform a local install without using ssh")
 
 	command.RunE = func(command *cobra.Command, args []string) error {
 
@@ -57,18 +59,49 @@ func MakeInstall() *cobra.Command {
 			sudoPrefix = "sudo "
 		}
 
-		port, _ := command.Flags().GetInt("ssh-port")
+		k3sVersion, _ := command.Flags().GetString("k3s-version")
+		k3sExtraArgs, _ := command.Flags().GetString("k3s-extra-args")
+
+		local, _ := command.Flags().GetBool("local")
 
 		ip, _ := command.Flags().GetIP("ip")
+
+		installK3scommand := fmt.Sprintf("curl -sLS https://get.k3s.io | INSTALL_K3S_EXEC='server --tls-san %s %s' INSTALL_K3S_VERSION='%s' sh -\n", ip, strings.TrimSpace(k3sExtraArgs), k3sVersion)
+		getConfigcommand := fmt.Sprintf(sudoPrefix + "cat /etc/rancher/k3s/k3s.yaml\n")
+		merge, _ := command.Flags().GetBool("merge")
+		context, _ := command.Flags().GetString("context")
+
+		if local {
+			operator := operator.ExecOperator{}
+
+			fmt.Printf("Executing: %s\n", installK3scommand)
+
+			res, err := operator.Execute(installK3scommand)
+			if err != nil {
+				return err
+			}
+
+			if len(res.StdErr) > 0 {
+				fmt.Printf("stderr: %q", res.StdErr)
+			}
+			if len(res.StdOut) > 0 {
+				fmt.Printf("stdout: %q", res.StdOut)
+			}
+
+			err = obtainKubeconfig(operator, getConfigcommand, ip.String(), context, localKubeconfig, merge)
+			if err != nil {
+				return err
+			}
+
+			return nil
+		}
+
+		port, _ := command.Flags().GetInt("ssh-port")
+
 		fmt.Println("Public IP: " + ip.String())
 
 		user, _ := command.Flags().GetString("user")
 		sshKey, _ := command.Flags().GetString("ssh-key")
-		merge, _ := command.Flags().GetBool("merge")
-		k3sExtraArgs, _ := command.Flags().GetString("k3s-extra-args")
-		context, _ := command.Flags().GetString("context")
-
-		k3sVersion, _ := command.Flags().GetString("k3s-version")
 
 		sshKeyPath := expandPath(sshKey)
 		fmt.Printf("ssh -i %s %s@%s\n", sshKeyPath, user, ip.String())
@@ -89,7 +122,7 @@ func MakeInstall() *cobra.Command {
 		}
 
 		address := fmt.Sprintf("%s:%d", ip.String(), port)
-		operator, err := kssh.NewSSHOperator(address, config)
+		operator, err := operator.NewSSHOperator(address, config)
 
 		if err != nil {
 			return errors.Wrapf(err, "unable to connect to %s over ssh", address)
@@ -98,7 +131,6 @@ func MakeInstall() *cobra.Command {
 		defer operator.Close()
 
 		if !skipInstall {
-			installK3scommand := fmt.Sprintf("curl -sLS https://get.k3s.io | INSTALL_K3S_EXEC='server --tls-san %s %s' INSTALL_K3S_VERSION='%s' sh -\n", ip, strings.TrimSpace(k3sExtraArgs), k3sVersion)
 
 			fmt.Printf("ssh: %s\n", installK3scommand)
 			res, err := operator.Execute(installK3scommand)
@@ -110,32 +142,11 @@ func MakeInstall() *cobra.Command {
 			fmt.Printf("Result: %s %s\n", string(res.StdOut), string(res.StdErr))
 		}
 
-		getConfigcommand := fmt.Sprintf(sudoPrefix + "cat /etc/rancher/k3s/k3s.yaml\n")
 		fmt.Printf("ssh: %s\n", getConfigcommand)
 
-		res, err := operator.Execute(getConfigcommand)
-
+		err = obtainKubeconfig(operator, getConfigcommand, ip.String(), context, localKubeconfig, merge)
 		if err != nil {
-			return fmt.Errorf("Error received processing command: %s", err)
-		}
-
-		fmt.Printf("Result: %s %s\n", string(res.StdOut), string(res.StdErr))
-
-		absPath, _ := filepath.Abs(localKubeconfig)
-
-		kubeconfig := rewriteKubeconfig(string(res.StdOut), ip.String(), context)
-
-		if merge {
-			// Create a merged kubeconfig
-			kubeconfig, err = mergeConfigs(absPath, []byte(kubeconfig))
-			if err != nil {
-				return err
-			}
-		}
-
-		// Create a new kubeconfig
-		if writeErr := writeConfig(absPath, []byte(kubeconfig), false); writeErr != nil {
-			return writeErr
+			return err
 		}
 
 		return nil
@@ -156,11 +167,41 @@ func MakeInstall() *cobra.Command {
 	return command
 }
 
+func obtainKubeconfig(operator operator.CommandOperator, getConfigcommand, ip, context, localKubeconfig string, merge bool) error {
+
+	res, err := operator.Execute(getConfigcommand)
+
+	if err != nil {
+		return fmt.Errorf("Error received processing command: %s", err)
+	}
+
+	fmt.Printf("Result: %s %s\n", string(res.StdOut), string(res.StdErr))
+
+	absPath, _ := filepath.Abs(localKubeconfig)
+
+	kubeconfig := rewriteKubeconfig(string(res.StdOut), ip, context)
+
+	if merge {
+		// Create a merged kubeconfig
+		kubeconfig, err = mergeConfigs(absPath, []byte(kubeconfig))
+		if err != nil {
+			return err
+		}
+	}
+
+	// Create a new kubeconfig
+	if writeErr := writeConfig(absPath, []byte(kubeconfig), false); writeErr != nil {
+		return writeErr
+	}
+	return nil
+}
+
 // Generates config files give the path to file: string and the data: []byte
 func writeConfig(path string, data []byte, suppressMessage bool) error {
 	absPath, _ := filepath.Abs(path)
 	if !suppressMessage {
 		fmt.Printf("Saving file to: %s\n", absPath)
+		fmt.Printf("\n# Test your cluster with:\nexport KUBECONFIG=%s\nkubectl get node -o wide\n", absPath)
 	}
 	writeErr := ioutil.WriteFile(absPath, []byte(data), 0600)
 	if writeErr != nil {
