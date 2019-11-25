@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	config "github.com/alexellis/k3sup/pkg/config"
-	kssh "github.com/alexellis/k3sup/pkg/ssh"
+	operator "github.com/alexellis/k3sup/pkg/operator"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"golang.org/x/crypto/ssh"
@@ -86,7 +86,7 @@ func MakeJoin() *cobra.Command {
 		}
 
 		address := fmt.Sprintf("%s:%d", serverIP.String(), serverPort)
-		operator, err := kssh.NewSSHOperator(address, config)
+		operator, err := operator.NewSSHOperator(address, config)
 
 		if err != nil {
 			return errors.Wrapf(err, "unable to connect to %s over ssh", address)
@@ -153,7 +153,7 @@ func setupAgent(serverIP, ip net.IP, port int, user, sshKeyPath, joinToken, k3sE
 	}
 
 	address := fmt.Sprintf("%s:%d", ip.String(), port)
-	operator, err := kssh.NewSSHOperator(address, config)
+	operator, err := operator.NewSSHOperator(address, config)
 
 	if err != nil {
 		return errors.Wrapf(err, "unable to connect to %s over ssh", address)

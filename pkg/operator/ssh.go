@@ -13,7 +13,7 @@ type SSHOperator struct {
 	conn *ssh.Client
 }
 
-func (s *SSHOperator) Close() error {
+func (s SSHOperator) Close() error {
 
 	return s.conn.Close()
 }
@@ -31,18 +31,18 @@ func NewSSHOperator(address string, config *ssh.ClientConfig) (*SSHOperator, err
 	return &operator, nil
 }
 
-func (s *SSHOperator) Execute(command string) (commandRes, error) {
+func (s SSHOperator) Execute(command string) (CommandRes, error) {
 
 	sess, err := s.conn.NewSession()
 	if err != nil {
-		return commandRes{}, err
+		return CommandRes{}, err
 	}
 
 	defer sess.Close()
 
 	sessStdOut, err := sess.StdoutPipe()
 	if err != nil {
-		return commandRes{}, err
+		return CommandRes{}, err
 	}
 
 	output := bytes.Buffer{}
@@ -57,7 +57,7 @@ func (s *SSHOperator) Execute(command string) (commandRes, error) {
 	}()
 	sessStderr, err := sess.StderrPipe()
 	if err != nil {
-		return commandRes{}, err
+		return CommandRes{}, err
 	}
 
 	errorOutput := bytes.Buffer{}
@@ -73,21 +73,21 @@ func (s *SSHOperator) Execute(command string) (commandRes, error) {
 	wg.Wait()
 
 	if err != nil {
-		return commandRes{}, err
+		return CommandRes{}, err
 	}
 
-	return commandRes{
+	return CommandRes{
 		StdErr: errorOutput.Bytes(),
 		StdOut: output.Bytes(),
 	}, nil
 }
 
-type commandRes struct {
+type CommandRes struct {
 	StdOut []byte
 	StdErr []byte
 }
 
-func executeCommand(cmd string) (commandRes, error) {
+func executeCommand(cmd string) (CommandRes, error) {
 
-	return commandRes{}, nil
+	return CommandRes{}, nil
 }
