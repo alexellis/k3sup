@@ -17,6 +17,7 @@ import (
 type InputData struct {
 	IngressDomain    string
 	CertmanagerEmail string
+	IngressClass     string
 }
 
 func makeInstallOpenFaaSIngress() *cobra.Command {
@@ -30,14 +31,20 @@ func makeInstallOpenFaaSIngress() *cobra.Command {
 
 	openfaasIngress.Flags().StringP("domain", "d", "", "Custom Ingress Domain")
 	openfaasIngress.Flags().StringP("email", "e", "", "Letsencrypt Email")
+	openfaasIngress.Flags().String("ingress-class", "nginx", "Ingress class to be used such as nginx or traefik")
 
 	openfaasIngress.RunE = func(command *cobra.Command, args []string) error {
 
 		email, _ := command.Flags().GetString("email")
 		domain, _ := command.Flags().GetString("domain")
+		ingressClass, _ := command.Flags().GetString("ingress-class")
 
 		if email == "" || domain == "" {
 			return errors.New("both --email and --domain flags should be set and not empty, please set these values")
+		}
+
+		if ingressClass == "" {
+			return errors.New("--ingress-class must be set")
 		}
 
 		kubeConfigPath := getDefaultKubeconfig()
@@ -48,7 +55,7 @@ func makeInstallOpenFaaSIngress() *cobra.Command {
 
 		fmt.Printf("Using kubeconfig: %s\n", kubeConfigPath)
 
-		yamlBytes, templateErr := buildYaml(domain, email)
+		yamlBytes, templateErr := buildYAML(domain, email, ingressClass)
 		if templateErr != nil {
 			log.Print("Unable to install the application. Could not build the templated yaml file for the resources")
 			return templateErr
@@ -137,8 +144,8 @@ func writeTempFile(input []byte) (string, error) {
 	return filename, nil
 }
 
-func buildYaml(domain string, email string) ([]byte, error) {
-	tmpl, err := template.New("yaml").Parse(yamlTemplate)
+func buildYAML(domain, email, ingressClass string) ([]byte, error) {
+	tmpl, err := template.New("yaml").Parse(ingressYamlTemplate)
 
 	if err != nil {
 		return nil, err
@@ -147,7 +154,9 @@ func buildYaml(domain string, email string) ([]byte, error) {
 	inputData := InputData{
 		IngressDomain:    domain,
 		CertmanagerEmail: email,
+		IngressClass:     ingressClass,
 	}
+
 	var tpl bytes.Buffer
 
 	err = tmpl.Execute(&tpl, inputData)
@@ -159,7 +168,7 @@ func buildYaml(domain string, email string) ([]byte, error) {
 	return tpl.Bytes(), nil
 }
 
-var yamlTemplate = `
+var ingressYamlTemplate = `
 apiVersion: extensions/v1beta1 
 kind: Ingress
 metadata:
@@ -167,7 +176,7 @@ metadata:
   namespace: openfaas
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod
-    kubernetes.io/ingress.class: nginx
+    kubernetes.io/ingress.class: {{.IngressClass}}
 spec:
   rules:
   - host: {{.IngressDomain}}
@@ -195,4 +204,4 @@ spec:
     solvers:
     - http01:
         ingress:
-          class: nginx`
+          class: {{.IngressClass}}`
