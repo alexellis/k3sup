@@ -7,8 +7,8 @@ import (
 	"testing"
 )
 
-func Test_build_yaml_returns_correct_substitutions(t *testing.T) {
-	templBytes, _ := buildYaml("openfaas.subdomain.example.com", "openfaas@subdomain.example.com")
+func Test_buildYAML_SubsitutesDomainEmailAndIngress(t *testing.T) {
+	templBytes, _ := buildYAML("openfaas.subdomain.example.com", "openfaas@subdomain.example.com", "traefik")
 
 	got := string(templBytes)
 	if want != got {
@@ -24,7 +24,7 @@ metadata:
   namespace: openfaas
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod
-    kubernetes.io/ingress.class: nginx
+    kubernetes.io/ingress.class: traefik
 spec:
   rules:
   - host: openfaas.subdomain.example.com
@@ -52,7 +52,7 @@ spec:
     solvers:
     - http01:
         ingress:
-          class: nginx`
+          class: traefik`
 
 func Test_writeTempFile_writes_to_tmp(t *testing.T) {
 	var want = "some input string"
