@@ -93,7 +93,7 @@ func makeInstallCertManager() *cobra.Command {
 		}
 
 		log.Printf("Applying CRD\n")
-		crdsURL := "https://raw.githubusercontent.com/jetstack/cert-manager/release-0.11/deploy/manifests/00-crds.yaml"
+		crdsURL := "https://raw.githubusercontent.com/jetstack/cert-manager/release-0.12/deploy/manifests/00-crds.yaml"
 		res, err := kubectlTask("apply", "--validate=false", "-f",
 			crdsURL)
 		if err != nil {
@@ -119,8 +119,12 @@ func makeInstallCertManager() *cobra.Command {
 
 # Get started with cert-manager here:
 # https://docs.cert-manager.io/en/latest/tutorials/acme/http-validation.html
-		
-`+thanksForUsing)
+
+# Check cert-manager's logs with:
+
+kubectl logs -n cert-manager deploy/cert-manager -f
+
+` + thanksForUsing)
 
 		return nil
 	}
