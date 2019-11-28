@@ -8,7 +8,7 @@ features:
  - dco_check
  - comments
  - pr_description_required
- - hacktoberfest
+# - hacktoberfest
  - release_notes
 
 custom_messages:
@@ -20,10 +20,10 @@ custom_messages:
            This issue appears to be a problem with the upstream k3s project
            which k3sup installs and automates.
            
-           Please raise an issue on [Rancher's k3s repository](https://github.com/rancher/k3s/) and link it
-           back to this issue for tracking purposes. If Rancher determines
-           that this is actually an error with k3sup, then please feel free
-           to return and re-open the issue, or to comment again.
+           Please raise an issue on [Rancher's k3s repository](https://github.com/rancher/k3s/) and
+           link it back to this issue for tracking purposes. If Rancher determines that this is
+           actually an error with k3sup, then please feel free to return and re-open the issue, or
+           to comment again.
 
   - name: slack
     value: |
