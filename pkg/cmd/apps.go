@@ -12,15 +12,17 @@ func MakeApps() *cobra.Command {
 		Use:          "app",
 		Short:        "Manage Kubernetes apps",
 		Long:         `Manage Kubernetes apps`,
-		Example:      `  k3sup app install openfaas`,
+		Example:      `  k3sup app install`,
 		SilenceUsage: false,
 	}
 
 	var install = &cobra.Command{
-		Use:          "install",
-		Short:        "Install a Kubernetes app",
-		Long:         `Install a Kubernetes app`,
-		Example:      `  k3sup app install [APP]`,
+		Use:   "install",
+		Short: "Install a Kubernetes app",
+		Example: `  k3sup app install [APP]
+  k3sup app install openfaas --help
+  k3sup app install inlets-operator --token-file $HOME/do
+  k3sup app install --help`,
 		SilenceUsage: true,
 	}
 
