@@ -35,7 +35,10 @@ func MakeJoin() *cobra.Command {
 	command.Flags().String("k3s-extra-args", "", "Optional extra arguments to pass to k3s installer, wrapped in quotes (e.g. --k3s-extra-args '--node-taint key=value:NoExecute')")
 	command.Flags().String("k3s-version", config.K3sVersion, "Optional version to install, pinned at a default")
 
+	command.Flags().Bool("server", false, "Join the cluster as a server rather than as an agent")
+
 	command.RunE = func(command *cobra.Command, args []string) error {
+		fmt.Printf("Running: k3sup join\n")
 
 		ip, _ := command.Flags().GetIP("ip")
 
@@ -44,12 +47,17 @@ func MakeJoin() *cobra.Command {
 		fmt.Println("Server IP: " + serverIP.String())
 
 		user, _ := command.Flags().GetString("user")
+
 		serverUser := user
 		if command.Flags().Changed("server-user") {
 			serverUser, _ = command.Flags().GetString("server-user")
 		}
 
 		sshKey, _ := command.Flags().GetString("ssh-key")
+		server, getServerErr := command.Flags().GetBool("server")
+		if getServerErr != nil {
+			return getServerErr
+		}
 
 		port, _ := command.Flags().GetInt("ssh-port")
 		serverPort := port
@@ -58,7 +66,6 @@ func MakeJoin() *cobra.Command {
 		}
 
 		k3sExtraArgs, _ := command.Flags().GetString("k3s-extra-args")
-
 		k3sVersion, _ := command.Flags().GetString("k3s-version")
 
 		useSudo, _ := command.Flags().GetBool("sudo")
@@ -78,7 +85,7 @@ func MakeJoin() *cobra.Command {
 		defer closeSSHAgent()
 
 		config := &ssh.ClientConfig{
-			User: user,
+			User: serverUser,
 			Auth: []ssh.AuthMethod{
 				authMethod,
 			},
@@ -89,7 +96,7 @@ func MakeJoin() *cobra.Command {
 		operator, err := operator.NewSSHOperator(address, config)
 
 		if err != nil {
-			return errors.Wrapf(err, "unable to connect to %s over ssh", address)
+			return errors.Wrapf(err, "unable to connect to (server) %s over ssh", address)
 		}
 
 		defer operator.Close()
@@ -107,11 +114,19 @@ func MakeJoin() *cobra.Command {
 			fmt.Printf("Logs: %s", res.StdErr)
 		}
 
+		closeSSHAgent()
+		operator.Close()
+
 		joinToken := string(res.StdOut)
 
-		setupAgent(serverIP, ip, port, user, sshKeyPath, joinToken, k3sExtraArgs, k3sVersion)
+		var boostrapErr error
+		if server {
+			boostrapErr = setupAdditionalServer(serverIP, ip, port, user, sshKeyPath, joinToken, k3sExtraArgs, k3sVersion)
+		} else {
+			boostrapErr = setupAgent(serverIP, ip, port, user, sshKeyPath, joinToken, k3sExtraArgs, k3sVersion)
+		}
 
-		return nil
+		return boostrapErr
 	}
 
 	command.PreRunE = func(command *cobra.Command, args []string) error {
@@ -133,6 +148,56 @@ func MakeJoin() *cobra.Command {
 	}
 
 	return command
+}
+
+func setupAdditionalServer(serverIP, ip net.IP, port int, user, sshKeyPath, joinToken, k3sExtraArgs, k3sVersion string) error {
+
+	authMethod, closeSSHAgent, err := loadPublickey(sshKeyPath)
+	if err != nil {
+		return errors.Wrapf(err, "unable to load the ssh key with path %q", sshKeyPath)
+	}
+
+	defer closeSSHAgent()
+
+	config := &ssh.ClientConfig{
+		User: user,
+		Auth: []ssh.AuthMethod{
+			authMethod,
+		},
+		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+	}
+
+	address := fmt.Sprintf("%s:%d", ip.String(), port)
+	operator, err := operator.NewSSHOperator(address, config)
+
+	if err != nil {
+		return errors.Wrapf(err, "unable to connect to %s over ssh as %s", address, user)
+	}
+
+	defer operator.Close()
+	getTokenCommand := fmt.Sprintf("curl -sfL https://get.k3s.io/ | K3S_URL='https://%s:6443' INSTALL_K3S_EXEC='server --server https://%s:6443' K3S_TOKEN='%s' INSTALL_K3S_VERSION='%s' sh -s - %s",
+		serverIP.String(),
+		serverIP.String(),
+		strings.TrimSpace(joinToken),
+		k3sVersion,
+		k3sExtraArgs)
+
+	fmt.Printf("ssh: %s\n", getTokenCommand)
+
+	res, err := operator.Execute(getTokenCommand)
+
+	if err != nil {
+		return errors.Wrap(err, "unable to setup agent")
+	}
+
+	if len(res.StdErr) > 0 {
+		fmt.Printf("Logs: %s", res.StdErr)
+	}
+
+	joinRes := string(res.StdOut)
+	fmt.Printf("Output: %s", string(joinRes))
+
+	return nil
 }
 
 func setupAgent(serverIP, ip net.IP, port int, user, sshKeyPath, joinToken, k3sExtraArgs, k3sVersion string) error {
@@ -161,7 +226,12 @@ func setupAgent(serverIP, ip net.IP, port int, user, sshKeyPath, joinToken, k3sE
 
 	defer operator.Close()
 
-	getTokenCommand := fmt.Sprintf("curl -sfL https://get.k3s.io/ | K3S_URL='https://%s:6443' K3S_TOKEN='%s' INSTALL_K3S_VERSION='%s' sh -s - %s", serverIP.String(), strings.TrimSpace(joinToken), k3sVersion, k3sExtraArgs)
+	getTokenCommand := fmt.Sprintf("curl -sfL https://get.k3s.io/ | K3S_URL='https://%s:6443' K3S_TOKEN='%s' INSTALL_K3S_VERSION='%s' sh -s - %s",
+		serverIP.String(),
+		strings.TrimSpace(joinToken),
+		k3sVersion,
+		k3sExtraArgs)
+
 	fmt.Printf("ssh: %s\n", getTokenCommand)
 
 	res, err := operator.Execute(getTokenCommand)

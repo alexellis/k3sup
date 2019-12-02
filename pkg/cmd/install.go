@@ -50,6 +50,8 @@ func MakeInstall() *cobra.Command {
 
 	command.RunE = func(command *cobra.Command, args []string) error {
 
+		fmt.Printf("Running: k3sup install\n")
+
 		localKubeconfig, _ := command.Flags().GetString("local-path")
 
 		skipInstall, _ := command.Flags().GetBool("skip-install")
@@ -114,7 +116,7 @@ func MakeInstall() *cobra.Command {
 		sshKey, _ := command.Flags().GetString("ssh-key")
 
 		sshKeyPath := expandPath(sshKey)
-		fmt.Printf("ssh -i %s %s@%s\n", sshKeyPath, user, ip.String())
+		fmt.Printf("ssh -i %s -p %d %s@%s\n", sshKeyPath, port, user, ip.String())
 
 		authMethod, closeSSHAgent, err := loadPublickey(sshKeyPath)
 		if err != nil {
