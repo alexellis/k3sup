@@ -99,6 +99,7 @@ k3sup install --ip $IP --user ubuntu
 
 Other options for `install`:
 
+* `--cluster` - start this server in clustering mode, for use with dqlite (embedded HA)
 * `--skip-install` - if you already have k3s installed, you can just run this command to get the `kubeconfig`
 * `--ssh-key` - specify a specific path for the SSH key for remote login
 * `--local-path` - default is `./kubeconfig` - set the file where you want to save your cluster's `kubeconfig`.  By default this file will be overwritten.
@@ -177,6 +178,50 @@ k3sup join --ip $AGENT_IP --server-ip $SERVER_IP --user $USER
 ```
 
 That's all, so with the above command you can have a two-node cluster up and running, whether that's using VMs on-premises, using Raspberry Pis, 64-bit ARM or even cloud VMs on EC2.
+
+### Create a multi-master (HA) setup
+
+As of k3s 1.0 a HA multi-master configuration is available through dqlite. A quorum of masters will be required, which means having at least three nodes.
+
+* Initialize the cluster with the first server
+
+Note the `--cluster` flag
+
+```sh
+export SERVER_IP=192.168.0.100
+export USER=root
+
+k3sup install \
+  --ip $SERVER_IP \
+  --user $USER \
+  --cluster
+```
+
+* Join each additional server
+
+> Note the new `--server` flag
+
+```sh
+export USER=root
+export SERVER_IP=192.168.0.100
+export NEXT_SERVER_IP=192.168.0.101
+
+k3sup join \
+  --ip $NEXT_SERVER_IP \
+  --user $USER \
+  --server-user $USER \
+  --server-ip $SERVER_IP \
+  --server
+```
+
+Now check `kubectl get node`:
+
+```sh
+kubectl get node
+NAME              STATUS   ROLES    AGE     VERSION
+paprika-gregory   Ready    master   8m27s   v1.16.3-k3s.2
+cave-sensor       Ready    master   27m     v1.16.3-k3s.2
+```
 
 ### 👨‍💻 Micro-tutorial for Raspberry Pi (2, 3, or 4) 🥧
 
