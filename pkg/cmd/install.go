@@ -46,6 +46,7 @@ func MakeInstall() *cobra.Command {
 	command.Flags().String("k3s-version", config.K3sVersion, "Optional version to install, pinned at a default")
 
 	command.Flags().Bool("local", false, "Perform a local install without using ssh")
+	command.Flags().Bool("cluster", false, "Form a dqlite cluster")
 
 	command.RunE = func(command *cobra.Command, args []string) error {
 
@@ -66,7 +67,16 @@ func MakeInstall() *cobra.Command {
 
 		ip, _ := command.Flags().GetIP("ip")
 
-		installK3scommand := fmt.Sprintf("curl -sLS https://get.k3s.io | INSTALL_K3S_EXEC='server --tls-san %s %s' INSTALL_K3S_VERSION='%s' sh -\n", ip, strings.TrimSpace(k3sExtraArgs), k3sVersion)
+		cluster, _ := command.Flags().GetBool("cluster")
+
+		clusterStr := ""
+		if cluster {
+			clusterStr = "--cluster-init"
+		}
+
+		installk3sExec := fmt.Sprintf("INSTALL_K3S_EXEC='server %s --tls-san %s %s'", clusterStr, ip, strings.TrimSpace(k3sExtraArgs))
+
+		installK3scommand := fmt.Sprintf("curl -sLS https://get.k3s.io | %s INSTALL_K3S_VERSION='%s' sh -\n", installk3sExec, k3sVersion)
 		getConfigcommand := fmt.Sprintf(sudoPrefix + "cat /etc/rancher/k3s/k3s.yaml\n")
 		merge, _ := command.Flags().GetBool("merge")
 		context, _ := command.Flags().GetString("context")
