@@ -42,6 +42,7 @@ func MakeInstall() *cobra.Command {
 	command.Flags().String("local-path", "kubeconfig", "Local path to save the kubeconfig file")
 	command.Flags().String("context", "default", "Set the name of the kubeconfig context.")
 	command.Flags().String("k3s-extra-args", "", "Optional extra arguments to pass to k3s installer, wrapped in quotes (e.g. --k3s-extra-args '--no-deploy servicelb')")
+	command.Flags().Bool("ipsec", false, "Enforces and/or activates optional extra argument for k3s: flannel-backend option: ipsec")
 	command.Flags().Bool("merge", false, "Merge the config with existing kubeconfig if it already exists.\nProvide the --local-path flag with --merge if a kubeconfig already exists in some other directory")
 	command.Flags().String("k3s-version", config.K3sVersion, "Optional version to install, pinned at a default")
 
@@ -64,6 +65,7 @@ func MakeInstall() *cobra.Command {
 
 		k3sVersion, _ := command.Flags().GetString("k3s-version")
 		k3sExtraArgs, _ := command.Flags().GetString("k3s-extra-args")
+		flannelIPSec, _ := command.Flags().GetBool("ipsec")
 
 		local, _ := command.Flags().GetBool("local")
 
@@ -74,6 +76,10 @@ func MakeInstall() *cobra.Command {
 		clusterStr := ""
 		if cluster {
 			clusterStr = "--cluster-init"
+		}
+
+		if flannelIPSec {
+			k3sExtraArgs += ` '--flannel-backend ipsec'`
 		}
 
 		installk3sExec := fmt.Sprintf("INSTALL_K3S_EXEC='server %s --tls-san %s %s'", clusterStr, ip, strings.TrimSpace(k3sExtraArgs))
