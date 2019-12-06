@@ -11,17 +11,19 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func makeInstallCronConnector() *cobra.Command {
+func makeInstallKafkaConnector() *cobra.Command {
 	var command = &cobra.Command{
-		Use:          "cron-connector",
-		Short:        "Install cron-connector for OpenFaaS",
-		Long:         `Install cron-connector for OpenFaaS`,
-		Example:      `  k3sup app install cron-connector`,
+		Use:          "kafka-connector",
+		Short:        "Install kafka-connector for OpenFaaS",
+		Long:         `Install kafka-connector for OpenFaaS`,
+		Example:      `  k3sup app install kafka-connector`,
 		SilenceUsage: true,
 	}
 
 	command.Flags().StringP("namespace", "n", "openfaas", "The namespace used for installation")
 	command.Flags().Bool("update-repo", true, "Update the helm repo")
+	command.Flags().StringP("topics", "t", "faas-request", "The topics for the connector to bind to")
+	command.Flags().String("broker-host", "kafka", "The host for the Kafka broker")
 
 	command.RunE = func(command *cobra.Command, args []string) error {
 		kubeConfigPath := getDefaultKubeconfig()
@@ -70,24 +72,37 @@ func makeInstallCronConnector() *cobra.Command {
 		}
 
 		chartPath := path.Join(os.TempDir(), "charts")
-		err = fetchChart(chartPath, "openfaas/cron-connector")
+		err = fetchChart(chartPath, "openfaas/kafka-connector")
 
 		if err != nil {
 			return err
 		}
 
-		overrides := map[string]string{}
+		topicsVal, err := command.Flags().GetString("topics")
+		if err != nil {
+			return err
+		}
+
+		brokerHostVal, err := command.Flags().GetString("broker-host")
+		if err != nil {
+			return err
+		}
+
+		overrides := map[string]string{
+			"topics":      topicsVal,
+			"broker_host": brokerHostVal,
+		}
 
 		arch := getArchitecture()
 		fmt.Printf("Node architecture: %q\n", arch)
 
 		fmt.Println("Chart path: ", chartPath)
 
-		outputPath := path.Join(chartPath, "cron-connector/rendered")
+		outputPath := path.Join(chartPath, "kafka-connector/rendered")
 
 		ns := namespace
 		err = templateChart(chartPath,
-			"cron-connector",
+			"kafka-connector",
 			ns,
 			outputPath,
 			"values.yaml",
@@ -104,22 +119,16 @@ func makeInstallCronConnector() *cobra.Command {
 		}
 
 		fmt.Println(`=======================================================================
-= cron-connector has been installed.                                   =
+= kafka-connector has been installed.                                   =
 =======================================================================
-
-# Example usage to trigger nodeinfo every 5 minutes:
-
-faas-cli store deploy nodeinfo \
-  --annotation schedule="*/5 * * * *" \
-  --annotation topic=cron-function
 
 # View the connector's logs:
 
-kubectl logs deploy/cron-connector -n openfaas -f
+kubectl logs deploy/kafka-connector -n openfaas -f
 
 # Find out more on the project homepage:
 
-# https://github.com/openfaas-incubator/cron-connector/
+# https://github.com/openfaas-incubator/kafka-connector/
 
 ` + thanksForUsing)
 
