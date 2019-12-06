@@ -85,7 +85,11 @@ func makeInstallCronConnector() *cobra.Command {
 
 		outputPath := path.Join(chartPath, "cron-connector/rendered")
 
+<<<<<<< HEAD
 		ns := namespace
+=======
+		ns := "default"
+>>>>>>> Add app for OpenFaaS cron-connector
 		err = templateChart(chartPath,
 			"cron-connector",
 			ns,
