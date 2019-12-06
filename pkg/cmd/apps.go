@@ -50,6 +50,7 @@ func MakeApps() *cobra.Command {
 	install.AddCommand(makeInstallLinkerd())
 	install.AddCommand(makeInstallCronConnector())
 	install.AddCommand(makeInstallKafkaConnector())
+	install.AddCommand(makeInstallMinio())
 
 	return command
 }
@@ -57,5 +58,5 @@ func MakeApps() *cobra.Command {
 func getApps() []string {
 	return []string{"openfaas", "nginx-ingress", "cert-manager",
 		"openfaas-ingress", "inlets-operator", "metrics-server",
-		"chart", "tiller", "linkerd", "cron-connector", "kafka-connector"}
+		"chart", "tiller", "linkerd", "cron-connector", "kafka-connector", "minio"}
 }
