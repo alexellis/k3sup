@@ -31,6 +31,10 @@ func makeInstallOpenFaaS() *cobra.Command {
 	openfaas.Flags().String("pull-policy", "IfNotPresent", "Pull policy for OpenFaaS core services")
 	openfaas.Flags().String("function-pull-policy", "IfNotPresent", "Pull policy for functions")
 
+	openfaas.Flags().Bool("operator", false, "Create OpenFaaS Operator")
+	openfaas.Flags().Bool("clusterrole", false, "Create a ClusterRole for OpenFaaS instead of a limited scope Role")
+	openfaas.Flags().Bool("direct-functions", true, "Invoke functions directly from the gateway")
+
 	openfaas.RunE = func(command *cobra.Command, args []string) error {
 		kubeConfigPath := getDefaultKubeconfig()
 
@@ -126,11 +130,35 @@ func makeInstallOpenFaaS() *cobra.Command {
 		if len(pullPolicy) == 0 {
 			return fmt.Errorf("you must give a value for pull-policy such as IfNotPresent or Always")
 		}
+
 		functionPullPolicy, _ := command.Flags().GetString("function-pull-policy")
 		if len(pullPolicy) == 0 {
 			return fmt.Errorf("you must give a value for function-pull-policy such as IfNotPresent or Always")
 		}
 
+		createOperator, _ := command.Flags().GetBool("operator")
+		createOperatorVal := "false"
+		if createOperator {
+			createOperatorVal = "true"
+		}
+
+		clusterRole, _ := command.Flags().GetBool("clusterrole")
+
+		clusterRoleVal := "false"
+		if clusterRole {
+			clusterRoleVal = "true"
+		}
+
+		directFunctions, _ := command.Flags().GetBool("direct-functions")
+
+		directFunctionsVal := "true"
+		if !directFunctions {
+			directFunctionsVal = "false"
+		}
+
+		overrides["clusterRole"] = clusterRoleVal
+		overrides["gateway.directFunctions"] = directFunctionsVal
+		overrides["operator.create"] = createOperatorVal
 		overrides["openfaasImagePullPolicy"] = pullPolicy
 		overrides["faasnetes.imagePullPolicy"] = functionPullPolicy
 		overrides["basicAuthPlugin.replicas"] = "1"
