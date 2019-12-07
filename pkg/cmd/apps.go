@@ -26,7 +26,7 @@ func MakeApps() *cobra.Command {
 		SilenceUsage: true,
 	}
 
-	install.Flags().String("kubeconfig", "kubeconfig", "Local path for your kubeconfig file")
+	install.PersistentFlags().String("kubeconfig", "kubeconfig", "Local path for your kubeconfig file")
 
 	install.RunE = func(command *cobra.Command, args []string) error {
 
