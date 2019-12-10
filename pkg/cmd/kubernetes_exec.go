@@ -199,11 +199,8 @@ func updateHelmRepos(helm3 bool) error {
 	return nil
 }
 
-func helmInit(helm3 bool) error {
+func helmInit() error {
 	subdir := ""
-	if helm3 {
-		subdir = "helm3"
-	}
 
 	task := execute.ExecTask{
 		Command: fmt.Sprintf("%s", localBinary("helm", subdir)),
@@ -277,9 +274,11 @@ func tryDownloadHelm(userPath, clientArch, clientOS string, helm3 bool) (string,
 		}
 		downloadHelm(userPath, clientArch, clientOS, subdir)
 
-		err := helmInit(helm3)
-		if err != nil {
-			return "", err
+		if !helm3 {
+			err := helmInit()
+			if err != nil {
+				return "", err
+			}
 		}
 	}
 	return helmBinaryPath, nil
