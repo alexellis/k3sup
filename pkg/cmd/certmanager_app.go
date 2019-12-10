@@ -50,12 +50,12 @@ func makeInstallCertManager() *cobra.Command {
 
 		os.Setenv("HELM_HOME", path.Join(userPath, ".helm"))
 
-		_, err = tryDownloadHelm(userPath, clientArch, clientOS)
+		_, err = tryDownloadHelm(userPath, clientArch, clientOS, false)
 		if err != nil {
 			return err
 		}
 
-		err = addHelmRepo("jetstack", "https://charts.jetstack.io")
+		err = addHelmRepo("jetstack", "https://charts.jetstack.io", false)
 		if err != nil {
 			return err
 		}
@@ -63,7 +63,7 @@ func makeInstallCertManager() *cobra.Command {
 		updateRepo, _ := certManager.Flags().GetBool("update-repo")
 
 		if updateRepo {
-			err = updateHelmRepos()
+			err = updateHelmRepos(false)
 			if err != nil {
 				return err
 			}
@@ -80,7 +80,7 @@ func makeInstallCertManager() *cobra.Command {
 
 		chartPath := path.Join(os.TempDir(), "charts")
 
-		err = fetchChart(chartPath, "jetstack/cert-manager")
+		err = fetchChart(chartPath, "jetstack/cert-manager", false)
 		if err != nil {
 			return err
 		}

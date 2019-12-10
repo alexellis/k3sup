@@ -57,20 +57,20 @@ func makeInstallMinio() *cobra.Command {
 			return fmt.Errorf("please use the helm chart if you'd like to change the namespace to %s", ns)
 		}
 
-		_, err = tryDownloadHelm(userPath, clientArch, clientOS)
+		_, err = tryDownloadHelm(userPath, clientArch, clientOS, false)
 		if err != nil {
 			return err
 		}
 
 		if updateRepo {
-			err = updateHelmRepos()
+			err = updateHelmRepos(false)
 			if err != nil {
 				return err
 			}
 		}
 
 		chartPath := path.Join(os.TempDir(), "charts")
-		err = fetchChart(chartPath, "stable/minio")
+		err = fetchChart(chartPath, "stable/minio", false)
 
 		if err != nil {
 			return err

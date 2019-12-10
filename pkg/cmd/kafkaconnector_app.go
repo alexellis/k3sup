@@ -54,25 +54,25 @@ func makeInstallKafkaConnector() *cobra.Command {
 
 		os.Setenv("HELM_HOME", path.Join(userPath, ".helm"))
 
-		_, err = tryDownloadHelm(userPath, clientArch, clientOS)
+		_, err = tryDownloadHelm(userPath, clientArch, clientOS, false)
 		if err != nil {
 			return err
 		}
 
-		err = addHelmRepo("openfaas", "https://openfaas.github.io/faas-netes/")
+		err = addHelmRepo("openfaas", "https://openfaas.github.io/faas-netes/", false)
 		if err != nil {
 			return err
 		}
 
 		if updateRepo {
-			err = updateHelmRepos()
+			err = updateHelmRepos(false)
 			if err != nil {
 				return err
 			}
 		}
 
 		chartPath := path.Join(os.TempDir(), "charts")
-		err = fetchChart(chartPath, "openfaas/kafka-connector")
+		err = fetchChart(chartPath, "openfaas/kafka-connector", false)
 
 		if err != nil {
 			return err
