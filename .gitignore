@@ -3,3 +3,4 @@ bin/**
 kubeconfig
 .DS_Store
 .idea/
+mc

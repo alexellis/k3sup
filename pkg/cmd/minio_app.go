@@ -5,6 +5,8 @@ import (
 	"log"
 	"os"
 	"path"
+	"strconv"
+	"strings"
 
 	"github.com/alexellis/k3sup/pkg/config"
 	"github.com/sethvargo/go-password/password"
@@ -24,6 +26,8 @@ func makeInstallMinio() *cobra.Command {
 	minio.Flags().String("access-key", "", "Provide an access key to override the pre-generated value")
 	minio.Flags().String("secret-key", "", "Provide a secret key to override the pre-generated value")
 	minio.Flags().Bool("distributed", false, "Deploy Minio in Distributed Mode")
+	minio.Flags().String("namespace", "default", "Kubernetes namespace for the application")
+	minio.Flags().Bool("persistence", false, "Enable persistence")
 
 	minio.RunE = func(command *cobra.Command, args []string) error {
 		kubeConfigPath := getDefaultKubeconfig()
@@ -47,6 +51,12 @@ func makeInstallMinio() *cobra.Command {
 
 		os.Setenv("HELM_HOME", path.Join(userPath, ".helm"))
 
+		ns, _ := minio.Flags().GetString("namespace")
+
+		if ns != "default" {
+			return fmt.Errorf("please use the helm chart if you'd like to change the namespace to %s", ns)
+		}
+
 		_, err = tryDownloadHelm(userPath, clientArch, clientOS)
 		if err != nil {
 			return err
@@ -65,6 +75,8 @@ func makeInstallMinio() *cobra.Command {
 		if err != nil {
 			return err
 		}
+
+		persistence, _ := minio.Flags().GetBool("persistence")
 
 		overrides := map[string]string{}
 		accessKey, _ := minio.Flags().GetString("access-key")
@@ -86,13 +98,14 @@ func makeInstallMinio() *cobra.Command {
 		overrides["accessKey"] = accessKey
 		overrides["secretKey"] = secretKey
 
+		overrides["persistence.enabled"] = strings.ToLower(strconv.FormatBool(persistence))
+
 		if dist, _ := minio.Flags().GetBool("distributed"); dist {
 			overrides["mode"] = "distributed"
 		}
 
 		outputPath := path.Join(chartPath, "minio/rendered")
 
-		ns := "default"
 		err = templateChart(chartPath,
 			"minio",
 			ns,
@@ -111,7 +124,7 @@ func makeInstallMinio() *cobra.Command {
 		}
 
 		fmt.Println(`=======================================================================
-= Minio has been installed.                                        =
+= minio has been installed.                                           =
 =======================================================================
 
 # Forward the minio port to your machine
@@ -122,12 +135,16 @@ ACCESSKEY=$(kubectl get secret -n default minio -o jsonpath="{.data.accesskey}" 
 SECRETKEY=$(kubectl get secret -n default minio -o jsonpath="{.data.secretkey}" | base64 --decode; echo)
 
 # Get the Minio Client
-wget https://dl.min.io/client/mc/release/linux-amd64/mc \
-&& chmod +x mc \
-&& ./mc --help
+curl -SLf https://dl.min.io/client/mc/release/` + strings.ToLower(clientOS) + `-amd64/mc \
+  && chmod +x mc
 
-# Find out more at:
-# https://min.io
+# Add a host
+mc config host add minio http://127.0.0.1:9000 $ACCESSKEY $SECRETKEY
+
+# List buckets
+mc ls minio
+
+# Find out more at: https://min.io
 
 ` + thanksForUsing)
 		return nil
