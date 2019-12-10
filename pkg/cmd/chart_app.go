@@ -74,19 +74,19 @@ before using the generic helm chart installer command.`,
 
 		os.Setenv("HELM_HOME", path.Join(userPath, ".helm"))
 
-		_, err = tryDownloadHelm(userPath, clientArch, clientOS)
+		_, err = tryDownloadHelm(userPath, clientArch, clientOS, false)
 		if err != nil {
 			return err
 		}
 
 		if len(chartRepoURL) > 0 {
-			err = addHelmRepo(chartPrefix, chartRepoURL)
+			err = addHelmRepo(chartPrefix, chartRepoURL, false)
 			if err != nil {
 				return err
 			}
 		}
 
-		err = updateHelmRepos()
+		err = updateHelmRepos(false)
 		if err != nil {
 			return err
 		}
@@ -98,7 +98,7 @@ before using the generic helm chart installer command.`,
 
 		chartPath := path.Join(os.TempDir(), "charts")
 
-		err = fetchChart(chartPath, chartRepoName)
+		err = fetchChart(chartPath, chartRepoName, false)
 		if err != nil {
 			return err
 		}

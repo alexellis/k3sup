@@ -15,7 +15,13 @@ import (
 
 const helmVersion = "v2.16.0"
 
-func fetchChart(path, chart string) error {
+func fetchChart(path, chart string, helm3 bool) error {
+
+	subdir := ""
+	if helm3 {
+		subdir = "helm3"
+	}
+
 	mkErr := os.MkdirAll(path, 0700)
 
 	if mkErr != nil {
@@ -23,7 +29,7 @@ func fetchChart(path, chart string) error {
 	}
 
 	task := execute.ExecTask{
-		Command: fmt.Sprintf("%s fetch %s --untar --untardir %s", localBinary("helm"), chart, path),
+		Command: fmt.Sprintf("%s fetch %s --untar --untardir %s", localBinary("helm", subdir), chart, path),
 		Env:     os.Environ(),
 	}
 	res, err := task.Execute()
@@ -44,6 +50,51 @@ func getArchitecture() string {
 	arch := strings.TrimSpace(string(res.Stdout))
 
 	return arch
+}
+
+func helm3Upgrade(basePath, chart, namespace, values string, overrides map[string]string) error {
+
+	chartName := chart
+	if index := strings.Index(chartName, "/"); index > -1 {
+		chartName = chartName[index+1:]
+	}
+
+	chartRoot := basePath
+
+	args := []string{"upgrade", "--install", chartName, chart, "--namespace", namespace}
+
+	if len(values) > 0 {
+		args = append(args, "--values")
+		args = append(args, path.Join(chartRoot, values))
+	}
+
+	for k, v := range overrides {
+		args = append(args, "--set")
+		args = append(args, fmt.Sprintf("%s=%s", k, v))
+	}
+
+	task := execute.ExecTask{
+		Command: localBinary("helm", "helm3"),
+		Args:    args,
+		Env:     os.Environ(),
+		Cwd:     basePath,
+	}
+
+	res, err := task.Execute()
+
+	if err != nil {
+		return err
+	}
+
+	if res.ExitCode != 0 {
+		return fmt.Errorf("exit code %d, stderr: %s", res.ExitCode, res.Stderr)
+	}
+
+	if len(res.Stderr) > 0 {
+		log.Printf("stderr: %s\n", res.Stderr)
+	}
+
+	return nil
 }
 
 func templateChart(basePath, chart, namespace, outputPath, values string, overrides map[string]string) error {
@@ -73,7 +124,7 @@ func templateChart(basePath, chart, namespace, outputPath, values string, overri
 
 	task := execute.ExecTask{
 		Command: fmt.Sprintf("%s template %s --name %s --namespace %s --output-dir %s %s %s",
-			localBinary("helm"), chart, chart, namespace, outputPath, valuesStr, overridesStr),
+			localBinary("helm", ""), chart, chart, namespace, outputPath, valuesStr, overridesStr),
 		Env: os.Environ(),
 		Cwd: basePath,
 	}
@@ -85,7 +136,7 @@ func templateChart(basePath, chart, namespace, outputPath, values string, overri
 	}
 
 	if res.ExitCode != 0 {
-		return fmt.Errorf("exit code %d", res.ExitCode)
+		return fmt.Errorf("exit code %d, stderr: %s", res.ExitCode, res.Stderr)
 	}
 
 	if len(res.Stderr) > 0 {
@@ -95,14 +146,24 @@ func templateChart(basePath, chart, namespace, outputPath, values string, overri
 	return nil
 }
 
-func localBinary(name string) string {
+func localBinary(name, subdir string) string {
 	home := os.Getenv("HOME")
-	return path.Join(path.Join(home, ".k3sup/bin/"), name)
+	val := path.Join(home, ".k3sup/bin/")
+	if len(subdir) > 0 {
+		val = path.Join(val, subdir)
+	}
+
+	return path.Join(val, name)
 }
 
-func addHelmRepo(name, url string) error {
+func addHelmRepo(name, url string, helm3 bool) error {
+	subdir := ""
+	if helm3 {
+		subdir = "helm3"
+	}
+
 	task := execute.ExecTask{
-		Command: fmt.Sprintf("%s repo add %s %s", localBinary("helm"), name, url),
+		Command: fmt.Sprintf("%s repo add %s %s", localBinary("helm", subdir), name, url),
 		Env:     os.Environ(),
 	}
 	res, err := task.Execute()
@@ -117,9 +178,13 @@ func addHelmRepo(name, url string) error {
 	return nil
 }
 
-func updateHelmRepos() error {
+func updateHelmRepos(helm3 bool) error {
+	subdir := ""
+	if helm3 {
+		subdir = "helm3"
+	}
 	task := execute.ExecTask{
-		Command: fmt.Sprintf("%s repo update", localBinary("helm")),
+		Command: fmt.Sprintf("%s repo update", localBinary("helm", subdir)),
 		Env:     os.Environ(),
 	}
 	res, err := task.Execute()
@@ -134,9 +199,14 @@ func updateHelmRepos() error {
 	return nil
 }
 
-func helmInit() error {
+func helmInit(helm3 bool) error {
+	subdir := ""
+	if helm3 {
+		subdir = "helm3"
+	}
+
 	task := execute.ExecTask{
-		Command: fmt.Sprintf("%s", localBinary("helm")),
+		Command: fmt.Sprintf("%s", localBinary("helm", subdir)),
 		Env:     os.Environ(),
 		Args:    []string{"init", "--client-only"},
 	}
@@ -193,12 +263,21 @@ func getDefaultKubeconfig() string {
 	return kubeConfigPath
 }
 
-func tryDownloadHelm(userPath, clientArch, clientOS string) (string, error) {
-	helmBinaryPath := path.Join(path.Join(userPath, "bin"), "helm")
-	if _, statErr := os.Stat(helmBinaryPath); statErr != nil {
-		downloadHelm(userPath, clientArch, clientOS)
+func tryDownloadHelm(userPath, clientArch, clientOS string, helm3 bool) (string, error) {
+	helmVal := "helm"
+	if helm3 {
+		helmVal = "helm3"
+	}
 
-		err := helmInit()
+	helmBinaryPath := path.Join(path.Join(userPath, "bin"), helmVal)
+	if _, statErr := os.Stat(helmBinaryPath); statErr != nil {
+		subdir := ""
+		if helm3 {
+			subdir = "helm3"
+		}
+		downloadHelm(userPath, clientArch, clientOS, subdir)
+
+		err := helmInit(helm3)
 		if err != nil {
 			return "", err
 		}
@@ -240,7 +319,7 @@ func getHelmURL(arch, os, version string) string {
 	return fmt.Sprintf("https://get.helm.sh/helm-%s-%s-%s.tar.gz", version, osSuffix, archSuffix)
 }
 
-func downloadHelm(userPath, clientArch, clientOS string) error {
+func downloadHelm(userPath, clientArch, clientOS, subdir string) error {
 	useHelmVersion := helmVersion
 	if val, ok := os.LookupEnv("HELM_VERSION"); ok && len(val) > 0 {
 		useHelmVersion = val
@@ -255,9 +334,12 @@ func downloadHelm(userPath, clientArch, clientOS string) error {
 		return err
 	}
 
+	dest := path.Join(path.Join(userPath, "bin"), subdir)
+	os.MkdirAll(dest, 0700)
+
 	defer res.Body.Close()
 	r := ioutil.NopCloser(res.Body)
-	untarErr := Untar(r, path.Join(userPath, "bin"))
+	untarErr := Untar(r, dest)
 	if untarErr != nil {
 		return untarErr
 	}

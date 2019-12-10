@@ -48,18 +48,18 @@ func makeInstallMetricsServer() *cobra.Command {
 
 		os.Setenv("HELM_HOME", path.Join(userPath, ".helm"))
 
-		_, err = tryDownloadHelm(userPath, clientArch, clientOS)
+		_, err = tryDownloadHelm(userPath, clientArch, clientOS, false)
 		if err != nil {
 			return err
 		}
 
-		err = updateHelmRepos()
+		err = updateHelmRepos(false)
 		if err != nil {
 			return err
 		}
 
 		chartPath := path.Join(os.TempDir(), "charts")
-		err = fetchChart(chartPath, "stable/metrics-server")
+		err = fetchChart(chartPath, "stable/metrics-server", false)
 
 		if err != nil {
 			return err

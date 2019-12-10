@@ -79,7 +79,7 @@ func makeInstallTiller() *cobra.Command {
 
 		fmt.Println(res.Stdout, res.Stderr)
 
-		helmBinary, err := tryDownloadHelm(userPath, clientArch, clientOS)
+		helmBinary, err := tryDownloadHelm(userPath, clientArch, clientOS, false)
 		if err != nil {
 			return err
 		}

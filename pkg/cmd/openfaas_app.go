@@ -35,6 +35,8 @@ func makeInstallOpenFaaS() *cobra.Command {
 	openfaas.Flags().Bool("clusterrole", false, "Create a ClusterRole for OpenFaaS instead of a limited scope Role")
 	openfaas.Flags().Bool("direct-functions", true, "Invoke functions directly from the gateway")
 
+	openfaas.Flags().Bool("helm3", false, "Use helm3 instead of the default helm2")
+
 	openfaas.RunE = func(command *cobra.Command, args []string) error {
 		kubeConfigPath := getDefaultKubeconfig()
 
@@ -44,6 +46,11 @@ func makeInstallOpenFaaS() *cobra.Command {
 
 		fmt.Printf("Using kubeconfig: %s\n", kubeConfigPath)
 
+		helm3, _ := command.Flags().GetBool("helm3")
+
+		if helm3 {
+			fmt.Println("Using helm3")
+		}
 		namespace, _ := command.Flags().GetString("namespace")
 
 		if namespace != "openfaas" {
@@ -68,12 +75,17 @@ func makeInstallOpenFaaS() *cobra.Command {
 
 		os.Setenv("HELM_HOME", path.Join(userPath, ".helm"))
 
-		_, err = tryDownloadHelm(userPath, clientArch, clientOS)
+		if helm3 {
+			helm3Version := "v3.0.1"
+			os.Setenv("HELM_VERSION", helm3Version)
+		}
+
+		_, err = tryDownloadHelm(userPath, clientArch, clientOS, helm3)
 		if err != nil {
 			return err
 		}
 
-		err = addHelmRepo("openfaas", "https://openfaas.github.io/faas-netes/")
+		err = addHelmRepo("openfaas", "https://openfaas.github.io/faas-netes/", helm3)
 		if err != nil {
 			return err
 		}
@@ -81,7 +93,7 @@ func makeInstallOpenFaaS() *cobra.Command {
 		updateRepo, _ := openfaas.Flags().GetBool("update-repo")
 
 		if updateRepo {
-			err = updateHelmRepos()
+			err = updateHelmRepos(helm3)
 			if err != nil {
 				return err
 			}
@@ -118,7 +130,7 @@ func makeInstallOpenFaaS() *cobra.Command {
 
 		chartPath := path.Join(os.TempDir(), "charts")
 
-		err = fetchChart(chartPath, "openfaas/openfaas")
+		err = fetchChart(chartPath, "openfaas/openfaas", helm3)
 
 		if err != nil {
 			return err
@@ -174,24 +186,34 @@ func makeInstallOpenFaaS() *cobra.Command {
 			overrides["serviceType"] = "LoadBalancer"
 		}
 
-		outputPath := path.Join(chartPath, "openfaas/rendered")
-		err = templateChart(chartPath, "openfaas",
-			namespace,
-			outputPath,
-			"values"+valuesSuffix+".yaml",
-			overrides)
+		if helm3 {
+			outputPath := path.Join(chartPath, "openfaas")
 
-		if err != nil {
-			return err
-		}
+			err := helm3Upgrade(outputPath, "openfaas/openfaas", namespace, "values"+valuesSuffix+".yaml", overrides)
+			if err != nil {
+				return err
+			}
 
-		applyRes, applyErr := kubectlTask("apply", "-R", "-f", outputPath)
-		if applyErr != nil {
-			return applyErr
-		}
+		} else {
+			outputPath := path.Join(chartPath, "openfaas/rendered")
+			err = templateChart(chartPath, "openfaas",
+				namespace,
+				outputPath,
+				"values"+valuesSuffix+".yaml",
+				overrides)
 
-		if applyRes.ExitCode > 0 {
-			return fmt.Errorf("Error applying templated YAML files, error: %s", applyRes.Stderr)
+			if err != nil {
+				return err
+			}
+
+			applyRes, applyErr := kubectlTask("apply", "-R", "-f", outputPath)
+			if applyErr != nil {
+				return applyErr
+			}
+
+			if applyRes.ExitCode > 0 {
+				return fmt.Errorf("Error applying templated YAML files, error: %s", applyRes.Stderr)
+			}
 		}
 
 		fmt.Println(`=======================================================================

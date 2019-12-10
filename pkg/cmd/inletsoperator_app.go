@@ -63,12 +63,12 @@ func makeInstallInletsOperator() *cobra.Command {
 
 		os.Setenv("HELM_HOME", path.Join(userPath, ".helm"))
 
-		_, err = tryDownloadHelm(userPath, clientArch, clientOS)
+		_, err = tryDownloadHelm(userPath, clientArch, clientOS, false)
 		if err != nil {
 			return err
 		}
 
-		err = addHelmRepo("inlets", "https://inlets.github.io/inlets-operator/")
+		err = addHelmRepo("inlets", "https://inlets.github.io/inlets-operator/", false)
 		if err != nil {
 			return err
 		}
@@ -76,7 +76,7 @@ func makeInstallInletsOperator() *cobra.Command {
 		updateRepo, _ := inletsOperator.Flags().GetBool("update-repo")
 
 		if updateRepo {
-			err = updateHelmRepos()
+			err = updateHelmRepos(false)
 			if err != nil {
 				return err
 			}
@@ -84,7 +84,7 @@ func makeInstallInletsOperator() *cobra.Command {
 
 		chartPath := path.Join(os.TempDir(), "charts")
 
-		err = fetchChart(chartPath, "inlets/inlets-operator")
+		err = fetchChart(chartPath, "inlets/inlets-operator", false)
 		if err != nil {
 			return err
 		}
