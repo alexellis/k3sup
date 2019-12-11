@@ -52,6 +52,7 @@ func MakeApps() *cobra.Command {
 	install.AddCommand(makeInstallKafkaConnector())
 	install.AddCommand(makeInstallMinio())
 	install.AddCommand(makeInstallPostgresql())
+	install.AddCommand(makeInstallKubernetesDashboard())
 
 	return command
 }
@@ -60,5 +61,5 @@ func getApps() []string {
 	return []string{"openfaas", "nginx-ingress", "cert-manager",
 		"openfaas-ingress", "inlets-operator", "metrics-server",
 		"chart", "tiller", "linkerd", "cron-connector",
-		"kafka-connector", "minio", "postgresql"}
+		"kafka-connector", "minio", "postgresql, kubernetes-dashboard"}
 }
