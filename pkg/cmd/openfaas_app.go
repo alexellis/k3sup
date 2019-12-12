@@ -29,7 +29,7 @@ func makeInstallOpenFaaS() *cobra.Command {
 	openfaas.Flags().StringP("namespace", "n", "openfaas", "The namespace for the core services")
 	openfaas.Flags().Bool("update-repo", true, "Update the helm repo")
 	openfaas.Flags().String("pull-policy", "IfNotPresent", "Pull policy for OpenFaaS core services")
-	openfaas.Flags().String("function-pull-policy", "IfNotPresent", "Pull policy for functions")
+	openfaas.Flags().String("function-pull-policy", "Always", "Pull policy for functions")
 
 	openfaas.Flags().Bool("operator", false, "Create OpenFaaS Operator")
 	openfaas.Flags().Bool("clusterrole", false, "Create a ClusterRole for OpenFaaS instead of a limited scope Role")
