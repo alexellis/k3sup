@@ -154,6 +154,21 @@ k3sup app install --help
 k3sup app install APP_NAME --help
 ```
 
+Our currently supported apps:
+* openfaas
+* nginx-ingress
+* cert-manager
+* openfaas-ingress
+* inlets-operator
+* metrics-server
+* tiller
+* linkerd
+* cron-connector
+* kafka-connector
+* minio
+* postgresql
+* kubernetes-dashboard
+
 Want to request an app? [Raise an issue](https://github.com/alexellis/k3sup/issues) or let me know on [Slack](https://slack.openfaas.io).
 
 ### 😸 Join some agents to your Kubernetes server
