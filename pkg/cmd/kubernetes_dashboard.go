@@ -14,7 +14,6 @@ func makeInstallKubernetesDashboard() *cobra.Command {
 		SilenceUsage: true,
 	}
 
-
 	kubeDashboard.RunE = func(command *cobra.Command, args []string) error {
 		kubeConfigPath := getDefaultKubeconfig()
 
@@ -58,8 +57,6 @@ subjects:
 		if err != nil {
 			return err
 		}
-
-
 
 		fmt.Println(`=======================================================================
 = Kubernetes Dashboard has been installed.                                        =

@@ -91,9 +91,17 @@ before using the generic helm chart installer command.`,
 			return err
 		}
 
-		err = kubectl("create", "namespace", namespace)
-		if err != nil {
+		res, kcErr := kubectlTask("get", "namespace", namespace)
+
+		if kcErr != nil {
 			return err
+		}
+
+		if res.ExitCode != 0 {
+			err = kubectl("create", "namespace", namespace)
+			if err != nil {
+				return err
+			}
 		}
 
 		chartPath := path.Join(os.TempDir(), "charts")
