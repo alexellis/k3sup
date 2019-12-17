@@ -35,6 +35,9 @@ func makeInstallOpenFaaS() *cobra.Command {
 	openfaas.Flags().Bool("clusterrole", false, "Create a ClusterRole for OpenFaaS instead of a limited scope Role")
 	openfaas.Flags().Bool("direct-functions", true, "Invoke functions directly from the gateway")
 
+	openfaas.Flags().Int("queue-workers", 1, "Replicas of queue-worker")
+	openfaas.Flags().Int("gateways", 1, "Replicas of gateway")
+
 	openfaas.Flags().Bool("helm3", false, "Use helm3 instead of the default helm2")
 
 	openfaas.RunE = func(command *cobra.Command, args []string) error {
@@ -162,11 +165,12 @@ func makeInstallOpenFaaS() *cobra.Command {
 		}
 
 		directFunctions, _ := command.Flags().GetBool("direct-functions")
-
 		directFunctionsVal := "true"
 		if !directFunctions {
 			directFunctionsVal = "false"
 		}
+		gateways, _ := command.Flags().GetInt("gateways")
+		queueWorkers, _ := command.Flags().GetInt("queue-workers")
 
 		overrides["clusterRole"] = clusterRoleVal
 		overrides["gateway.directFunctions"] = directFunctionsVal
@@ -174,6 +178,8 @@ func makeInstallOpenFaaS() *cobra.Command {
 		overrides["openfaasImagePullPolicy"] = pullPolicy
 		overrides["faasnetes.imagePullPolicy"] = functionPullPolicy
 		overrides["basicAuthPlugin.replicas"] = "1"
+		overrides["gateway.replicas"] = fmt.Sprintf("%d", gateways)
+		overrides["queueWorker.replicas"] = fmt.Sprintf("%d", queueWorkers)
 
 		basicAuth, _ := command.Flags().GetBool("basic-auth")
 
