@@ -129,6 +129,9 @@ You can install [openfaas](https://github.com/openfaas/faas) for Kubernetes in a
 # PC, RPi and ARM64
 k3sup app install openfaas
 
+# Explore the various options with:
+k3sup app install openfaas --help
+
 # Metrics for Pods and Nodes, PC only
 k3sup app install metrics-server
 
@@ -154,7 +157,7 @@ k3sup app install --help
 k3sup app install APP_NAME --help
 ```
 
-Our currently supported apps:
+Apps that you can install today:
 * openfaas
 * nginx-ingress
 * cert-manager
