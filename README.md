@@ -174,6 +174,21 @@ Apps that you can install today:
 
 Want to request an app? [Raise an issue](https://github.com/alexellis/k3sup/issues) or let me know on [Slack](https://slack.openfaas.io).
 
+You can also find about how to use the app after installation by using
+
+```sh
+k3sup app info openfaas
+k3sup app info inlets-operator
+```
+
+Find out more with
+
+```sh
+k3sup app info --help
+# To know for which apps you can get info
+k3sup app info
+```
+
 ### 😸 Join some agents to your Kubernetes server
 
 Let's say that you have a server, and have already run the following:
