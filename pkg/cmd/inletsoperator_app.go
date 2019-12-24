@@ -7,6 +7,7 @@ import (
 	"path"
 	"strings"
 
+	"github.com/alexellis/k3sup/pkg/env"
 	"github.com/alexellis/k3sup/pkg/config"
 	"github.com/spf13/cobra"
 )
@@ -47,7 +48,7 @@ func makeInstallInletsOperator() *cobra.Command {
 			return fmt.Errorf(`to override the namespace, install inlets-operator via helm manually`)
 		}
 
-		arch := getArchitecture()
+		arch := getNodeArchitecture()
 		fmt.Printf("Node architecture: %q\n", arch)
 
 		userPath, err := config.InitUserDir()
@@ -55,7 +56,7 @@ func makeInstallInletsOperator() *cobra.Command {
 			return err
 		}
 
-		clientArch, clientOS := getClientArch()
+		clientArch, clientOS := env.GetClientArch()
 
 		fmt.Printf("Client: %q, %q\n", clientArch, clientOS)
 

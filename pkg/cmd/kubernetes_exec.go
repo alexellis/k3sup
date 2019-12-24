@@ -44,7 +44,7 @@ func fetchChart(path, chart string, helm3 bool) error {
 	return nil
 }
 
-func getArchitecture() string {
+func getNodeArchitecture() string {
 	res, _ := kubectlTask("get", "nodes", `--output`, `jsonpath={range $.items[0]}{.status.nodeInfo.architecture}`)
 
 	arch := strings.TrimSpace(string(res.Stdout))
@@ -282,27 +282,6 @@ func tryDownloadHelm(userPath, clientArch, clientOS string, helm3 bool) (string,
 		}
 	}
 	return helmBinaryPath, nil
-}
-
-// getClientArch returns a pair of arch and os
-func getClientArch() (string, string) {
-	task := execute.ExecTask{Command: "uname", Args: []string{"-m"}}
-	res, err := task.Execute()
-	if err != nil {
-		log.Println(err)
-	}
-
-	arch := strings.TrimSpace(res.Stdout)
-
-	taskOS := execute.ExecTask{Command: "uname", Args: []string{"-s"}}
-	resOS, errOS := taskOS.Execute()
-	if errOS != nil {
-		log.Println(errOS)
-	}
-
-	os := strings.TrimSpace(resOS.Stdout)
-
-	return arch, os
 }
 
 func getHelmURL(arch, os, version string) string {

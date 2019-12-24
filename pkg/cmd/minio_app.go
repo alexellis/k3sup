@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/alexellis/k3sup/pkg/env"
 	"github.com/alexellis/k3sup/pkg/config"
 	"github.com/sethvargo/go-password/password"
 	"github.com/spf13/cobra"
@@ -44,7 +45,7 @@ func makeInstallMinio() *cobra.Command {
 			return err
 		}
 
-		clientArch, clientOS := getClientArch()
+		clientArch, clientOS := env.GetClientArch()
 
 		fmt.Printf("Client: %s, %s\n", clientArch, clientOS)
 		log.Printf("User dir established as: %s\n", userPath)

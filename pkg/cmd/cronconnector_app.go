@@ -6,8 +6,8 @@ import (
 	"os"
 	"path"
 
+	"github.com/alexellis/k3sup/pkg/env"
 	"github.com/alexellis/k3sup/pkg/config"
-
 	"github.com/spf13/cobra"
 )
 
@@ -45,7 +45,7 @@ func makeInstallCronConnector() *cobra.Command {
 			return fmt.Errorf(`to override the "openfaas", install via tiller`)
 		}
 
-		clientArch, clientOS := getClientArch()
+		clientArch, clientOS := env.GetClientArch()
 
 		fmt.Printf("Client: %s, %s\n", clientArch, clientOS)
 		log.Printf("User dir established as: %s\n", userPath)
@@ -78,7 +78,7 @@ func makeInstallCronConnector() *cobra.Command {
 
 		overrides := map[string]string{}
 
-		arch := getArchitecture()
+		arch := getNodeArchitecture()
 		fmt.Printf("Node architecture: %q\n", arch)
 
 		fmt.Println("Chart path: ", chartPath)

@@ -9,6 +9,7 @@ import (
 	"github.com/alexellis/k3sup/pkg/config"
 
 	"github.com/spf13/cobra"
+	"github.com/alexellis/k3sup/pkg/env"
 )
 
 func makeInstallMetricsServer() *cobra.Command {
@@ -41,7 +42,7 @@ func makeInstallMetricsServer() *cobra.Command {
 			return fmt.Errorf(`to override the "kube-system", install via tiller`)
 		}
 
-		clientArch, clientOS := getClientArch()
+		clientArch, clientOS := env.GetClientArch()
 
 		fmt.Printf("Client: %s, %s\n", clientArch, clientOS)
 		log.Printf("User dir established as: %s\n", userPath)

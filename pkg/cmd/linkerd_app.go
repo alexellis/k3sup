@@ -12,6 +12,7 @@ import (
 	"path"
 	"strings"
 
+	"github.com/alexellis/k3sup/pkg/env"
 	execute "github.com/alexellis/go-execute/pkg/v1"
 	"github.com/alexellis/k3sup/pkg/config"
 	"github.com/spf13/cobra"
@@ -33,7 +34,7 @@ func makeInstallLinkerd() *cobra.Command {
 			kubeConfigPath, _ = command.Flags().GetString("kubeconfig")
 		}
 		fmt.Printf("Using kubeconfig: %s\n", kubeConfigPath)
-		arch := getArchitecture()
+		arch := getNodeArchitecture()
 		fmt.Printf("Node architecture: %q\n", arch)
 
 		userPath, err := config.InitUserDir()
@@ -41,7 +42,7 @@ func makeInstallLinkerd() *cobra.Command {
 			return err
 		}
 
-		_, clientOS := getClientArch()
+		_, clientOS := env.GetClientArch()
 
 		fmt.Printf("Client: %q\n", clientOS)
 

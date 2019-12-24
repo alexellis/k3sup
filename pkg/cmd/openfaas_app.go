@@ -10,6 +10,7 @@ import (
 
 	"github.com/sethvargo/go-password/password"
 
+	"github.com/alexellis/k3sup/pkg/env"
 	"github.com/alexellis/k3sup/pkg/config"
 
 	"github.com/spf13/cobra"
@@ -60,7 +61,7 @@ func makeInstallOpenFaaS() *cobra.Command {
 			return fmt.Errorf(`to override the "openfaas", install OpenFaaS via helm manually`)
 		}
 
-		arch := getArchitecture()
+		arch := getNodeArchitecture()
 		fmt.Printf("Node architecture: %q\n", arch)
 
 		valuesSuffix := getValuesSuffix(arch)
@@ -70,7 +71,7 @@ func makeInstallOpenFaaS() *cobra.Command {
 			return err
 		}
 
-		clientArch, clientOS := getClientArch()
+		clientArch, clientOS := env.GetClientArch()
 
 		fmt.Printf("Client: %q, %q\n", clientArch, clientOS)
 

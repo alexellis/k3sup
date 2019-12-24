@@ -9,6 +9,7 @@ import (
 	execute "github.com/alexellis/go-execute/pkg/v1"
 
 	"github.com/alexellis/k3sup/pkg/config"
+	"github.com/alexellis/k3sup/pkg/env"
 
 	"github.com/spf13/cobra"
 )
@@ -31,7 +32,7 @@ func makeInstallTiller() *cobra.Command {
 
 		fmt.Printf("Using kubeconfig: %s\n", kubeConfigPath)
 
-		arch := getArchitecture()
+		arch := getNodeArchitecture()
 		fmt.Printf("Node architecture: %q\n", arch)
 
 		if arch != "x86_64" && arch != "amd64" {
@@ -43,7 +44,7 @@ func makeInstallTiller() *cobra.Command {
 			return err
 		}
 
-		clientArch, clientOS := getClientArch()
+		clientArch, clientOS := env.GetClientArch()
 
 		fmt.Printf("Client: %q, %q\n", clientArch, clientOS)
 

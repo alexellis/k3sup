@@ -23,7 +23,7 @@ func makeInstallKubernetesDashboard() *cobra.Command {
 
 		fmt.Printf("Using kubeconfig: %s\n", kubeConfigPath)
 
-		arch := getArchitecture()
+		arch := getNodeArchitecture()
 		fmt.Printf("Node architecture: %q\n", arch)
 
 		_, err := kubectlTask("apply", "-f",
