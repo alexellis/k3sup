@@ -2,12 +2,12 @@
 
 
 [[projects]]
-  digest = "1:72e7e0f8fdddb762535bc00934efb311db71d5ccdb4076128bac4b68f3e08e7d"
+  digest = "1:74860eb071d52337d67e9ffd6893b29affebd026505aa917ec23131576a91a77"
   name = "github.com/alexellis/go-execute"
   packages = ["pkg/v1"]
   pruneopts = "UT"
-  revision = "d17947259f74333b6272fb04c809d5e6df7709a8"
-  version = "0.2.1"
+  revision = "961405ea754427780f2151adff607fa740d377f7"
+  version = "0.3.0"
 
 [[projects]]
   digest = "1:870d441fe217b8e689d7949fef6e43efbc787e50f200cb1e70dbca9204a1d6be"

@@ -1,8 +1,9 @@
 package execute
 
 import (
+	"bytes"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"os/exec"
 	"strings"
@@ -14,6 +15,13 @@ type ExecTask struct {
 	Shell   bool
 	Env     []string
 	Cwd     string
+
+	// StreamStdio prints stdout and stderr directly to os.Stdout/err as
+	// the command runs.
+	StreamStdio bool
+
+	// PrintCommand prints the command before executing
+	PrintCommand bool
 }
 
 type ExecResult struct {
@@ -28,7 +36,9 @@ func (et ExecTask) Execute() (ExecResult, error) {
 		argsSt = strings.Join(et.Args, " ")
 	}
 
-	fmt.Println("exec: ", et.Command, argsSt)
+	if et.PrintCommand {
+		fmt.Println("exec: ", et.Command, argsSt)
+	}
 
 	var cmd *exec.Cmd
 
@@ -67,34 +77,28 @@ func (et ExecTask) Execute() (ExecResult, error) {
 		}
 	}
 
-	stdoutPipe, stdoutPipeErr := cmd.StdoutPipe()
-	if stdoutPipeErr != nil {
-		return ExecResult{}, stdoutPipeErr
+	stdoutBuff := bytes.Buffer{}
+	stderrBuff := bytes.Buffer{}
+
+	var stdoutWriters io.Writer
+	var stderrWriters io.Writer
+
+	if et.StreamStdio {
+		stdoutWriters = io.MultiWriter(os.Stdout, &stdoutBuff)
+		stderrWriters = io.MultiWriter(os.Stderr, &stderrBuff)
+	} else {
+		stdoutWriters = &stdoutBuff
+		stderrWriters = &stderrBuff
 	}
 
-	stderrPipe, stderrPipeErr := cmd.StderrPipe()
-	if stderrPipeErr != nil {
-		return ExecResult{}, stderrPipeErr
-	}
+	cmd.Stdout = stdoutWriters
+	cmd.Stderr = stderrWriters
 
 	startErr := cmd.Start()
 
 	if startErr != nil {
 		return ExecResult{}, startErr
 	}
-
-	stdoutBytes, err := ioutil.ReadAll(stdoutPipe)
-	if err != nil {
-		return ExecResult{}, err
-	}
-
-	stderrBytes, err := ioutil.ReadAll(stderrPipe)
-
-	if err != nil {
-		return ExecResult{}, err
-	}
-
-	fmt.Println("res: " + string(stdoutBytes))
 
 	exitCode := 0
 	execErr := cmd.Wait()
@@ -106,8 +110,8 @@ func (et ExecTask) Execute() (ExecResult, error) {
 	}
 
 	return ExecResult{
-		Stdout:   string(stdoutBytes),
-		Stderr:   string(stderrBytes),
+		Stdout:   string(stdoutBuff.Bytes()),
+		Stderr:   string(stderrBuff.Bytes()),
 		ExitCode: exitCode,
 	}, nil
 }
