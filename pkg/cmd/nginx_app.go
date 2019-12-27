@@ -72,7 +72,12 @@ func makeInstallNginx() *cobra.Command {
 
 		overrides["defaultBackend.enabled"] = "false"
 
-		arch := getNodeArchitecture()
+		arch, err := getNodeArchitecture(kubeConfigPath, "")
+
+		if err != nil {
+			return err
+		}
+
 		fmt.Printf("Node architecture: %q\n", arch)
 
 		switch arch {

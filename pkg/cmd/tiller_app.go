@@ -27,7 +27,12 @@ func makeInstallTiller() *cobra.Command {
 		kubeConfigPath, _ := command.Flags().GetString("kubeconfig")
 		fmt.Printf("Using kubeconfig: %s\n", kubeConfigPath)
 
-		arch := getNodeArchitecture()
+		arch, err := getNodeArchitecture(kubeConfigPath, "")
+
+		if err != nil {
+			return err
+		}
+
 		fmt.Printf("Node architecture: %q\n", arch)
 
 		if arch != "x86_64" && arch != "amd64" {

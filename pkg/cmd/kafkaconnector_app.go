@@ -90,7 +90,12 @@ func makeInstallKafkaConnector() *cobra.Command {
 			"broker_host": brokerHostVal,
 		}
 
-		arch := getNodeArchitecture()
+		arch, err := getNodeArchitecture(kubeConfigPath, "")
+
+		if err != nil {
+			return err
+		}
+
 		fmt.Printf("Node architecture: %q\n", arch)
 
 		fmt.Println("Chart path: ", chartPath)

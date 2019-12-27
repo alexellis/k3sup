@@ -57,7 +57,12 @@ func makeInstallOpenFaaS() *cobra.Command {
 			return fmt.Errorf(`to override the "openfaas", install OpenFaaS via helm manually`)
 		}
 
-		arch := getNodeArchitecture()
+		arch, err := getNodeArchitecture(kubeConfigPath, "")
+
+		if err != nil {
+			return err
+		}
+
 		fmt.Printf("Node architecture: %q\n", arch)
 
 		valuesSuffix := getValuesSuffix(arch)

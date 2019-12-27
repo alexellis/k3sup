@@ -44,7 +44,12 @@ func makeInstallInletsOperator() *cobra.Command {
 			return fmt.Errorf(`to override the namespace, install inlets-operator via helm manually`)
 		}
 
-		arch := getNodeArchitecture()
+		arch, err := getNodeArchitecture(kubeConfigPath, "")
+
+		if err != nil {
+			return err
+		}
+
 		fmt.Printf("Node architecture: %q\n", arch)
 
 		userPath, err := config.InitUserDir()

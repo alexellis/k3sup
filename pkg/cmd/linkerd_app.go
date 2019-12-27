@@ -31,9 +31,12 @@ func makeInstallLinkerd() *cobra.Command {
 		kubeConfigPath, _ := command.Flags().GetString("kubeconfig")
 
 		fmt.Printf("Using kubeconfig: %s\n", kubeConfigPath)
+		arch, err := getNodeArchitecture(kubeConfigPath, "")
+
+		if err != nil {
+			return err
 		}
 
-		arch := getNodeArchitecture()
 		fmt.Printf("Node architecture: %q\n", arch)
 
 		userPath, err := config.InitUserDir()
