@@ -12,9 +12,9 @@ import (
 	"path"
 	"strings"
 
-	"github.com/alexellis/k3sup/pkg/env"
 	execute "github.com/alexellis/go-execute/pkg/v1"
 	"github.com/alexellis/k3sup/pkg/config"
+	"github.com/alexellis/k3sup/pkg/env"
 	"github.com/spf13/cobra"
 )
 

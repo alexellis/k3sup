@@ -7,9 +7,9 @@ import (
 	"path"
 
 	"github.com/alexellis/k3sup/pkg/config"
+	"github.com/alexellis/k3sup/pkg/env"
 
 	"github.com/spf13/cobra"
-	"github.com/alexellis/k3sup/pkg/env"
 )
 
 func makeInstallMetricsServer() *cobra.Command {

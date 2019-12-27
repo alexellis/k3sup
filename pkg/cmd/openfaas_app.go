@@ -10,8 +10,8 @@ import (
 
 	"github.com/sethvargo/go-password/password"
 
-	"github.com/alexellis/k3sup/pkg/env"
 	"github.com/alexellis/k3sup/pkg/config"
+	"github.com/alexellis/k3sup/pkg/env"
 
 	"github.com/spf13/cobra"
 )
