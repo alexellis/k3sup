@@ -25,11 +25,7 @@ func makeInstallCertManager() *cobra.Command {
 	certManager.Flags().Bool("update-repo", true, "Update the helm repo")
 
 	certManager.RunE = func(command *cobra.Command, args []string) error {
-		kubeConfigPath := getDefaultKubeconfig()
-
-		if command.Flags().Changed("kubeconfig") {
-			kubeConfigPath, _ = command.Flags().GetString("kubeconfig")
-		}
+		kubeConfigPath, _ := command.Flags().GetString("kubeconfig")
 
 		fmt.Printf("Using kubeconfig: %s\n", kubeConfigPath)
 
@@ -71,7 +67,7 @@ func makeInstallCertManager() *cobra.Command {
 			}
 		}
 
-		nsRes, nsErr := kubectlTask("create", "namespace", namespace)
+		nsRes, nsErr := kubectl(kubeConfigPath, "", "create", "namespace", namespace).Execute()
 		if nsErr != nil {
 			return nsErr
 		}
@@ -96,8 +92,8 @@ func makeInstallCertManager() *cobra.Command {
 
 		log.Printf("Applying CRD\n")
 		crdsURL := "https://raw.githubusercontent.com/jetstack/cert-manager/release-0.12/deploy/manifests/00-crds.yaml"
-		res, err := kubectlTask("apply", "--validate=false", "-f",
-			crdsURL)
+		res, err := kubectl(kubeConfigPath, "", "apply", "--validate=false", "-f",
+			crdsURL).Execute()
 		if err != nil {
 			return err
 		}
@@ -106,7 +102,7 @@ func makeInstallCertManager() *cobra.Command {
 			return fmt.Errorf("Error applying CRD from: %s, error: %s", crdsURL, res.Stderr)
 		}
 
-		applyRes, applyErr := kubectlTask("apply", "-R", "-f", outputPath)
+		applyRes, applyErr := kubectl(kubeConfigPath, "", "apply", "-R", "-f", outputPath).Execute()
 		if applyErr != nil {
 			return applyErr
 		}

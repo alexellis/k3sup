@@ -28,14 +28,11 @@ func makeInstallPostgresql() *cobra.Command {
 	postgresql.Flags().Bool("persistence", false, "Enable persistence")
 
 	postgresql.RunE = func(command *cobra.Command, args []string) error {
-		kubeConfigPath := getDefaultKubeconfig()
-
-		if command.Flags().Changed("kubeconfig") {
-			kubeConfigPath, _ = command.Flags().GetString("kubeconfig")
-		}
-		updateRepo, _ := postgresql.Flags().GetBool("update-repo")
+		kubeConfigPath, _ := command.Flags().GetString("kubeconfig")
 
 		fmt.Printf("Using kubeconfig: %s\n", kubeConfigPath)
+
+		updateRepo, _ := postgresql.Flags().GetBool("update-repo")
 
 		userPath, err := config.InitUserDir()
 		if err != nil {
@@ -97,10 +94,16 @@ func makeInstallPostgresql() *cobra.Command {
 			return err
 		}
 
-		err = kubectl("apply", "-R", "-f", outputPath)
+		res, err := kubectl(kubeConfigPath, "", "apply", "-R", "-f", outputPath).Execute()
 
 		if err != nil {
 			return err
+		}
+
+		if res.ExitCode != 0 {
+			return fmt.Errorf("kubectl exit code %d, stderr: %s",
+				res.ExitCode,
+				res.Stderr)
 		}
 
 		fmt.Println(`=======================================================================

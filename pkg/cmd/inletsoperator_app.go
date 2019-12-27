@@ -34,11 +34,7 @@ func makeInstallInletsOperator() *cobra.Command {
 	inletsOperator.Flags().String("pro-client-image", "", "Docker image for inlets-pro's client")
 
 	inletsOperator.RunE = func(command *cobra.Command, args []string) error {
-		kubeConfigPath := getDefaultKubeconfig()
-
-		if command.Flags().Changed("kubeconfig") {
-			kubeConfigPath, _ = command.Flags().GetString("kubeconfig")
-		}
+		kubeConfigPath, _ := command.Flags().GetString("kubeconfig")
 
 		fmt.Printf("Using kubeconfig: %s\n", kubeConfigPath)
 
@@ -90,20 +86,25 @@ func makeInstallInletsOperator() *cobra.Command {
 			return err
 		}
 
-		_, err = kubectlTask("apply", "-f", "https://raw.githubusercontent.com/inlets/inlets-operator/master/artifacts/crd.yaml")
+		res, err := kubectl(kubeConfigPath, "", "apply", "-f", "https://raw.githubusercontent.com/inlets/inlets-operator/master/artifacts/crd.yaml").Execute()
 		if err != nil {
 			return err
 		}
 
+		if res.ExitCode != 0 {
+			return fmt.Errorf("kubectl exit code %d, stderr: %s",
+				res.ExitCode,
+				res.Stderr)
+		}
 		secretFileName, _ := command.Flags().GetString("token-file")
 
 		if len(secretFileName) == 0 {
 			return fmt.Errorf(`--token-file is a required field for your cloud API token or service account JSON file`)
 		}
 
-		res, err := kubectlTask("create", "secret", "generic",
+		res, err = kubectl(kubeConfigPath, "", "create", "secret", "generic",
 			"inlets-access-key",
-			"--from-file", "inlets-access-key="+secretFileName)
+			"--from-file", "inlets-access-key="+secretFileName).Execute()
 
 		if len(res.Stderr) > 0 {
 			return fmt.Errorf("Error from kubectl\n%q", res.Stderr)
@@ -132,7 +133,7 @@ func makeInstallInletsOperator() *cobra.Command {
 			return err
 		}
 
-		applyRes, applyErr := kubectlTask("apply", "-R", "-f", outputPath)
+		applyRes, applyErr := kubectl(kubeConfigPath, "", "apply", "-R", "-f", outputPath).Execute()
 		if applyErr != nil {
 			return applyErr
 		}

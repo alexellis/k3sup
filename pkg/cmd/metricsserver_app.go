@@ -24,11 +24,7 @@ func makeInstallMetricsServer() *cobra.Command {
 	metricsServer.Flags().StringP("namespace", "n", "kube-system", "The namespace used for installation")
 
 	metricsServer.RunE = func(command *cobra.Command, args []string) error {
-		kubeConfigPath := getDefaultKubeconfig()
-
-		if command.Flags().Changed("kubeconfig") {
-			kubeConfigPath, _ = command.Flags().GetString("kubeconfig")
-		}
+		kubeConfigPath, _ := command.Flags().GetString("kubeconfig")
 
 		fmt.Printf("Using kubeconfig: %s\n", kubeConfigPath)
 
@@ -82,7 +78,7 @@ func makeInstallMetricsServer() *cobra.Command {
 			return err
 		}
 
-		applyRes, applyErr := kubectlTask("apply", "-n", namespace, "-R", "-f", outputPath)
+		applyRes, applyErr := kubectl(kubeConfigPath, "", "apply", "-n", namespace, "-R", "-f", outputPath).Execute()
 		if applyErr != nil {
 			return applyErr
 		}

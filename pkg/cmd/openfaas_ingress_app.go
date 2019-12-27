@@ -47,11 +47,7 @@ func makeInstallOpenFaaSIngress() *cobra.Command {
 			return errors.New("--ingress-class must be set")
 		}
 
-		kubeConfigPath := getDefaultKubeconfig()
-
-		if command.Flags().Changed("kubeconfig") {
-			kubeConfigPath, _ = command.Flags().GetString("kubeconfig")
-		}
+		kubeConfigPath, _ := command.Flags().GetString("kubeconfig")
 
 		fmt.Printf("Using kubeconfig: %s\n", kubeConfigPath)
 
@@ -67,7 +63,7 @@ func makeInstallOpenFaaSIngress() *cobra.Command {
 			return tempFileErr
 		}
 
-		res, err := kubectlTask("apply", "-f", tempFile)
+		res, err := kubectl(kubeConfigPath, "", "apply", "-f", tempFile).Execute()
 
 		if err != nil {
 			log.Print(err)

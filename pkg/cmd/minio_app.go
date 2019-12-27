@@ -31,11 +31,8 @@ func makeInstallMinio() *cobra.Command {
 	minio.Flags().Bool("persistence", false, "Enable persistence")
 
 	minio.RunE = func(command *cobra.Command, args []string) error {
-		kubeConfigPath := getDefaultKubeconfig()
+		kubeConfigPath, _ := command.Flags().GetString("kubeconfig")
 
-		if command.Flags().Changed("kubeconfig") {
-			kubeConfigPath, _ = command.Flags().GetString("kubeconfig")
-		}
 		updateRepo, _ := minio.Flags().GetBool("update-repo")
 
 		fmt.Printf("Using kubeconfig: %s\n", kubeConfigPath)
@@ -118,10 +115,16 @@ func makeInstallMinio() *cobra.Command {
 			return err
 		}
 
-		err = kubectl("apply", "-R", "-f", outputPath)
+		res, err := kubectl(kubeConfigPath, "", "apply", "-R", "-f", outputPath).Execute()
 
 		if err != nil {
 			return err
+		}
+
+		if res.ExitCode != 0 {
+			return fmt.Errorf("kubectl exit code %d, stderr: %s",
+				res.ExitCode,
+				res.Stderr)
 		}
 
 		fmt.Println(`=======================================================================

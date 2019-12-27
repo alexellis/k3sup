@@ -26,11 +26,7 @@ func makeInstallNginx() *cobra.Command {
 	nginx.Flags().Bool("host-mode", false, "If we should install nginx-ingress in host mode.")
 
 	nginx.RunE = func(command *cobra.Command, args []string) error {
-		kubeConfigPath := getDefaultKubeconfig()
-
-		if command.Flags().Changed("kubeconfig") {
-			kubeConfigPath, _ = command.Flags().GetString("kubeconfig")
-		}
+		kubeConfigPath, _ := command.Flags().GetString("kubeconfig")
 
 		updateRepo, _ := nginx.Flags().GetBool("update-repo")
 
@@ -115,10 +111,16 @@ func makeInstallNginx() *cobra.Command {
 			return err
 		}
 
-		err = kubectl("apply", "-R", "-f", outputPath)
+		res, err := kubectl(kubeConfigPath, "", "apply", "-R", "-f", outputPath).Execute()
 
 		if err != nil {
 			return err
+		}
+
+		if res.ExitCode != 0 {
+			return fmt.Errorf("kubectl exit code %d, stderr: %s",
+				res.ExitCode,
+				res.Stderr)
 		}
 
 		fmt.Println(`=======================================================================

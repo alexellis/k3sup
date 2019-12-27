@@ -15,33 +15,40 @@ func makeInstallKubernetesDashboard() *cobra.Command {
 	}
 
 	kubeDashboard.RunE = func(command *cobra.Command, args []string) error {
-		kubeConfigPath := getDefaultKubeconfig()
-
-		if command.Flags().Changed("kubeconfig") {
-			kubeConfigPath, _ = command.Flags().GetString("kubeconfig")
-		}
+		kubeConfigPath, _ := command.Flags().GetString("kubeconfig")
 
 		fmt.Printf("Using kubeconfig: %s\n", kubeConfigPath)
 
 		arch := getNodeArchitecture()
 		fmt.Printf("Node architecture: %q\n", arch)
 
-		_, err := kubectlTask("apply", "-f",
-			"https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0-beta6/aio/deploy/recommended.yaml")
-		if err != nil {
-			return err
-		}
-		_, err = kubectlTask("apply", "-",
-			`apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: admin-user
-  namespace: kubernetes-dashboard`)
+		res, err := kubectl(kubeConfigPath, "", "apply", "-f",
+			"https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0-beta6/aio/deploy/recommended.yaml").Execute()
+
 		if err != nil {
 			return err
 		}
 
-		_, err = kubectlTask("apply", "-",
+		if res.ExitCode != 0 {
+			return fmt.Errorf("kubectl exit code %d, stderr: %s",
+				res.ExitCode,
+				res.Stderr)
+		}
+		res, err = kubectl(kubeConfigPath, "", "apply", "-",
+			`apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: admin-user
+  namespace: kubernetes-dashboard`).Execute()
+		if err != nil {
+			return err
+		}
+		if res.ExitCode != 0 {
+			return fmt.Errorf("kubectl exit code %d, stderr: %s",
+				res.ExitCode,
+				res.Stderr)
+		}
+		res, err = kubectl(kubeConfigPath, "", "apply", "-",
 			`apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
@@ -53,9 +60,16 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: admin-user
-  namespace: kubernetes-dashboard`)
+  namespace: kubernetes-dashboard`).Execute()
+
 		if err != nil {
 			return err
+		}
+
+		if res.ExitCode != 0 {
+			return fmt.Errorf("kubectl exit code %d, stderr: %s",
+				res.ExitCode,
+				res.Stderr)
 		}
 
 		fmt.Println(`=======================================================================

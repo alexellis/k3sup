@@ -52,11 +52,7 @@ before using the generic helm chart installer command.`,
 			return fmt.Errorf("--repo-name required")
 		}
 
-		kubeConfigPath := getDefaultKubeconfig()
-
-		if command.Flags().Changed("kubeconfig") {
-			kubeConfigPath, _ = command.Flags().GetString("kubeconfig")
-		}
+		kubeConfigPath, _ := command.Flags().GetString("kubeconfig")
 
 		fmt.Printf("Using kubeconfig: %s\n", kubeConfigPath)
 
@@ -92,16 +88,21 @@ before using the generic helm chart installer command.`,
 			return err
 		}
 
-		res, kcErr := kubectlTask("get", "namespace", namespace)
+		res, kcErr := kubectl(kubeConfigPath, "", "get", "namespace", namespace).Execute()
 
 		if kcErr != nil {
 			return err
 		}
 
 		if res.ExitCode != 0 {
-			err = kubectl("create", "namespace", namespace)
+			res, err := kubectl(kubeConfigPath, "", "create", "namespace", namespace).Execute()
 			if err != nil {
 				return err
+			}
+			if res.ExitCode != 0 {
+				return fmt.Errorf("kubectl exit code %d, stderr: %s",
+					res.ExitCode,
+					res.Stderr)
 			}
 		}
 
@@ -133,11 +134,15 @@ before using the generic helm chart installer command.`,
 			return err
 		}
 
-		err = kubectl("apply", "--namespace", namespace, "-R", "-f", outputPath)
+		res, err = kubectl(kubeConfigPath, "", "apply", "--namespace", namespace, "-R", "-f", outputPath).Execute()
 		if err != nil {
 			return err
 		}
-
+		if res.ExitCode != 0 {
+			return fmt.Errorf("kubectl exit code %d, stderr: %s",
+				res.ExitCode,
+				res.Stderr)
+		}
 		fmt.Println(
 			`=======================================================================
 chart ` + chartRepoName + ` installed.

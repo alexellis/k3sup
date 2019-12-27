@@ -24,15 +24,9 @@ func makeInstallCronConnector() *cobra.Command {
 	command.Flags().Bool("update-repo", true, "Update the helm repo")
 
 	command.RunE = func(command *cobra.Command, args []string) error {
-		kubeConfigPath := getDefaultKubeconfig()
-
-		if command.Flags().Changed("kubeconfig") {
-			kubeConfigPath, _ = command.Flags().GetString("kubeconfig")
-		}
+		kubeConfigPath, _ := command.Flags().GetString("kubeconfig")
 
 		updateRepo, _ := command.Flags().GetBool("update-repo")
-
-		fmt.Printf("Using kubeconfig: %s\n", kubeConfigPath)
 
 		userPath, err := config.InitUserDir()
 		if err != nil {
@@ -97,10 +91,15 @@ func makeInstallCronConnector() *cobra.Command {
 			return err
 		}
 
-		err = kubectl("apply", "-R", "-f", outputPath)
+		res, err := kubectl(kubeConfigPath, "", "apply", "-R", "-f", outputPath).Execute()
 
 		if err != nil {
 			return err
+		}
+		if res.ExitCode != 0 {
+			return fmt.Errorf("kubectl exit code %d, stderr: %s",
+				res.ExitCode,
+				res.Stderr)
 		}
 
 		fmt.Println(`=======================================================================

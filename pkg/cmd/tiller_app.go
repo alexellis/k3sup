@@ -24,12 +24,7 @@ func makeInstallTiller() *cobra.Command {
 	}
 
 	tiller.RunE = func(command *cobra.Command, args []string) error {
-		kubeConfigPath := getDefaultKubeconfig()
-
-		if command.Flags().Changed("kubeconfig") {
-			kubeConfigPath, _ = command.Flags().GetString("kubeconfig")
-		}
-
+		kubeConfigPath, _ := command.Flags().GetString("kubeconfig")
 		fmt.Printf("Using kubeconfig: %s\n", kubeConfigPath)
 
 		arch := getNodeArchitecture()
@@ -52,17 +47,27 @@ func makeInstallTiller() *cobra.Command {
 
 		os.Setenv("HELM_HOME", path.Join(userPath, ".helm"))
 
-		task, err := kubectlTask("-n", "kube-system", "create", "sa", "tiller")
+		task, err := kubectl(kubeConfigPath, "", "-n", "kube-system", "create", "sa", "tiller").Execute()
 		if err != nil {
 			return err
 		}
-
+		if task.ExitCode != 0 {
+			return fmt.Errorf("kubectl exit code %d, stderr: %s",
+				task.ExitCode,
+				task.Stderr)
+		}
 		fmt.Println(task.Stdout, task.Stderr)
 
-		task, err = kubectlTask("create", "clusterrolebinding", "tiller", "--clusterrole", "cluster-admin", "--serviceaccount=kube-system:tiller")
+		task, err = kubectl(kubeConfigPath, "", "create", "clusterrolebinding", "tiller", "--clusterrole", "cluster-admin", "--serviceaccount=kube-system:tiller").Execute()
 		if err != nil {
 			return err
 		}
+		if task.ExitCode != 0 {
+			return fmt.Errorf("kubectl exit code %d, stderr: %s",
+				task.ExitCode,
+				task.Stderr)
+		}
+
 		fmt.Println(task.Stdout, task.Stderr)
 
 		k3supBin := path.Join(userPath, "bin")
