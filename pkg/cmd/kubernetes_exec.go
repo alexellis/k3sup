@@ -44,12 +44,20 @@ func fetchChart(path, chart string, helm3 bool) error {
 	return nil
 }
 
-func getNodeArchitecture() string {
-	res, _ := kubectlTask("get", "nodes", `--output`, `jsonpath={range $.items[0]}{.status.nodeInfo.architecture}`)
+func getNodeArchitecture(kubeConfigPath string, kubeContext string) (string, error) {
+	res, err := kubectl(kubeConfigPath, kubeContext, "get", "nodes", `--output`, `jsonpath={range $.items[0]}{.status.nodeInfo.architecture}`).Execute()
 
+	if err != nil {
+		return "", err
+	}
+	if res.ExitCode != 0 {
+		return "", fmt.Errorf("kubectl exit code %d, stderr: %s",
+			res.ExitCode,
+			res.Stderr)
+	}
 	arch := strings.TrimSpace(string(res.Stdout))
 
-	return arch
+	return arch, nil
 }
 
 func helm3Upgrade(basePath, chart, namespace, values string, overrides map[string]string) error {
