@@ -219,45 +219,17 @@ func helmInit() error {
 	return nil
 }
 
-func kubectlTask(parts ...string) (execute.ExecResult, error) {
+func kubectl(kubeConfigPath string, kubeContext string, parts ...string) execute.ExecTask {
+	if len(kubeConfigPath) > 0 {
+		parts = append(parts, "--kubeconfig")
+		parts = append(parts, kubeConfigPath)
+	}
 	task := execute.ExecTask{
 		Command: "kubectl",
 		Args:    parts,
 	}
 
-	res, err := task.Execute()
-
-	return res, err
-}
-
-func kubectl(parts ...string) error {
-	task := execute.ExecTask{
-		Command: "kubectl",
-		Args:    parts,
-	}
-
-	res, err := task.Execute()
-
-	if err != nil {
-		return err
-	}
-
-	if res.ExitCode != 0 {
-		return fmt.Errorf("kubectl exit code %d, stderr: %s",
-			res.ExitCode,
-			res.Stderr)
-	}
-	return nil
-}
-
-func getDefaultKubeconfig() string {
-	kubeConfigPath := path.Join(os.Getenv("HOME"), ".kube/config")
-
-	if val, ok := os.LookupEnv("KUBECONFIG"); ok {
-		kubeConfigPath = val
-	}
-
-	return kubeConfigPath
+	return task
 }
 
 func tryDownloadHelm(userPath, clientArch, clientOS string, helm3 bool) (string, error) {
