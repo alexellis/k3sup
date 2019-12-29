@@ -355,6 +355,8 @@ MIT
 
 * [k3sup mentioned on Kubernetes Podcast episode 67](https://kubernetespodcast.com/episode/067-orka/) by Craig Box & Adam Glick
 
+* [kube-rpi blog-post with 64-bit OS by Michael Hausenblas](https://mhausenblas.info/kube-rpi/)
+
 * Blog post by Ruan Bekker:
 
     > Provision k3s to all the places with a awesome utility called "k3sup" by @alexellisuk. Definitely worth checking it out, its epic!
