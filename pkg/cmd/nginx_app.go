@@ -72,7 +72,7 @@ func makeInstallNginx() *cobra.Command {
 
 		overrides["defaultBackend.enabled"] = "false"
 
-		arch, err := getNodeArchitecture(kubeConfigPath, "")
+		arch, err := getNodeArchitecture(command)
 
 		if err != nil {
 			return err
@@ -116,7 +116,7 @@ func makeInstallNginx() *cobra.Command {
 			return err
 		}
 
-		res, err := kubectl(kubeConfigPath, "", "apply", "-R", "-f", outputPath).Execute()
+		res, err := kubectl(command, "apply", "-R", "-f", outputPath).Execute()
 
 		if err != nil {
 			return err

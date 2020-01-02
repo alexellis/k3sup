@@ -115,7 +115,7 @@ func makeInstallMinio() *cobra.Command {
 			return err
 		}
 
-		res, err := kubectl(kubeConfigPath, "", "apply", "-R", "-f", outputPath).Execute()
+		res, err := kubectl(command, "apply", "-R", "-f", outputPath).Execute()
 
 		if err != nil {
 			return err

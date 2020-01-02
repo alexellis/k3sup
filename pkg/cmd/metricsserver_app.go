@@ -78,7 +78,7 @@ func makeInstallMetricsServer() *cobra.Command {
 			return err
 		}
 
-		applyRes, applyErr := kubectl(kubeConfigPath, "", "apply", "-n", namespace, "-R", "-f", outputPath).Execute()
+		applyRes, applyErr := kubectl(command, "apply", "-n", namespace, "-R", "-f", outputPath).Execute()
 		if applyErr != nil {
 			return applyErr
 		}

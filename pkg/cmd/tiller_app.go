@@ -27,7 +27,7 @@ func makeInstallTiller() *cobra.Command {
 		kubeConfigPath, _ := command.Flags().GetString("kubeconfig")
 		fmt.Printf("Using kubeconfig: %s\n", kubeConfigPath)
 
-		arch, err := getNodeArchitecture(kubeConfigPath, "")
+		arch, err := getNodeArchitecture(command)
 
 		if err != nil {
 			return err
@@ -52,7 +52,7 @@ func makeInstallTiller() *cobra.Command {
 
 		os.Setenv("HELM_HOME", path.Join(userPath, ".helm"))
 
-		task, err := kubectl(kubeConfigPath, "", "-n", "kube-system", "create", "sa", "tiller").Execute()
+		task, err := kubectl(command, "-n", "kube-system", "create", "sa", "tiller").Execute()
 		if err != nil {
 			return err
 		}
@@ -63,7 +63,7 @@ func makeInstallTiller() *cobra.Command {
 		}
 		fmt.Println(task.Stdout, task.Stderr)
 
-		task, err = kubectl(kubeConfigPath, "", "create", "clusterrolebinding", "tiller", "--clusterrole", "cluster-admin", "--serviceaccount=kube-system:tiller").Execute()
+		task, err = kubectl(command, "create", "clusterrolebinding", "tiller", "--clusterrole", "cluster-admin", "--serviceaccount=kube-system:tiller").Execute()
 		if err != nil {
 			return err
 		}

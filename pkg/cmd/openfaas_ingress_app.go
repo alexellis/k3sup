@@ -63,7 +63,7 @@ func makeInstallOpenFaaSIngress() *cobra.Command {
 			return tempFileErr
 		}
 
-		res, err := kubectl(kubeConfigPath, "", "apply", "-f", tempFile).Execute()
+		res, err := kubectl(command, "apply", "-f", tempFile).Execute()
 
 		if err != nil {
 			log.Print(err)

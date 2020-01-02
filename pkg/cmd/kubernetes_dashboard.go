@@ -19,15 +19,14 @@ func makeInstallKubernetesDashboard() *cobra.Command {
 
 		fmt.Printf("Using kubeconfig: %s\n", kubeConfigPath)
 
-		arch, err := getNodeArchitecture(kubeConfigPath, "")
+		arch, err := getNodeArchitecture(command)
 
 		if err != nil {
 			return err
 		}
 		fmt.Printf("Node architecture: %q\n", arch)
 
-		res, err := kubectl(kubeConfigPath, "", "apply", "-f",
-			"https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0-beta6/aio/deploy/recommended.yaml").Execute()
+		res, err := kubectl(command, "apply", "-f", "https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0-beta6/aio/deploy/recommended.yaml").Execute()
 
 		if err != nil {
 			return err
@@ -38,8 +37,7 @@ func makeInstallKubernetesDashboard() *cobra.Command {
 				res.ExitCode,
 				res.Stderr)
 		}
-		res, err = kubectl(kubeConfigPath, "", "apply", "-",
-			`apiVersion: v1
+		res, err = kubectl(command, "apply", "-", `apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: admin-user
@@ -52,8 +50,7 @@ metadata:
 				res.ExitCode,
 				res.Stderr)
 		}
-		res, err = kubectl(kubeConfigPath, "", "apply", "-",
-			`apiVersion: rbac.authorization.k8s.io/v1
+		res, err = kubectl(command, "apply", "-", `apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: admin-user

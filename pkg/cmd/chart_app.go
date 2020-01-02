@@ -88,14 +88,14 @@ before using the generic helm chart installer command.`,
 			return err
 		}
 
-		res, kcErr := kubectl(kubeConfigPath, "", "get", "namespace", namespace).Execute()
+		res, kcErr := kubectl(command, "get", "namespace", namespace).Execute()
 
 		if kcErr != nil {
 			return err
 		}
 
 		if res.ExitCode != 0 {
-			res, err := kubectl(kubeConfigPath, "", "create", "namespace", namespace).Execute()
+			res, err := kubectl(command, "create", "namespace", namespace).Execute()
 			if err != nil {
 				return err
 			}
@@ -134,7 +134,7 @@ before using the generic helm chart installer command.`,
 			return err
 		}
 
-		res, err = kubectl(kubeConfigPath, "", "apply", "--namespace", namespace, "-R", "-f", outputPath).Execute()
+		res, err = kubectl(command, "apply", "--namespace", namespace, "-R", "-f", outputPath).Execute()
 		if err != nil {
 			return err
 		}

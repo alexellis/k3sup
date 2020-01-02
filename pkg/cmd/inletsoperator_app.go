@@ -44,7 +44,7 @@ func makeInstallInletsOperator() *cobra.Command {
 			return fmt.Errorf(`to override the namespace, install inlets-operator via helm manually`)
 		}
 
-		arch, err := getNodeArchitecture(kubeConfigPath, "")
+		arch, err := getNodeArchitecture(command)
 
 		if err != nil {
 			return err
@@ -91,7 +91,7 @@ func makeInstallInletsOperator() *cobra.Command {
 			return err
 		}
 
-		res, err := kubectl(kubeConfigPath, "", "apply", "-f", "https://raw.githubusercontent.com/inlets/inlets-operator/master/artifacts/crd.yaml").Execute()
+		res, err := kubectl(command, "apply", "-f", "https://raw.githubusercontent.com/inlets/inlets-operator/master/artifacts/crd.yaml").Execute()
 		if err != nil {
 			return err
 		}
@@ -107,9 +107,7 @@ func makeInstallInletsOperator() *cobra.Command {
 			return fmt.Errorf(`--token-file is a required field for your cloud API token or service account JSON file`)
 		}
 
-		res, err = kubectl(kubeConfigPath, "", "create", "secret", "generic",
-			"inlets-access-key",
-			"--from-file", "inlets-access-key="+secretFileName).Execute()
+		res, err = kubectl(command, "create", "secret", "generic", "inlets-access-key", "--from-file", "inlets-access-key="+secretFileName).Execute()
 
 		if len(res.Stderr) > 0 {
 			return fmt.Errorf("Error from kubectl\n%q", res.Stderr)
@@ -138,7 +136,7 @@ func makeInstallInletsOperator() *cobra.Command {
 			return err
 		}
 
-		applyRes, applyErr := kubectl(kubeConfigPath, "", "apply", "-R", "-f", outputPath).Execute()
+		applyRes, applyErr := kubectl(command, "apply", "-R", "-f", outputPath).Execute()
 		if applyErr != nil {
 			return applyErr
 		}

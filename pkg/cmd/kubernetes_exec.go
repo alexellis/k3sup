@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/spf13/cobra"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -44,8 +45,8 @@ func fetchChart(path, chart string, helm3 bool) error {
 	return nil
 }
 
-func getNodeArchitecture(kubeConfigPath string, kubeContext string) (string, error) {
-	res, err := kubectl(kubeConfigPath, kubeContext, "get", "nodes", `--output`, `jsonpath={range $.items[0]}{.status.nodeInfo.architecture}`).Execute()
+func getNodeArchitecture(command *cobra.Command) (string, error) {
+	res, err := kubectl(command, "get", "nodes", `--output`, `jsonpath={range $.items[0]}{.status.nodeInfo.architecture}`).Execute()
 
 	if err != nil {
 		return "", err
@@ -227,7 +228,8 @@ func helmInit() error {
 	return nil
 }
 
-func kubectl(kubeConfigPath string, kubeContext string, parts ...string) execute.ExecTask {
+func kubectl(command *cobra.Command, parts ...string) execute.ExecTask {
+	kubeConfigPath, _ := command.Flags().GetString("kubeconfig")
 	if len(kubeConfigPath) > 0 {
 		parts = append(parts, "--kubeconfig")
 		parts = append(parts, kubeConfigPath)

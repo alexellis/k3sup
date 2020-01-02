@@ -24,7 +24,6 @@ func makeInstallCronConnector() *cobra.Command {
 	command.Flags().Bool("update-repo", true, "Update the helm repo")
 
 	command.RunE = func(command *cobra.Command, args []string) error {
-		kubeConfigPath, _ := command.Flags().GetString("kubeconfig")
 
 		updateRepo, _ := command.Flags().GetBool("update-repo")
 
@@ -72,7 +71,7 @@ func makeInstallCronConnector() *cobra.Command {
 
 		overrides := map[string]string{}
 
-		arch, err := getNodeArchitecture(kubeConfigPath, "")
+		arch, err := getNodeArchitecture(command)
 
 		if err != nil {
 			return err
@@ -96,7 +95,7 @@ func makeInstallCronConnector() *cobra.Command {
 			return err
 		}
 
-		res, err := kubectl(kubeConfigPath, "", "apply", "-R", "-f", outputPath).Execute()
+		res, err := kubectl(command, "apply", "-R", "-f", outputPath).Execute()
 
 		if err != nil {
 			return err

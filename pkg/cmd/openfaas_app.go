@@ -57,7 +57,7 @@ func makeInstallOpenFaaS() *cobra.Command {
 			return fmt.Errorf(`to override the "openfaas", install OpenFaaS via helm manually`)
 		}
 
-		arch, err := getNodeArchitecture(kubeConfigPath, "")
+		arch, err := getNodeArchitecture(command)
 
 		if err != nil {
 			return err
@@ -108,8 +108,7 @@ func makeInstallOpenFaaS() *cobra.Command {
 			return err
 		}
 
-		_, err = kubectl(kubeConfigPath, "", "apply", "-f",
-			"https://raw.githubusercontent.com/openfaas/faas-netes/master/namespaces.yml").Execute()
+		_, err = kubectl(command, "apply", "-f", "https://raw.githubusercontent.com/openfaas/faas-netes/master/namespaces.yml").Execute()
 
 		if err != nil {
 			return err
@@ -120,10 +119,7 @@ func makeInstallOpenFaaS() *cobra.Command {
 			return err
 		}
 
-		res, secretErr := kubectl(kubeConfigPath, "", "-n", namespace, "create", "secret", "generic",
-			"basic-auth",
-			"--from-literal=basic-auth-user=admin",
-			`--from-literal=basic-auth-password=`+pass).Execute()
+		res, secretErr := kubectl(command, "-n", namespace, "create", "secret", "generic", "basic-auth", "--from-literal=basic-auth-user=admin", `--from-literal=basic-auth-password=`+pass).Execute()
 
 		if secretErr != nil {
 			return secretErr
@@ -214,7 +210,7 @@ func makeInstallOpenFaaS() *cobra.Command {
 				return err
 			}
 
-			applyRes, applyErr := kubectl(kubeConfigPath, "", "apply", "-R", "-f", outputPath).Execute()
+			applyRes, applyErr := kubectl(command, "apply", "-R", "-f", outputPath).Execute()
 			if applyErr != nil {
 				return applyErr
 			}

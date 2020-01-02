@@ -31,7 +31,7 @@ func makeInstallLinkerd() *cobra.Command {
 		kubeConfigPath, _ := command.Flags().GetString("kubeconfig")
 
 		fmt.Printf("Using kubeconfig: %s\n", kubeConfigPath)
-		arch, err := getNodeArchitecture(kubeConfigPath, "")
+		arch, err := getNodeArchitecture(command)
 
 		if err != nil {
 			return err
@@ -73,7 +73,7 @@ func makeInstallLinkerd() *cobra.Command {
 		}
 		w.Flush()
 
-		res, err = kubectl(kubeConfigPath, "", "apply", "-R", "-f", file.Name()).Execute()
+		res, err = kubectl(command, "apply", "-R", "-f", file.Name()).Execute()
 
 		if err != nil {
 			return err

@@ -1,6 +1,17 @@
 package cmd
 
-import "testing"
+import (
+	"github.com/spf13/cobra"
+	"testing"
+)
+
+var command = &cobra.Command{
+	Use:          "kafka-connector",
+	Short:        "Install kafka-connector for OpenFaaS",
+	Long:         `Install kafka-connector for OpenFaaS`,
+	Example:      `  k3sup app install kafka-connector`,
+	SilenceUsage: true,
+}
 
 func indexOf(element string, data []string) int {
 	for k, v := range data {
@@ -11,7 +22,7 @@ func indexOf(element string, data []string) int {
 	return -1 //not found.
 }
 func Test_kubectlArgs_1(t *testing.T) {
-	task := kubectl("", "", "apply")
+	task := kubectl(command, "apply")
 	want := -1
 	got := indexOf("--kubeconfig", task.Args)
 	if want != got {
@@ -23,11 +34,13 @@ func Test_kubectlArgs_1(t *testing.T) {
 }
 
 func Test_kubectlArgs_2(t *testing.T) {
-	configPath := "~/.kube/test"
-	task := kubectl(configPath, "", "apply")
+	command.Flags().String("kubeconfig", "", "Local path for your kubeconfig file")
+	configPath:="~/.kube/test"
+	command.Flags().Set("kubeconfig",  configPath)
+	task := kubectl(command, "apply")
 	got := indexOf("--kubeconfig", task.Args)
 
-	if configPath != task.Args[got+1] {
+	if configPath != task.Args[got+1] && got != -1 {
 		t.Errorf("Args order is wrong, want: %s, got:%s", configPath, task.Args[got+1])
 	}
 	if "apply" != task.Args[0] {
