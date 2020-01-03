@@ -10,8 +10,8 @@ import (
 
 	"github.com/sethvargo/go-password/password"
 
-	"github.com/alexellis/k3sup/pkg/env"
 	"github.com/alexellis/k3sup/pkg/config"
+	"github.com/alexellis/k3sup/pkg/env"
 
 	"github.com/spf13/cobra"
 )
@@ -40,6 +40,8 @@ func makeInstallOpenFaaS() *cobra.Command {
 	openfaas.Flags().Int("gateways", 1, "Replicas of gateway")
 
 	openfaas.Flags().Bool("helm3", false, "Use helm3 instead of the default helm2")
+
+	openfaas.Flags().StringArray("set", []string{}, "Use custom flags or override existing flags \n(example --set=gateway.replicas=2)")
 
 	openfaas.RunE = func(command *cobra.Command, args []string) error {
 		kubeConfigPath := getDefaultKubeconfig()
@@ -193,6 +195,11 @@ func makeInstallOpenFaaS() *cobra.Command {
 			overrides["serviceType"] = "LoadBalancer"
 		}
 
+		customFlags, _ := command.Flags().GetStringArray("set")
+		if err := mergeFlags(overrides, customFlags); err != nil {
+			return err
+		}
+
 		if helm3 {
 			outputPath := path.Join(chartPath, "openfaas")
 
@@ -244,6 +251,17 @@ func getValuesSuffix(arch string) string {
 		valuesSuffix = ""
 	}
 	return valuesSuffix
+}
+
+func mergeFlags(existingMap map[string]string, setOverrides []string) error {
+	for _, setOverride := range setOverrides {
+		flag := strings.Split(setOverride, "=")
+		if len(flag) != 2 {
+			return fmt.Errorf("incorrect format for custom flag `%s`", setOverride)
+		}
+		existingMap[flag[0]] = flag[1]
+	}
+	return nil
 }
 
 const openfaasInfoMsg = `# Get the faas-cli
