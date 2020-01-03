@@ -12,9 +12,9 @@ import (
 	"path"
 	"strings"
 
-	"github.com/alexellis/k3sup/pkg/env"
 	execute "github.com/alexellis/go-execute/pkg/v1"
 	"github.com/alexellis/k3sup/pkg/config"
+	"github.com/alexellis/k3sup/pkg/env"
 	"github.com/spf13/cobra"
 )
 
@@ -142,10 +142,12 @@ func downloadLinkerd(userPath, clientOS string) error {
 
 func linkerdCli(parts ...string) (execute.ExecResult, error) {
 	task := execute.ExecTask{
-		Command: fmt.Sprintf("%s", localBinary("linkerd", "")),
-		Args:    parts,
-		Env:     os.Environ(),
+		Command:     fmt.Sprintf("%s", localBinary("linkerd", "")),
+		Args:        parts,
+		Env:         os.Environ(),
+		StreamStdio: true,
 	}
+
 	res, err := task.Execute()
 
 	if err != nil {

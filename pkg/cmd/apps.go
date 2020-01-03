@@ -90,6 +90,7 @@ func MakeApps() *cobra.Command {
 	install.AddCommand(makeInstallMinio())
 	install.AddCommand(makeInstallPostgresql())
 	install.AddCommand(makeInstallKubernetesDashboard())
+	install.AddCommand(makeInstallIstio())
 
 	command.AddCommand(info)
 

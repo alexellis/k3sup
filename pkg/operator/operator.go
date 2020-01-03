@@ -14,8 +14,9 @@ type ExecOperator struct {
 func (ex ExecOperator) Execute(command string) (CommandRes, error) {
 
 	task := goexecute.ExecTask{
-		Command: command,
-		Shell:   true,
+		Command:     command,
+		Shell:       true,
+		StreamStdio: true,
 	}
 
 	res, err := task.Execute()

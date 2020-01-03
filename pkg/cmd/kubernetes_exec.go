@@ -29,8 +29,9 @@ func fetchChart(path, chart string, helm3 bool) error {
 	}
 
 	task := execute.ExecTask{
-		Command: fmt.Sprintf("%s fetch %s --untar --untardir %s", localBinary("helm", subdir), chart, path),
-		Env:     os.Environ(),
+		Command:     fmt.Sprintf("%s fetch %s --untar --untardir %s", localBinary("helm", subdir), chart, path),
+		Env:         os.Environ(),
+		StreamStdio: true,
 	}
 	res, err := task.Execute()
 
@@ -52,7 +53,7 @@ func getNodeArchitecture() string {
 	return arch
 }
 
-func helm3Upgrade(basePath, chart, namespace, values string, overrides map[string]string) error {
+func helm3Upgrade(basePath, chart, namespace, values string, overrides map[string]string, wait bool) error {
 
 	chartName := chart
 	if index := strings.Index(chartName, "/"); index > -1 {
@@ -62,10 +63,14 @@ func helm3Upgrade(basePath, chart, namespace, values string, overrides map[strin
 	chartRoot := basePath
 
 	args := []string{"upgrade", "--install", chartName, chart, "--namespace", namespace}
-
+	fmt.Println("VALUES", values)
 	if len(values) > 0 {
 		args = append(args, "--values")
-		args = append(args, path.Join(chartRoot, values))
+		if !strings.HasPrefix(values, "/") {
+			args = append(args, path.Join(chartRoot, values))
+		} else {
+			args = append(args, values)
+		}
 	}
 
 	for k, v := range overrides {
@@ -74,12 +79,14 @@ func helm3Upgrade(basePath, chart, namespace, values string, overrides map[strin
 	}
 
 	task := execute.ExecTask{
-		Command: localBinary("helm", "helm3"),
-		Args:    args,
-		Env:     os.Environ(),
-		Cwd:     basePath,
+		Command:     localBinary("helm", "helm3"),
+		Args:        args,
+		Env:         os.Environ(),
+		Cwd:         basePath,
+		StreamStdio: true,
 	}
 
+	fmt.Printf("Command: %s %s\n", task.Command, task.Args)
 	res, err := task.Execute()
 
 	if err != nil {
@@ -125,8 +132,9 @@ func templateChart(basePath, chart, namespace, outputPath, values string, overri
 	task := execute.ExecTask{
 		Command: fmt.Sprintf("%s template %s --name %s --namespace %s --output-dir %s %s %s",
 			localBinary("helm", ""), chart, chart, namespace, outputPath, valuesStr, overridesStr),
-		Env: os.Environ(),
-		Cwd: basePath,
+		Env:         os.Environ(),
+		Cwd:         basePath,
+		StreamStdio: true,
 	}
 
 	res, err := task.Execute()
@@ -163,8 +171,9 @@ func addHelmRepo(name, url string, helm3 bool) error {
 	}
 
 	task := execute.ExecTask{
-		Command: fmt.Sprintf("%s repo add %s %s", localBinary("helm", subdir), name, url),
-		Env:     os.Environ(),
+		Command:     fmt.Sprintf("%s repo add %s %s", localBinary("helm", subdir), name, url),
+		Env:         os.Environ(),
+		StreamStdio: true,
 	}
 	res, err := task.Execute()
 
@@ -184,9 +193,11 @@ func updateHelmRepos(helm3 bool) error {
 		subdir = "helm3"
 	}
 	task := execute.ExecTask{
-		Command: fmt.Sprintf("%s repo update", localBinary("helm", subdir)),
-		Env:     os.Environ(),
+		Command:     fmt.Sprintf("%s repo update", localBinary("helm", subdir)),
+		Env:         os.Environ(),
+		StreamStdio: true,
 	}
+
 	res, err := task.Execute()
 
 	if err != nil {
@@ -200,13 +211,16 @@ func updateHelmRepos(helm3 bool) error {
 }
 
 func helmInit() error {
+	fmt.Printf("Running helm init.\n")
 	subdir := ""
 
 	task := execute.ExecTask{
-		Command: fmt.Sprintf("%s", localBinary("helm", subdir)),
-		Env:     os.Environ(),
-		Args:    []string{"init", "--client-only"},
+		Command:     fmt.Sprintf("%s", localBinary("helm", subdir)),
+		Env:         os.Environ(),
+		Args:        []string{"init", "--client-only"},
+		StreamStdio: true,
 	}
+
 	res, err := task.Execute()
 
 	if err != nil {
@@ -221,8 +235,9 @@ func helmInit() error {
 
 func kubectlTask(parts ...string) (execute.ExecResult, error) {
 	task := execute.ExecTask{
-		Command: "kubectl",
-		Args:    parts,
+		Command:     "kubectl",
+		Args:        parts,
+		StreamStdio: true,
 	}
 
 	res, err := task.Execute()
@@ -232,8 +247,9 @@ func kubectlTask(parts ...string) (execute.ExecResult, error) {
 
 func kubectl(parts ...string) error {
 	task := execute.ExecTask{
-		Command: "kubectl",
-		Args:    parts,
+		Command:     "kubectl",
+		Args:        parts,
+		StreamStdio: true,
 	}
 
 	res, err := task.Execute()
