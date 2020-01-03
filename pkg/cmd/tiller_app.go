@@ -72,7 +72,9 @@ func makeInstallTiller() *cobra.Command {
 				"init",
 				"--skip-refresh", "--upgrade", "--service-account", "tiller",
 			},
+			StreamStdio: true,
 		}
+
 		res, err := helmInit.Execute()
 		if err != nil {
 			return err
