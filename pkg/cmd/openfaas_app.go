@@ -16,6 +16,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+const helm3Version = "v3.0.1"
+
 func makeInstallOpenFaaS() *cobra.Command {
 	var openfaas = &cobra.Command{
 		Use:          "openfaas",
@@ -82,7 +84,6 @@ func makeInstallOpenFaaS() *cobra.Command {
 		os.Setenv("HELM_HOME", path.Join(userPath, ".helm"))
 
 		if helm3 {
-			helm3Version := "v3.0.1"
 			os.Setenv("HELM_VERSION", helm3Version)
 		}
 
