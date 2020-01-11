@@ -171,6 +171,7 @@ Apps that you can install today:
 * minio
 * postgresql
 * kubernetes-dashboard
+* istio
 
 Want to request an app? [Raise an issue](https://github.com/alexellis/k3sup/issues) or let me know on [Slack](https://slack.openfaas.io).
 
