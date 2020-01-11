@@ -31,5 +31,4 @@ deploy:
     tags: true
 
 env:
-- GO111MODULE=off
-
+- GO111MODULE=on
