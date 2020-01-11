@@ -135,8 +135,7 @@ const istioPostInstallMsg = `===================================================
 
 func writeIstioValues() (string, error) {
 	out := `#
-# Minimal Istio Configuration required by Flagger
-#
+# Minimal Istio Configuration taken from https://github.com/weaveworks/flagger
 
 # pilot configuration
 pilot:
