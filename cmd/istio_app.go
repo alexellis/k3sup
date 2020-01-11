@@ -23,6 +23,10 @@ func makeInstallIstio() *cobra.Command {
 	}
 	istio.Flags().Bool("update-repo", true, "Update the helm repo")
 	istio.Flags().String("namespace", "istio-system", "Namespace for the app")
+	istio.Flags().Bool("init", true, "Run the Istio init to add CRDs etc")
+
+	istio.Flags().StringArray("set", []string{},
+		"Use custom flags or override existing flags \n(example --set=prometheus.enabled=false)")
 
 	istio.RunE = func(command *cobra.Command, args []string) error {
 		kubeConfigPath := getDefaultKubeconfig()
@@ -107,9 +111,21 @@ func makeInstallIstio() *cobra.Command {
 
 		wait := true
 
-		err = helm3Upgrade(outputPath, "istio/istio-init", namespace, "", overrides, wait)
-		if err != nil {
-			return fmt.Errorf("unable to istio-init install chart with helm %s", err)
+		if initIstio, _ := command.Flags().GetBool("init"); initIstio {
+			err = helm3Upgrade(outputPath, "istio/istio-init", namespace, "", overrides, wait)
+			if err != nil {
+				return fmt.Errorf("unable to istio-init install chart with helm %s", err)
+			}
+
+		}
+
+		customFlags, customFlagErr := command.Flags().GetStringArray("set")
+		if customFlagErr != nil {
+			return fmt.Errorf("error with --set usage: %s", customFlagErr)
+		}
+
+		if err := mergeFlags(overrides, customFlags); err != nil {
+			return err
 		}
 
 		err = helm3Upgrade(outputPath, "istio/istio", namespace, valuesFile, overrides, wait)
