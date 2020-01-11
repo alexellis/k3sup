@@ -136,10 +136,12 @@ func makeInstallInletsOperator() *cobra.Command {
 		}
 
 		if helm3 {
+			wait := false
+
 			outputPath := path.Join(chartPath, "inlets-operator")
 
 			err := helm3Upgrade(outputPath, "inlets/inlets-operator",
-				namespace, "values.yaml", overrides)
+				namespace, "values.yaml", overrides, wait)
 			if err != nil {
 				return err
 			}
