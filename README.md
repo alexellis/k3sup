@@ -400,3 +400,8 @@ Currently there is an issue in k3s involving `iptables >= 1.8` that can affect t
 ### Custom helm versions
 
 Custom helm versions can be used with `k3sup app install`, if you set the environment variable `HELM_VERSION`
+
+### Go modules
+
+* [Go modules wiki](https://github.com/golang/go/wiki/Modules)
+
