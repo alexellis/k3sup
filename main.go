@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/alexellis/k3sup/pkg/cmd"
+	"github.com/alexellis/k3sup/cmd"
 	"github.com/spf13/cobra"
 )
 
