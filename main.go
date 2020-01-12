@@ -1,6 +1,8 @@
 package main
 
 import (
+	"os"
+
 	"github.com/alexellis/k3sup/cmd"
 	"github.com/spf13/cobra"
 )
@@ -28,5 +30,7 @@ func main() {
 	rootCmd.AddCommand(cmdApps)
 	rootCmd.AddCommand(cmdUpdate)
 
-	rootCmd.Execute()
+	if err := rootCmd.Execute(); err != nil {
+		os.Exit(1)
+	}
 }
