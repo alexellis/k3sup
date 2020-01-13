@@ -8,8 +8,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/alexellis/k3sup/pkg/env"
 	"github.com/alexellis/k3sup/pkg/config"
+	"github.com/alexellis/k3sup/pkg/env"
 	"github.com/sethvargo/go-password/password"
 	"github.com/spf13/cobra"
 )
@@ -29,6 +29,8 @@ func makeInstallMinio() *cobra.Command {
 	minio.Flags().Bool("distributed", false, "Deploy Minio in Distributed Mode")
 	minio.Flags().String("namespace", "default", "Kubernetes namespace for the application")
 	minio.Flags().Bool("persistence", false, "Enable persistence")
+	minio.Flags().StringArray("set", []string{},
+		"Use custom flags or override existing flags \n(example --set persistence.enabled=true)")
 
 	minio.RunE = func(command *cobra.Command, args []string) error {
 		kubeConfigPath := getDefaultKubeconfig()
@@ -103,6 +105,15 @@ func makeInstallMinio() *cobra.Command {
 
 		if dist, _ := minio.Flags().GetBool("distributed"); dist {
 			overrides["mode"] = "distributed"
+		}
+
+		customFlags, err := minio.Flags().GetStringArray("set")
+		if err != nil {
+			return fmt.Errorf("error with --set usage: %s", err)
+		}
+
+		if err := mergeFlags(overrides, customFlags); err != nil {
+			return err
 		}
 
 		outputPath := path.Join(chartPath, "minio/rendered")
