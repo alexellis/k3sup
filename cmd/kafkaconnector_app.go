@@ -25,6 +25,8 @@ func makeInstallKafkaConnector() *cobra.Command {
 	command.Flags().Bool("update-repo", true, "Update the helm repo")
 	command.Flags().StringP("topics", "t", "faas-request", "The topics for the connector to bind to")
 	command.Flags().String("broker-host", "kafka", "The host for the Kafka broker")
+	command.Flags().StringArray("set", []string{},
+		"Use custom flags or override existing flags \n(example --set key=value)")
 
 	command.RunE = func(command *cobra.Command, args []string) error {
 		kubeConfigPath := getDefaultKubeconfig()
@@ -92,6 +94,15 @@ func makeInstallKafkaConnector() *cobra.Command {
 		overrides := map[string]string{
 			"topics":      topicsVal,
 			"broker_host": brokerHostVal,
+		}
+
+		customFlags, err := command.Flags().GetStringArray("set")
+		if err != nil {
+			return fmt.Errorf("error with --set usage: %s", err)
+		}
+
+		if err := mergeFlags(overrides, customFlags); err != nil {
+			return err
 		}
 
 		arch := getNodeArchitecture()
