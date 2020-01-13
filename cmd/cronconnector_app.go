@@ -6,8 +6,8 @@ import (
 	"os"
 	"path"
 
-	"github.com/alexellis/k3sup/pkg/env"
 	"github.com/alexellis/k3sup/pkg/config"
+	"github.com/alexellis/k3sup/pkg/env"
 	"github.com/spf13/cobra"
 )
 
@@ -22,6 +22,9 @@ func makeInstallCronConnector() *cobra.Command {
 
 	command.Flags().StringP("namespace", "n", "openfaas", "The namespace used for installation")
 	command.Flags().Bool("update-repo", true, "Update the helm repo")
+
+	command.Flags().StringArray("set", []string{},
+		"Use custom flags or override existing flags \n(example --set key=value)")
 
 	command.RunE = func(command *cobra.Command, args []string) error {
 		kubeConfigPath := getDefaultKubeconfig()
@@ -77,6 +80,15 @@ func makeInstallCronConnector() *cobra.Command {
 		}
 
 		overrides := map[string]string{}
+
+		customFlags, err := command.Flags().GetStringArray("set")
+		if err != nil {
+			return fmt.Errorf("error with --set usage: %s", err)
+		}
+
+		if err := mergeFlags(overrides, customFlags); err != nil {
+			return err
+		}
 
 		arch := getNodeArchitecture()
 		fmt.Printf("Node architecture: %q\n", arch)
