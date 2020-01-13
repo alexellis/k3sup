@@ -8,8 +8,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/alexellis/k3sup/pkg/env"
 	"github.com/alexellis/k3sup/pkg/config"
+	"github.com/alexellis/k3sup/pkg/env"
 	"github.com/spf13/cobra"
 )
 
@@ -26,6 +26,9 @@ func makeInstallPostgresql() *cobra.Command {
 	postgresql.Flags().String("namespace", "default", "Kubernetes namespace for the application")
 
 	postgresql.Flags().Bool("persistence", false, "Enable persistence")
+
+	postgresql.Flags().StringArray("set", []string{},
+		"Use custom flags or override existing flags \n(example --set persistence.enabled=true)")
 
 	postgresql.RunE = func(command *cobra.Command, args []string) error {
 		kubeConfigPath := getDefaultKubeconfig()
@@ -83,6 +86,15 @@ func makeInstallPostgresql() *cobra.Command {
 		}
 
 		overrides["persistence.enabled"] = strings.ToLower(strconv.FormatBool(persistence))
+
+		customFlags, err := command.Flags().GetStringArray("set")
+		if err != nil {
+			return fmt.Errorf("error with --set usage: %s", err)
+		}
+
+		if err := mergeFlags(overrides, customFlags); err != nil {
+			return err
+		}
 
 		outputPath := path.Join(chartPath, "postgresql/rendered")
 
