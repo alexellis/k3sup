@@ -91,6 +91,7 @@ func MakeApps() *cobra.Command {
 	install.AddCommand(makeInstallPostgresql())
 	install.AddCommand(makeInstallKubernetesDashboard())
 	install.AddCommand(makeInstallIstio())
+	install.AddCommand(makeInstallMongoDB())
 
 	command.AddCommand(info)
 
@@ -113,5 +114,6 @@ func getApps() []string {
 		"postgresql",
 		"kubernetes-dashboard",
 		"istio",
+		"mongodb",
 	}
 }
