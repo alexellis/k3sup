@@ -48,6 +48,7 @@ func MakeApps() *cobra.Command {
 		Example: `  k3sup app info [APP]
   k3sup app info openfaas
   k3sup app info inlets-operator
+  k3sup app info mongodb
   k3sup app info
   k3sup app info --help`,
 		SilenceUsage: true,
@@ -55,7 +56,7 @@ func MakeApps() *cobra.Command {
 
 	info.RunE = func(cmd *cobra.Command, args []string) error {
 		if len(args) == 0 {
-			fmt.Println("You can get info about: openfaas, inlets-operator")
+			fmt.Println("You can get info about: openfaas, inlets-operator, mongodb")
 			return nil
 		}
 
@@ -70,6 +71,8 @@ func MakeApps() *cobra.Command {
 			fmt.Println(apps.InletsOperatorInfoMsg)
 		case "openfaas":
 			fmt.Println(apps.OpenFaaSInfoMsg)
+		case "mongodb":
+			fmt.Println(apps.MongoDBInfoMsg)
 		default:
 			return fmt.Errorf("no info or no app available for %s", appName)
 		}
@@ -93,6 +96,7 @@ func MakeApps() *cobra.Command {
 	install.AddCommand(apps.MakeInstallPostgresql())
 	install.AddCommand(apps.MakeInstallKubernetesDashboard())
 	install.AddCommand(apps.MakeInstallIstio())
+	install.AddCommand(apps.MakeInstallMongoDB())
 
 	command.AddCommand(info)
 
@@ -115,5 +119,6 @@ func getApps() []string {
 		"postgresql",
 		"kubernetes-dashboard",
 		"istio",
+		"mongodb",
 	}
 }
