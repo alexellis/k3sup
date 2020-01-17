@@ -11,10 +11,14 @@ import (
 func MakeApps() *cobra.Command {
 	var command = &cobra.Command{
 		Use:   "app",
-		Short: "Manage Kubernetes apps",
-		Long:  `Manage Kubernetes apps`,
+		Short: "Install Kubernetes apps from helm charts or YAML files",
+		Long: `Install Kubernetes apps from helm charts or YAML files using the "install" 
+command. Helm 2 is used by default unless a --helm3 flag exists and is passed. 
+You can also find the post-install message for each app with the "info" 
+command.`,
 		Example: `  k3sup app install
-  k3sup app info`,
+  k3sup app install openfaas --helm3 --gateways=2
+  k3sup app info inlets-operator`,
 		SilenceUsage: false,
 	}
 
@@ -48,6 +52,7 @@ func MakeApps() *cobra.Command {
 		Example: `  k3sup app info [APP]
   k3sup app info openfaas
   k3sup app info inlets-operator
+  k3sup app info mongodb
   k3sup app info
   k3sup app info --help`,
 		SilenceUsage: true,
@@ -55,7 +60,7 @@ func MakeApps() *cobra.Command {
 
 	info.RunE = func(cmd *cobra.Command, args []string) error {
 		if len(args) == 0 {
-			fmt.Println("You can get info about: openfaas, inlets-operator")
+			fmt.Println("You can get info about: openfaas, inlets-operator, mongodb")
 			return nil
 		}
 
@@ -70,6 +75,8 @@ func MakeApps() *cobra.Command {
 			fmt.Println(apps.InletsOperatorInfoMsg)
 		case "openfaas":
 			fmt.Println(apps.OpenFaaSInfoMsg)
+		case "mongodb":
+			fmt.Println(apps.MongoDBInfoMsg)
 		default:
 			return fmt.Errorf("no info or no app available for %s", appName)
 		}
@@ -94,6 +101,7 @@ func MakeApps() *cobra.Command {
 	install.AddCommand(apps.MakeInstallKubernetesDashboard())
 	install.AddCommand(apps.MakeInstallIstio())
 	install.AddCommand(apps.MakeInstallCrossplane())
+	install.AddCommand(apps.MakeInstallMongoDB())
 
 	command.AddCommand(info)
 
@@ -117,5 +125,6 @@ func getApps() []string {
 		"kubernetes-dashboard",
 		"istio",
 		"crosspane",
+		"mongodb",
 	}
 }
