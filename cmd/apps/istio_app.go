@@ -1,4 +1,4 @@
-package cmd
+package apps
 
 import (
 	"fmt"
@@ -7,13 +7,14 @@ import (
 	"os"
 	"path"
 
+	"github.com/alexellis/k3sup/pkg"
 	"github.com/alexellis/k3sup/pkg/config"
 	"github.com/alexellis/k3sup/pkg/env"
 
 	"github.com/spf13/cobra"
 )
 
-func makeInstallIstio() *cobra.Command {
+func MakeInstallIstio() *cobra.Command {
 	var istio = &cobra.Command{
 		Use:          "istio",
 		Short:        "Install istio",
@@ -147,7 +148,7 @@ const istioInfoMsg = `# Find out more at:
 const istioPostInstallMsg = `=======================================================================
 = Istio has been installed.                                        =
 =======================================================================` +
-	"\n\n" + istioInfoMsg + "\n\n" + thanksForUsing
+	"\n\n" + istioInfoMsg + "\n\n" + pkg.ThanksForUsing
 
 func writeIstioValues() (string, error) {
 	out := `#

@@ -1,4 +1,4 @@
-package cmd
+package apps
 
 import (
 	"fmt"
@@ -8,12 +8,13 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/alexellis/k3sup/pkg"
 	"github.com/alexellis/k3sup/pkg/config"
 	"github.com/alexellis/k3sup/pkg/env"
 	"github.com/spf13/cobra"
 )
 
-func makeInstallPostgresql() *cobra.Command {
+func MakeInstallPostgresql() *cobra.Command {
 	var postgresql = &cobra.Command{
 		Use:          "postgresql",
 		Short:        "Install postgresql",
@@ -138,7 +139,7 @@ To connect to your database from outside the cluster execute the following comma
 
 # Find out more at: https://github.com/helm/charts/tree/master/stable/postgresql
 
-` + thanksForUsing)
+` + pkg.ThanksForUsing)
 		return nil
 	}
 

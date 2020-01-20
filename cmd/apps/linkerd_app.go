@@ -1,4 +1,4 @@
-package cmd
+package apps
 
 import (
 	"bufio"
@@ -12,13 +12,15 @@ import (
 	"path"
 	"strings"
 
+	"github.com/alexellis/k3sup/pkg"
+
 	execute "github.com/alexellis/go-execute/pkg/v1"
 	"github.com/alexellis/k3sup/pkg/config"
 	"github.com/alexellis/k3sup/pkg/env"
 	"github.com/spf13/cobra"
 )
 
-func makeInstallLinkerd() *cobra.Command {
+func MakeInstallLinkerd() *cobra.Command {
 	var linkerd = &cobra.Command{
 		Use:          "linkerd",
 		Short:        "Install linkerd",
@@ -98,7 +100,7 @@ curl -sL https://run.linkerd.io/install | sh
 export PATH=$PATH:` + path.Join(userPath, "bin/") + `
 linkerd --help
 
-` + thanksForUsing)
+` + pkg.ThanksForUsing)
 		return nil
 	}
 

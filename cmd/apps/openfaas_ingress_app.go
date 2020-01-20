@@ -1,4 +1,4 @@
-package cmd
+package apps
 
 import (
 	"bytes"
@@ -11,6 +11,8 @@ import (
 
 	"text/template"
 
+	"github.com/alexellis/k3sup/pkg"
+
 	"github.com/spf13/cobra"
 )
 
@@ -20,7 +22,7 @@ type InputData struct {
 	IngressClass     string
 }
 
-func makeInstallOpenFaaSIngress() *cobra.Command {
+func MakeInstallOpenFaaSIngress() *cobra.Command {
 	var openfaasIngress = &cobra.Command{
 		Use:          "openfaas-ingress",
 		Short:        "Install openfaas ingress with TLS",
@@ -107,7 +109,7 @@ kubectl describe -n openfaas Certificate openfaas-gateway
 # It may take a while to be issued by LetsEncrypt, in the meantime a 
 # self-signed cert will be installed
 
-` + thanksForUsing)
+` + pkg.ThanksForUsing)
 
 		return nil
 	}

@@ -1,4 +1,4 @@
-package cmd
+package apps
 
 import (
 	"fmt"
@@ -6,13 +6,13 @@ import (
 	"os"
 	"path"
 
+	"github.com/alexellis/k3sup/pkg"
 	"github.com/alexellis/k3sup/pkg/config"
-
 	"github.com/alexellis/k3sup/pkg/env"
 	"github.com/spf13/cobra"
 )
 
-func makeInstallKafkaConnector() *cobra.Command {
+func MakeInstallKafkaConnector() *cobra.Command {
 	var command = &cobra.Command{
 		Use:          "kafka-connector",
 		Short:        "Install kafka-connector for OpenFaaS",
@@ -142,7 +142,7 @@ kubectl logs deploy/kafka-connector -n openfaas -f
 
 # https://github.com/openfaas-incubator/kafka-connector/
 
-` + thanksForUsing)
+` + pkg.ThanksForUsing)
 
 		return nil
 	}

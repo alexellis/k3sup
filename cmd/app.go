@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/alexellis/k3sup/cmd/apps"
 	"github.com/spf13/cobra"
 )
 
@@ -65,9 +66,9 @@ func MakeApps() *cobra.Command {
 
 		switch appName {
 		case "inlets-operator":
-			fmt.Println(inletsOperatorInfoMsg)
+			fmt.Println(apps.InletsOperatorInfoMsg)
 		case "openfaas":
-			fmt.Println(openfaasInfoMsg)
+			fmt.Println(apps.OpenFaaSInfoMsg)
 		default:
 			return fmt.Errorf("no info or no app available for %s", appName)
 		}
@@ -76,21 +77,21 @@ func MakeApps() *cobra.Command {
 	}
 
 	command.AddCommand(install)
-	install.AddCommand(makeInstallOpenFaaS())
-	install.AddCommand(makeInstallMetricsServer())
-	install.AddCommand(makeInstallInletsOperator())
-	install.AddCommand(makeInstallCertManager())
-	install.AddCommand(makeInstallOpenFaaSIngress())
-	install.AddCommand(makeInstallNginx())
-	install.AddCommand(makeInstallChart())
-	install.AddCommand(makeInstallTiller())
-	install.AddCommand(makeInstallLinkerd())
-	install.AddCommand(makeInstallCronConnector())
-	install.AddCommand(makeInstallKafkaConnector())
-	install.AddCommand(makeInstallMinio())
-	install.AddCommand(makeInstallPostgresql())
-	install.AddCommand(makeInstallKubernetesDashboard())
-	install.AddCommand(makeInstallIstio())
+	install.AddCommand(apps.MakeInstallOpenFaaS())
+	install.AddCommand(apps.MakeInstallMetricsServer())
+	install.AddCommand(apps.MakeInstallInletsOperator())
+	install.AddCommand(apps.MakeInstallCertManager())
+	install.AddCommand(apps.MakeInstallOpenFaaSIngress())
+	install.AddCommand(apps.MakeInstallNginx())
+	install.AddCommand(apps.MakeInstallChart())
+	install.AddCommand(apps.MakeInstallTiller())
+	install.AddCommand(apps.MakeInstallLinkerd())
+	install.AddCommand(apps.MakeInstallCronConnector())
+	install.AddCommand(apps.MakeInstallKafkaConnector())
+	install.AddCommand(apps.MakeInstallMinio())
+	install.AddCommand(apps.MakeInstallPostgresql())
+	install.AddCommand(apps.MakeInstallKubernetesDashboard())
+	install.AddCommand(apps.MakeInstallIstio())
 
 	command.AddCommand(info)
 

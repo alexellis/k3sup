@@ -1,4 +1,4 @@
-package cmd
+package apps
 
 import (
 	"fmt"
@@ -6,12 +6,14 @@ import (
 	"os"
 	"path"
 
+	"github.com/alexellis/k3sup/pkg"
+
 	"github.com/alexellis/k3sup/pkg/config"
 	"github.com/alexellis/k3sup/pkg/env"
 	"github.com/spf13/cobra"
 )
 
-func makeInstallCronConnector() *cobra.Command {
+func MakeInstallCronConnector() *cobra.Command {
 	var command = &cobra.Command{
 		Use:          "cron-connector",
 		Short:        "Install cron-connector for OpenFaaS",
@@ -133,7 +135,7 @@ kubectl logs deploy/cron-connector -n openfaas -f
 
 # https://github.com/openfaas-incubator/cron-connector/
 
-` + thanksForUsing)
+` + pkg.ThanksForUsing)
 
 		return nil
 	}

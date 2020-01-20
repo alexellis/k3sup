@@ -1,4 +1,4 @@
-package cmd
+package apps
 
 import (
 	"fmt"
@@ -7,6 +7,7 @@ import (
 	"path"
 
 	execute "github.com/alexellis/go-execute/pkg/v1"
+	"github.com/alexellis/k3sup/pkg"
 
 	"github.com/alexellis/k3sup/pkg/config"
 	"github.com/alexellis/k3sup/pkg/env"
@@ -14,7 +15,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func makeInstallTiller() *cobra.Command {
+func MakeInstallTiller() *cobra.Command {
 	var tiller = &cobra.Command{
 		Use:          "tiller",
 		Short:        "Install tiller",
@@ -95,7 +96,7 @@ tiller has been installed
 
 ` + helmBinary + `
 
-` + thanksForUsing)
+` + pkg.ThanksForUsing)
 
 		return nil
 	}

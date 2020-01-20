@@ -1,4 +1,4 @@
-package cmd
+package apps
 
 import (
 	"fmt"
@@ -6,13 +6,14 @@ import (
 	"os"
 	"path"
 
+	"github.com/alexellis/k3sup/pkg"
 	"github.com/alexellis/k3sup/pkg/config"
 	"github.com/alexellis/k3sup/pkg/env"
 
 	"github.com/spf13/cobra"
 )
 
-func makeInstallCertManager() *cobra.Command {
+func MakeInstallCertManager() *cobra.Command {
 	var certManager = &cobra.Command{
 		Use:          "cert-manager",
 		Short:        "Install cert-manager",
@@ -126,7 +127,7 @@ func makeInstallCertManager() *cobra.Command {
 
 kubectl logs -n cert-manager deploy/cert-manager -f
 
-` + thanksForUsing)
+` + pkg.ThanksForUsing)
 
 		return nil
 	}

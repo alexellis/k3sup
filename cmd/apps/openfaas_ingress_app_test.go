@@ -1,4 +1,4 @@
-package cmd
+package apps
 
 import (
 	"io/ioutil"
