@@ -1,4 +1,4 @@
-package cmd
+package apps
 
 import (
 	"fmt"
@@ -7,12 +7,14 @@ import (
 	"path"
 	"strings"
 
+	"github.com/alexellis/k3sup/pkg"
+
 	"github.com/alexellis/k3sup/pkg/config"
 	"github.com/alexellis/k3sup/pkg/env"
 	"github.com/spf13/cobra"
 )
 
-func makeInstallInletsOperator() *cobra.Command {
+func MakeInstallInletsOperator() *cobra.Command {
 	var inletsOperator = &cobra.Command{
 		Use:          "inlets-operator",
 		Short:        "Install inlets-operator",
@@ -194,7 +196,7 @@ func getOverridesWithPlatform(command *cobra.Command) map[string]string {
 	return overrides
 }
 
-const inletsOperatorInfoMsg = `# The default configuration is for DigitalOcean and your secret is
+const InletsOperatorInfoMsg = `# The default configuration is for DigitalOcean and your secret is
 # stored as "inlets-access-key" in the "default" namespace.
 
 # To get your first Public IP run the following:
@@ -215,4 +217,4 @@ kubectl delete svc/nginx-1
 const inletsOperatorPostInstallMsg = `=======================================================================
 = inlets-operator has been installed.                                  =
 =======================================================================` +
-	"\n\n" + inletsOperatorInfoMsg + "\n\n" + thanksForUsing
+	"\n\n" + InletsOperatorInfoMsg + "\n\n" + pkg.ThanksForUsing

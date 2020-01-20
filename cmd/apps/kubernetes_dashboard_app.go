@@ -1,11 +1,14 @@
-package cmd
+package apps
 
 import (
 	"fmt"
+
+	"github.com/alexellis/k3sup/pkg"
+
 	"github.com/spf13/cobra"
 )
 
-func makeInstallKubernetesDashboard() *cobra.Command {
+func MakeInstallKubernetesDashboard() *cobra.Command {
 	var kubeDashboard = &cobra.Command{
 		Use:          "kubernetes-dashboard",
 		Short:        "Install kubernetes-dashboard",
@@ -71,7 +74,7 @@ kubectl -n kubernetes-dashboard describe secret $(kubectl -n kubernetes-dashboar
 # Once Proxying you can navigate to the below
 http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/#/login
 
-` + thanksForUsing)
+` + pkg.ThanksForUsing)
 
 		return nil
 	}

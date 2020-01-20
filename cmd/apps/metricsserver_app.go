@@ -1,4 +1,4 @@
-package cmd
+package apps
 
 import (
 	"fmt"
@@ -6,13 +6,13 @@ import (
 	"os"
 	"path"
 
+	"github.com/alexellis/k3sup/pkg"
 	"github.com/alexellis/k3sup/pkg/config"
-
-	"github.com/spf13/cobra"
 	"github.com/alexellis/k3sup/pkg/env"
+	"github.com/spf13/cobra"
 )
 
-func makeInstallMetricsServer() *cobra.Command {
+func MakeInstallMetricsServer() *cobra.Command {
 	var metricsServer = &cobra.Command{
 		Use:          "metrics-server",
 		Short:        "Install metrics-server",
@@ -111,7 +111,7 @@ kubectl top node
 # Find out more at:
 # https://github.com/helm/charts/tree/master/stable/metrics-server
 
-` + thanksForUsing)
+` + pkg.ThanksForUsing)
 
 		return nil
 	}

@@ -1,4 +1,4 @@
-package cmd
+package apps
 
 import (
 	"fmt"
@@ -6,13 +6,13 @@ import (
 	"os"
 	"path"
 
-	"github.com/alexellis/k3sup/pkg/env"
+	"github.com/alexellis/k3sup/pkg"
 	"github.com/alexellis/k3sup/pkg/config"
-
+	"github.com/alexellis/k3sup/pkg/env"
 	"github.com/spf13/cobra"
 )
 
-func makeInstallNginx() *cobra.Command {
+func MakeInstallNginx() *cobra.Command {
 	var nginx = &cobra.Command{
 		Use:          "nginx-ingress",
 		Short:        "Install nginx-ingress",
@@ -137,7 +137,7 @@ kubectl get svc nginx-ingress-controller
 # Find out more at:
 # https://github.com/helm/charts/tree/master/stable/nginx-ingress
 
-` + thanksForUsing)
+` + pkg.ThanksForUsing)
 
 		return nil
 	}

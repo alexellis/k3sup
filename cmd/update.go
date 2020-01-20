@@ -30,5 +30,3 @@ curl -SLfs https://get.k3sup.dev | sh
 # Or download from GitHub: https://github.com/alexellis/k3sup/releases
 
 Thanks for using k3sup!`
-
-const thanksForUsing = `Thanks for using k3sup!`

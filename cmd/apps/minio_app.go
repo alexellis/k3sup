@@ -1,4 +1,4 @@
-package cmd
+package apps
 
 import (
 	"fmt"
@@ -8,13 +8,14 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/alexellis/k3sup/pkg"
 	"github.com/alexellis/k3sup/pkg/config"
 	"github.com/alexellis/k3sup/pkg/env"
 	"github.com/sethvargo/go-password/password"
 	"github.com/spf13/cobra"
 )
 
-func makeInstallMinio() *cobra.Command {
+func MakeInstallMinio() *cobra.Command {
 	var minio = &cobra.Command{
 		Use:          "minio",
 		Short:        "Install minio",
@@ -158,7 +159,7 @@ mc ls minio
 
 # Find out more at: https://min.io
 
-` + thanksForUsing)
+` + pkg.ThanksForUsing)
 		return nil
 	}
 

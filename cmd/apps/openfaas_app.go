@@ -1,4 +1,4 @@
-package cmd
+package apps
 
 import (
 	"fmt"
@@ -8,17 +8,17 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/alexellis/k3sup/pkg"
 	"github.com/sethvargo/go-password/password"
 
 	"github.com/alexellis/k3sup/pkg/config"
 	"github.com/alexellis/k3sup/pkg/env"
-
 	"github.com/spf13/cobra"
 )
 
 const helm3Version = "v3.0.1"
 
-func makeInstallOpenFaaS() *cobra.Command {
+func MakeInstallOpenFaaS() *cobra.Command {
 	var openfaas = &cobra.Command{
 		Use:          "openfaas",
 		Short:        "Install openfaas",
@@ -269,7 +269,7 @@ func mergeFlags(existingMap map[string]string, setOverrides []string) error {
 	return nil
 }
 
-const openfaasInfoMsg = `# Get the faas-cli
+const OpenFaaSInfoMsg = `# Get the faas-cli
 curl -SLsf https://cli.openfaas.com | sudo sh
 
 # Forward the gateway to your machine
@@ -296,4 +296,4 @@ faas-cli store deploy figlet \
 const openfaasPostInstallMsg = `=======================================================================
 = OpenFaaS has been installed.                                        =
 =======================================================================` +
-	"\n\n" + openfaasInfoMsg + "\n\n" + thanksForUsing
+	"\n\n" + OpenFaaSInfoMsg + "\n\n" + pkg.ThanksForUsing

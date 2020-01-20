@@ -1,4 +1,4 @@
-package cmd
+package apps
 
 import (
 	"fmt"
@@ -7,12 +7,14 @@ import (
 	"path"
 	"strings"
 
+	"github.com/alexellis/k3sup/pkg"
+
 	"github.com/alexellis/k3sup/pkg/config"
 	"github.com/alexellis/k3sup/pkg/env"
 	"github.com/spf13/cobra"
 )
 
-func makeInstallChart() *cobra.Command {
+func MakeInstallChart() *cobra.Command {
 	var chartCmd = &cobra.Command{
 		Use:   "chart",
 		Short: "Install the specified helm chart",
@@ -143,7 +145,7 @@ before using the generic helm chart installer command.`,
 chart ` + chartRepoName + ` installed.
 =======================================================================
 		
-` + thanksForUsing)
+` + pkg.ThanksForUsing)
 
 		return nil
 	}
