@@ -8,10 +8,9 @@ import (
 
 	execute "github.com/alexellis/go-execute/pkg/v1"
 	"github.com/alexellis/k3sup/pkg"
-
 	"github.com/alexellis/k3sup/pkg/config"
 	"github.com/alexellis/k3sup/pkg/env"
-
+	"github.com/alexellis/k3sup/pkg/helm"
 	"github.com/spf13/cobra"
 )
 
@@ -83,7 +82,7 @@ func MakeInstallTiller() *cobra.Command {
 
 		fmt.Println(res.Stdout, res.Stderr)
 
-		helmBinary, err := tryDownloadHelm(userPath, clientArch, clientOS, false)
+		helmBinary, err := helm.TryDownloadHelm(userPath, clientArch, clientOS, false)
 		if err != nil {
 			return err
 		}

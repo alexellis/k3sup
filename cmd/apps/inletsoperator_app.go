@@ -8,9 +8,9 @@ import (
 	"strings"
 
 	"github.com/alexellis/k3sup/pkg"
-
 	"github.com/alexellis/k3sup/pkg/config"
 	"github.com/alexellis/k3sup/pkg/env"
+	"github.com/alexellis/k3sup/pkg/helm"
 	"github.com/spf13/cobra"
 )
 
@@ -75,7 +75,7 @@ func MakeInstallInletsOperator() *cobra.Command {
 		if helm3 {
 			os.Setenv("HELM_VERSION", helm3Version)
 		}
-		_, err = tryDownloadHelm(userPath, clientArch, clientOS, helm3)
+		_, err = helm.TryDownloadHelm(userPath, clientArch, clientOS, helm3)
 		if err != nil {
 			return err
 		}

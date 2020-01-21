@@ -33,7 +33,8 @@ func MakeApps() *cobra.Command {
 	install.RunE = func(command *cobra.Command, args []string) error {
 
 		if len(args) == 0 {
-			fmt.Printf("You can install: %s\n", strings.TrimRight(strings.Join(getApps(), ", "), ", "))
+			fmt.Printf("You can install: %s\n%s\n\n", strings.TrimRight("\n - "+strings.Join(getApps(), "\n - "), "\n - "),
+				`Run k3sup app install NAME --help to see configuration options.`)
 			return nil
 		}
 

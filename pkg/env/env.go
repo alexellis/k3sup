@@ -2,6 +2,8 @@ package env
 
 import (
 	"log"
+	"os"
+	"path"
 	"strings"
 
 	execute "github.com/alexellis/go-execute/pkg/v1"
@@ -26,4 +28,14 @@ func GetClientArch() (string, string) {
 	os := strings.TrimSpace(resOS.Stdout)
 
 	return arch, os
+}
+
+func LocalBinary(name, subdir string) string {
+	home := os.Getenv("HOME")
+	val := path.Join(home, ".k3sup/bin/")
+	if len(subdir) > 0 {
+		val = path.Join(val, subdir)
+	}
+
+	return path.Join(val, name)
 }

@@ -8,9 +8,9 @@ import (
 	"strings"
 
 	"github.com/alexellis/k3sup/pkg"
-
 	"github.com/alexellis/k3sup/pkg/config"
 	"github.com/alexellis/k3sup/pkg/env"
+	"github.com/alexellis/k3sup/pkg/helm"
 	"github.com/spf13/cobra"
 )
 
@@ -77,7 +77,7 @@ before using the generic helm chart installer command.`,
 
 		os.Setenv("HELM_HOME", path.Join(userPath, ".helm"))
 
-		_, err = tryDownloadHelm(userPath, clientArch, clientOS, false)
+		_, err = helm.TryDownloadHelm(userPath, clientArch, clientOS, false)
 		if err != nil {
 			return err
 		}

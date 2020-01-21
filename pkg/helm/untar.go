@@ -5,7 +5,7 @@
 // Edited on 2019-10-11 to remove support for nested folders when un-taring
 // so that all files are placed in the same target directory
 
-package apps
+package helm
 
 import (
 	"archive/tar"

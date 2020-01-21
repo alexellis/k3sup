@@ -9,10 +9,11 @@ import (
 	"strings"
 
 	"github.com/alexellis/k3sup/pkg"
-	"github.com/sethvargo/go-password/password"
-
 	"github.com/alexellis/k3sup/pkg/config"
 	"github.com/alexellis/k3sup/pkg/env"
+	"github.com/alexellis/k3sup/pkg/helm"
+	"github.com/sethvargo/go-password/password"
+
 	"github.com/spf13/cobra"
 )
 
@@ -87,7 +88,7 @@ func MakeInstallOpenFaaS() *cobra.Command {
 			os.Setenv("HELM_VERSION", helm3Version)
 		}
 
-		_, err = tryDownloadHelm(userPath, clientArch, clientOS, helm3)
+		_, err = helm.TryDownloadHelm(userPath, clientArch, clientOS, helm3)
 		if err != nil {
 			return err
 		}
