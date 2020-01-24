@@ -2,6 +2,7 @@ package apps
 
 import (
 	"fmt"
+	"github.com/alexellis/k3sup/pkg/download"
 	"io/ioutil"
 	"log"
 	"os"
@@ -10,7 +11,6 @@ import (
 	"github.com/alexellis/k3sup/pkg"
 	"github.com/alexellis/k3sup/pkg/config"
 	"github.com/alexellis/k3sup/pkg/env"
-	"github.com/alexellis/k3sup/pkg/helm"
 	"github.com/spf13/cobra"
 )
 
@@ -61,12 +61,8 @@ func MakeInstallIstio() *cobra.Command {
 		os.Setenv("HELM_HOME", path.Join(userPath, ".helm"))
 
 		helm3 := true
-		if helm3 {
-			helm3Version := "v3.0.1"
-			os.Setenv("HELM_VERSION", helm3Version)
-		}
 
-		_, err = helm.TryDownloadHelm(userPath, clientArch, clientOS, helm3)
+		_, err = download.DownloadHelm(path.Join(userPath, "bin"), clientArch, clientOS, false)
 		if err != nil {
 			return err
 		}
@@ -110,10 +106,8 @@ func MakeInstallIstio() *cobra.Command {
 
 		outputPath := path.Join(chartPath, "istio")
 
-		wait := true
-
 		if initIstio, _ := command.Flags().GetBool("init"); initIstio {
-			err = helm3Upgrade(outputPath, "istio/istio-init", namespace, "", overrides, wait)
+			err = helm3Upgrade(outputPath, "istio/istio-init", namespace, "", overrides)
 			if err != nil {
 				return fmt.Errorf("unable to istio-init install chart with helm %s", err)
 			}
@@ -129,7 +123,7 @@ func MakeInstallIstio() *cobra.Command {
 			return err
 		}
 
-		err = helm3Upgrade(outputPath, "istio/istio", namespace, valuesFile, overrides, wait)
+		err = helm3Upgrade(outputPath, "istio/istio", namespace, valuesFile, overrides)
 		if err != nil {
 			return fmt.Errorf("unable to istio install chart with helm %s", err)
 		}

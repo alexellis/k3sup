@@ -13,6 +13,7 @@ func main() {
 	cmdVersion := cmd.MakeVersion()
 	cmdJoin := cmd.MakeJoin()
 	cmdApps := cmd.MakeApps()
+	cmdTools := cmd.MakeTools()
 	cmdUpdate := cmd.MakeUpdate()
 	printk3supASCIIArt := cmd.PrintK3supASCIIArt
 
@@ -29,6 +30,7 @@ func main() {
 	rootCmd.AddCommand(cmdJoin)
 	rootCmd.AddCommand(cmdApps)
 	rootCmd.AddCommand(cmdUpdate)
+	rootCmd.AddCommand(cmdTools)
 
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)

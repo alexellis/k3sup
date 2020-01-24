@@ -2,6 +2,7 @@ package apps
 
 import (
 	"fmt"
+	"github.com/alexellis/k3sup/pkg/download"
 	"log"
 	"os"
 	"path"
@@ -10,7 +11,6 @@ import (
 	"github.com/alexellis/k3sup/pkg"
 	"github.com/alexellis/k3sup/pkg/config"
 	"github.com/alexellis/k3sup/pkg/env"
-	"github.com/alexellis/k3sup/pkg/helm"
 	"github.com/spf13/cobra"
 )
 
@@ -82,7 +82,7 @@ func MakeInstallTiller() *cobra.Command {
 
 		fmt.Println(res.Stdout, res.Stderr)
 
-		helmBinary, err := helm.TryDownloadHelm(userPath, clientArch, clientOS, false)
+		helmBinary , err := download.DownloadHelm(path.Join(userPath, "bin"), clientArch, clientOS, false)
 		if err != nil {
 			return err
 		}

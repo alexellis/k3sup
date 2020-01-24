@@ -2,6 +2,7 @@ package apps
 
 import (
 	"fmt"
+	"github.com/alexellis/k3sup/pkg/download"
 	"log"
 	"os"
 	"path"
@@ -10,7 +11,6 @@ import (
 	"github.com/alexellis/k3sup/pkg"
 	"github.com/alexellis/k3sup/pkg/config"
 	"github.com/alexellis/k3sup/pkg/env"
-	"github.com/alexellis/k3sup/pkg/helm"
 	"github.com/spf13/cobra"
 )
 
@@ -72,10 +72,7 @@ func MakeInstallInletsOperator() *cobra.Command {
 
 		os.Setenv("HELM_HOME", path.Join(userPath, ".helm"))
 
-		if helm3 {
-			os.Setenv("HELM_VERSION", helm3Version)
-		}
-		_, err = helm.TryDownloadHelm(userPath, clientArch, clientOS, helm3)
+		_, err = download.DownloadHelm(path.Join(userPath, "bin"), clientArch, clientOS, false)
 		if err != nil {
 			return err
 		}
@@ -138,12 +135,11 @@ func MakeInstallInletsOperator() *cobra.Command {
 		}
 
 		if helm3 {
-			wait := false
 
 			outputPath := path.Join(chartPath, "inlets-operator")
 
 			err := helm3Upgrade(outputPath, "inlets/inlets-operator",
-				namespace, "values.yaml", overrides, wait)
+				namespace, "values.yaml", overrides)
 			if err != nil {
 				return err
 			}

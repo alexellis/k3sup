@@ -49,7 +49,7 @@ func getNodeArchitecture() string {
 	return arch
 }
 
-func helm3Upgrade(basePath, chart, namespace, values string, overrides map[string]string, wait bool) error {
+func helm3Upgrade(basePath, chart, namespace, values string, overrides map[string]string) error {
 
 	chartName := chart
 	if index := strings.Index(chartName, "/"); index > -1 {
