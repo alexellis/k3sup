@@ -6,6 +6,8 @@ import (
 	"regexp"
 	"strings"
 	"testing"
+
+	"github.com/alexellis/k3sup/pkg/helm"
 )
 
 const privateKey = `-----BEGIN RSA PRIVATE KEY-----
@@ -114,7 +116,7 @@ func Test_RewriteKubeconfig(t *testing.T) {
 }
 
 func Test_getHelmURL(t *testing.T) {
-	got := getHelmURL("amd64", "darwin", "v2.14.3")
+	got := helm.GetHelmURL("amd64", "darwin", "v2.14.3")
 	want := "https://get.helm.sh/helm-v2.14.3-darwin-amd64.tar.gz"
 
 	if want != got {

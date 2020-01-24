@@ -172,6 +172,7 @@ Apps that you can install today:
 * postgresql
 * kubernetes-dashboard
 * istio
+* crossplane
 
 Want to request an app? [Raise an issue](https://github.com/alexellis/k3sup/issues) or let me know on [Slack](https://slack.openfaas.io).
 
