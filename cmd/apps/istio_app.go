@@ -62,7 +62,6 @@ func MakeInstallIstio() *cobra.Command {
 
 		helm3 := true
 		if helm3 {
-			helm3Version := "v3.0.1"
 			os.Setenv("HELM_VERSION", helm3Version)
 		}
 

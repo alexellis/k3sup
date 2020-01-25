@@ -17,12 +17,13 @@ func MakeInstallMetricsServer() *cobra.Command {
 	var metricsServer = &cobra.Command{
 		Use:          "metrics-server",
 		Short:        "Install metrics-server",
-		Long:         `Install metrics-server`,
-		Example:      `  k3sup app install metrics-server --namespace kube-system`,
+		Long:         `Install metrics-server to provide metrics on nodes and Pods in your cluster.`,
+		Example:      `  k3sup app install metrics-server --namespace kube-system --helm3`,
 		SilenceUsage: true,
 	}
 
 	metricsServer.Flags().StringP("namespace", "n", "kube-system", "The namespace used for installation")
+	metricsServer.Flags().Bool("helm3", false, "Use helm3 instead of the default helm2")
 
 	metricsServer.RunE = func(command *cobra.Command, args []string) error {
 		kubeConfigPath := getDefaultKubeconfig()
@@ -43,25 +44,33 @@ func MakeInstallMetricsServer() *cobra.Command {
 			return fmt.Errorf(`to override the "kube-system", install via tiller`)
 		}
 
+		helm3, _ := command.Flags().GetBool("helm3")
+
+		if helm3 {
+			fmt.Println("Using helm3")
+		}
+
 		clientArch, clientOS := env.GetClientArch()
-
-		fmt.Printf("Client: %s, %s\n", clientArch, clientOS)
+		fmt.Printf("Client: %q, %q\n", clientArch, clientOS)
 		log.Printf("User dir established as: %s\n", userPath)
-
 		os.Setenv("HELM_HOME", path.Join(userPath, ".helm"))
 
-		_, err = helm.TryDownloadHelm(userPath, clientArch, clientOS, false)
+		if helm3 {
+			os.Setenv("HELM_VERSION", helm3Version)
+		}
+
+		_, err = helm.TryDownloadHelm(userPath, clientArch, clientOS, helm3)
 		if err != nil {
 			return err
 		}
 
-		err = updateHelmRepos(false)
+		err = updateHelmRepos(helm3)
 		if err != nil {
 			return err
 		}
 
 		chartPath := path.Join(os.TempDir(), "charts")
-		err = fetchChart(chartPath, "stable/metrics-server", false)
+		err = fetchChart(chartPath, "stable/metrics-server", helm3)
 
 		if err != nil {
 			return err
@@ -70,26 +79,42 @@ func MakeInstallMetricsServer() *cobra.Command {
 		overrides := map[string]string{}
 		overrides["args"] = `{--kubelet-insecure-tls,--kubelet-preferred-address-types=InternalIP\,ExternalIP\,Hostname}`
 		fmt.Println("Chart path: ", chartPath)
-		outputPath := path.Join(chartPath, "metrics-server/rendered")
 
-		err = templateChart(chartPath,
-			"metrics-server",
-			namespace,
-			outputPath,
-			"values.yaml",
-			overrides)
+		wait := false
 
-		if err != nil {
-			return err
-		}
+		if helm3 {
+			outputPath := path.Join(chartPath, "metrics-server")
 
-		applyRes, applyErr := kubectlTask("apply", "-n", namespace, "-R", "-f", outputPath)
-		if applyErr != nil {
-			return applyErr
-		}
+			err := helm3Upgrade(outputPath, "stable/metrics-server", namespace,
+				"values.yaml",
+				overrides, wait)
 
-		if applyRes.ExitCode > 0 {
-			return fmt.Errorf("Error applying templated YAML files, error: %s", applyRes.Stderr)
+			if err != nil {
+				return err
+			}
+
+		} else {
+			outputPath := path.Join(chartPath, "metrics-server/rendered")
+
+			err = templateChart(chartPath,
+				"metrics-server",
+				namespace,
+				outputPath,
+				"values.yaml",
+				overrides)
+
+			if err != nil {
+				return err
+			}
+
+			applyRes, applyErr := kubectlTask("apply", "-n", namespace, "-R", "-f", outputPath)
+			if applyErr != nil {
+				return applyErr
+			}
+			if applyRes.ExitCode > 0 {
+				return fmt.Errorf("Error applying templated YAML files, error: %s", applyRes.Stderr)
+			}
+
 		}
 
 		fmt.Println(`=======================================================================
