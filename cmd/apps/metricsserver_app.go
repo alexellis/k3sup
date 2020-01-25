@@ -125,7 +125,17 @@ func MakeInstallMetricsServer() *cobra.Command {
 # from the cluster. Try these commands and wait a few moments if
 # no data is showing.
 
-# Check pod usage
+` + MetricsInfoMsg + `
+
+` + pkg.ThanksForUsing)
+
+		return nil
+	}
+
+	return metricsServer
+}
+
+const MetricsInfoMsg = `# Check pod usage
 
 kubectl top pod
 
@@ -135,12 +145,4 @@ kubectl top node
 
 
 # Find out more at:
-# https://github.com/helm/charts/tree/master/stable/metrics-server
-
-` + pkg.ThanksForUsing)
-
-		return nil
-	}
-
-	return metricsServer
-}
+# https://github.com/helm/charts/tree/master/stable/metrics-server`

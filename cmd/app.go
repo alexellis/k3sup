@@ -72,13 +72,19 @@ command.`,
 
 		switch appName {
 		case "inlets-operator":
+			fmt.Printf("Info for app: %s\n", appName)
 			fmt.Println(apps.InletsOperatorInfoMsg)
 		case "openfaas":
+			fmt.Printf("Info for app: %s\n", appName)
 			fmt.Println(apps.OpenFaaSInfoMsg)
 		case "mongodb":
+			fmt.Printf("Info for app: %s\n", appName)
 			fmt.Println(apps.MongoDBInfoMsg)
+		case "metrics-server":
+			fmt.Printf("Info for app: %s\n", appName)
+			fmt.Println(apps.MetricsInfoMsg)
 		default:
-			return fmt.Errorf("no info or no app available for %s", appName)
+			return fmt.Errorf("no info available for app: %s", appName)
 		}
 
 		return nil
