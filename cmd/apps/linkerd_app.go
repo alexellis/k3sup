@@ -20,6 +20,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var linkerdVersion = "stable-2.6.1"
+
 func MakeInstallLinkerd() *cobra.Command {
 	var linkerd = &cobra.Command{
 		Use:          "linkerd",
@@ -115,7 +117,7 @@ func getLinkerdURL(os, version string) string {
 func downloadLinkerd(userPath, clientOS string) error {
 	filePath := path.Join(path.Join(userPath, "bin"), "linkerd")
 	if _, statErr := os.Stat(filePath); statErr != nil {
-		linkerdURL := getLinkerdURL(clientOS, "stable-2.6.0")
+		linkerdURL := getLinkerdURL(clientOS, linkerdVersion)
 		fmt.Println(linkerdURL)
 		parsedURL, _ := url.Parse(linkerdURL)
 
