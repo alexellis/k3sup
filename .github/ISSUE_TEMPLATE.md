@@ -26,6 +26,18 @@
 
 ## Your Environment
 
-* What OS or type or VM are you using? Where is it hosted?
+* What Kubernetes distribution are you using (for `k3sup app`)?
+
+```
+kubectl version
+```
+
+* What OS or type or VM are you using for your cluster? Where is it hosted? (for `k3sup install/join`):
 
 * Operating System and version (e.g. Linux, Windows, MacOS):
+
+```
+uname -a
+
+cat /etc/os-release
+```
