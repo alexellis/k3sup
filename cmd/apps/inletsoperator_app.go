@@ -116,11 +116,11 @@ func MakeInstallInletsOperator() *cobra.Command {
 			"inlets-access-key",
 			"--from-file", "inlets-access-key="+secretFileName)
 
-		if len(res.Stderr) > 0 {
+		if len(res.Stderr) > 0 && strings.Contains(res.Stderr, "AlreadyExists") {
+			fmt.Println("[Warning] secret inlets-access-key already exists and will be used.")
+		} else if len(res.Stderr) > 0 {
 			return fmt.Errorf("Error from kubectl\n%q", res.Stderr)
-		}
-
-		if err != nil {
+		} else if err != nil {
 			return err
 		}
 
