@@ -30,22 +30,27 @@ func MakeInstallKubernetesDashboard() *cobra.Command {
 		fmt.Printf("Node architecture: %q\n", arch)
 
 		_, err := kubectlTask("apply", "-f",
-			"https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0-beta6/aio/deploy/recommended.yaml")
-		if err != nil {
-			return err
-		}
-		_, err = kubectlTask("apply", "-",
-			`apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: admin-user
-  namespace: kubernetes-dashboard`)
+			"https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0-rc2/aio/deploy/recommended.yaml")
 		if err != nil {
 			return err
 		}
 
-		_, err = kubectlTask("apply", "-",
-			`apiVersion: rbac.authorization.k8s.io/v1
+		fmt.Println(`=======================================================================
+= Kubernetes Dashboard has been installed.                                        =
+=======================================================================
+
+#To create the Service Account and the ClusterRoleBinding
+# @See https://github.com/kubernetes/dashboard/blob/master/docs/user/access-control/creating-sample-user.md#creating-sample-user
+
+cat <<EOF | kubectl apply -f -
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: admin-user
+  namespace: kubernetes-dashboard
+---
+apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: admin-user
@@ -56,14 +61,9 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: admin-user
-  namespace: kubernetes-dashboard`)
-		if err != nil {
-			return err
-		}
-
-		fmt.Println(`=======================================================================
-= Kubernetes Dashboard has been installed.                                        =
-=======================================================================
+  namespace: kubernetes-dashboard
+---
+EOF
 
 #To forward the dashboard to your local machine 
 kubectl proxy
