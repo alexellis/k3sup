@@ -15,8 +15,20 @@ func MakeInfo() *cobra.Command {
 		Long:  "Find info about how to use the installed Kubernetes app",
 		Example: `  k3sup app info [APP]
 k3sup app info openfaas
+k3sup app info nginx-ingress
+k3sup app info cert-manager
 k3sup app info inlets-operator
 k3sup app info mongodb
+k3sup app info metrics-server
+k3sup app info tiller
+k3sup app info linkerd
+k3sup app info cron-connector
+k3sup app info kafka-connector
+k3sup app info minio
+k3sup app info postgresql
+k3sup app info kubernetes-dashboard
+k3sup app info istio
+k3sup app info crossplane
 k3sup app info
 k3sup app info --help`,
 		SilenceUsage: true,
@@ -24,7 +36,7 @@ k3sup app info --help`,
 
 	info.RunE = func(cmd *cobra.Command, args []string) error {
 		if len(args) == 0 {
-			fmt.Println("You can get info about: openfaas, inlets-operator, mongodb")
+			fmt.Println("You can get info about: openfaas, nginx-ingress, cert-manager, inlets-operator, mongodb, metrics-server, tiller, linkerd, cron-connector, kafka-connector, minio, postgresql, kubernetes-dashboard, istio, crossplane")
 			return nil
 		}
 
