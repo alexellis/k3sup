@@ -47,6 +47,9 @@ k3sup app info --help`,
 		case "metrics-server":
 			fmt.Printf("Info for app: %s\n", appName)
 			fmt.Println(apps.MetricsInfoMsg)
+		case "minio":
+			fmt.Printf("Info for app: %s\n", appName)
+			fmt.Println(apps.MinioInfoMsg)
 		case "postgresql":
 			fmt.Printf("Info for app: %s\n", appName)
 			fmt.Println(apps.PostgresqlInfoMsg)
