@@ -11,7 +11,7 @@ import (
 
 // GetClientArch returns a pair of arch and os
 func GetClientArch() (string, string) {
-	task := execute.ExecTask{Command: "uname", Args: []string{"-m"}, StreamStdio: true}
+	task := execute.ExecTask{Command: "uname", Args: []string{"-m"}, StreamStdio: false}
 	res, err := task.Execute()
 	if err != nil {
 		log.Println(err)
@@ -19,7 +19,7 @@ func GetClientArch() (string, string) {
 
 	arch := strings.TrimSpace(res.Stdout)
 
-	taskOS := execute.ExecTask{Command: "uname", Args: []string{"-s"}, StreamStdio: true}
+	taskOS := execute.ExecTask{Command: "uname", Args: []string{"-s"}, StreamStdio: false}
 	resOS, errOS := taskOS.Execute()
 	if errOS != nil {
 		log.Println(errOS)
