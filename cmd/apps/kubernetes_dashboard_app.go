@@ -35,11 +35,16 @@ func MakeInstallKubernetesDashboard() *cobra.Command {
 			return err
 		}
 
-		fmt.Println(`=======================================================================
-= Kubernetes Dashboard has been installed.                                        =
-=======================================================================
+		fmt.Println(KubernetesDashboardInfoMsg)
 
-#To create the Service Account and the ClusterRoleBinding
+		return nil
+	}
+
+	return kubeDashboard
+}
+
+
+const KubernetesDashboardInfoMsg = `# To create the Service Account and the ClusterRoleBinding
 # @See https://github.com/kubernetes/dashboard/blob/master/docs/user/access-control/creating-sample-user.md#creating-sample-user
 
 cat <<EOF | kubectl apply -f -
@@ -72,12 +77,9 @@ kubectl proxy
 kubectl -n kubernetes-dashboard describe secret $(kubectl -n kubernetes-dashboard get secret | grep admin-user-token | awk '{print $1}')
 
 # Once Proxying you can navigate to the below
-http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/#/login
+http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/#/login`
 
-` + pkg.ThanksForUsing)
-
-		return nil
-	}
-
-	return kubeDashboard
-}
+const KubernetesDashboardInstallMsg = `=======================================================================
+= Kubernetes Dashboard has been installed.                            =
+=======================================================================` +
+	"\n\n" + KubernetesDashboardInfoMsg + "\n\n" + pkg.ThanksForUsing
