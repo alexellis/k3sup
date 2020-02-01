@@ -82,34 +82,7 @@ Have you got OpenFaaS running in the openfaas namespace and cert-manager 0.11.0 
 				res.Stderr)
 		}
 
-		fmt.Println(`=======================================================================
-= OpenFaaS Ingress and cert-manager ClusterIssuer have been installed  =
-=======================================================================
-
-# You will need to ensure that your domain points to your cluster and is
-# accessible through ports 80 and 443. 
-#
-# This is used to validate your ownership of this domain by LetsEncrypt
-# and then you can use https with your installation. 
-
-# Ingress to your domain has been installed for OpenFaaS
-# to see the ingress record run
-kubectl get -n openfaas ingress openfaas-gateway
-
-# Check the cert-manager logs with:
-kubectl logs -n cert-manager deploy/cert-manager
-
-# A cert-manager ClusterIssuer has been installed into the default
-# namespace - to see the resource run
-kubectl describe ClusterIssuer letsencrypt-prod
-
-# To check the status of your certificate you can run
-kubectl describe -n openfaas Certificate openfaas-gateway
-
-# It may take a while to be issued by LetsEncrypt, in the meantime a 
-# self-signed cert will be installed
-
-` + pkg.ThanksForUsing)
+		fmt.Println(openfaasIngressInstallMsg)
 
 		return nil
 	}
@@ -169,6 +142,34 @@ func buildYAML(domain, email, ingressClass string) ([]byte, error) {
 
 	return tpl.Bytes(), nil
 }
+
+const OpenfaasIngressInfoMsg = `# You will need to ensure that your domain points to your cluster and is
+# accessible through ports 80 and 443. 
+#
+# This is used to validate your ownership of this domain by LetsEncrypt
+# and then you can use https with your installation. 
+
+# Ingress to your domain has been installed for OpenFaaS
+# to see the ingress record run
+kubectl get -n openfaas ingress openfaas-gateway
+
+# Check the cert-manager logs with:
+kubectl logs -n cert-manager deploy/cert-manager
+
+# A cert-manager ClusterIssuer has been installed into the default
+# namespace - to see the resource run
+kubectl describe ClusterIssuer letsencrypt-prod
+
+# To check the status of your certificate you can run
+kubectl describe -n openfaas Certificate openfaas-gateway
+
+# It may take a while to be issued by LetsEncrypt, in the meantime a 
+# self-signed cert will be installed`
+
+const openfaasIngressInstallMsg = `=======================================================================
+= OpenFaaS Ingress and cert-manager ClusterIssuer have been installed =
+=======================================================================` +
+	"\n\n" + OpenfaasIngressInfoMsg + "\n\n" + pkg.ThanksForUsing
 
 var ingressYamlTemplate = `
 apiVersion: extensions/v1beta1 

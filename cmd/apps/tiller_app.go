@@ -8,7 +8,6 @@ import (
 
 	execute "github.com/alexellis/go-execute/pkg/v1"
 	"github.com/alexellis/k3sup/pkg"
-	"github.com/alexellis/k3sup/pkg/config"
 	"github.com/alexellis/k3sup/pkg/env"
 	"github.com/alexellis/k3sup/pkg/helm"
 	"github.com/spf13/cobra"
@@ -39,7 +38,7 @@ func MakeInstallTiller() *cobra.Command {
 			return fmt.Errorf("This app is not known to work with the %s architecture", arch)
 		}
 
-		userPath, err := config.InitUserDir()
+		userPath, err := getUserPath()
 		if err != nil {
 			return err
 		}
@@ -82,23 +81,29 @@ func MakeInstallTiller() *cobra.Command {
 
 		fmt.Println(res.Stdout, res.Stderr)
 
-		helmBinary, err := helm.TryDownloadHelm(userPath, clientArch, clientOS, false)
+		_, err = helm.TryDownloadHelm(userPath, clientArch, clientOS, false)
 		if err != nil {
 			return err
 		}
 
-		fmt.Println(`=======================================================================
-tiller has been installed
-=======================================================================
-
-# You can now use helm with tiller from the installation directory
-
-` + helmBinary + `
-
-` + pkg.ThanksForUsing)
+		fmt.Println(tillerInstallMsg)
 
 		return nil
 	}
 
 	return tiller
 }
+
+func getHelmBinaryPath() string {
+	userPath, _ := getUserPath()
+	helmBinaryPath := path.Join(path.Join(userPath, "bin"), "helm")
+	return helmBinaryPath
+}
+
+var TillerInfoMsg = `# You can now use helm with tiller from the installation directory
+` + getHelmBinaryPath()
+
+var tillerInstallMsg = `=======================================================================
+= tiller has been installed.                   	                      =
+=======================================================================` +
+	"\n\n" + TillerInfoMsg + "\n\n" + pkg.ThanksForUsing

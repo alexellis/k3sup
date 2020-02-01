@@ -122,12 +122,15 @@ func MakeInstallNginx() *cobra.Command {
 			return err
 		}
 
-		fmt.Println(`=======================================================================
-= nginx-ingress has been installed.                                   =
-=======================================================================
+		fmt.Println(nginxIngressInstallMsg)
 
+		return nil
+	}
 
-# If you're using a local environment such as "minikube" or "KinD",
+	return nginx
+}
+
+const NginxIngressInfoMsg = `# If you're using a local environment such as "minikube" or "KinD",
 # then try the inlets operator with "k3sup app install inlets-operator"
 
 # If you're using a managed Kubernetes service, then you'll find
@@ -136,12 +139,9 @@ func MakeInstallNginx() *cobra.Command {
 kubectl get svc nginx-ingress-controller
 
 # Find out more at:
-# https://github.com/helm/charts/tree/master/stable/nginx-ingress
+# https://github.com/helm/charts/tree/master/stable/nginx-ingress`
 
-` + pkg.ThanksForUsing)
-
-		return nil
-	}
-
-	return nginx
-}
+const nginxIngressInstallMsg = `=======================================================================
+= nginx-ingress has been installed.                                   =
+=======================================================================` +
+	"\n\n" + NginxIngressInfoMsg + "\n\n" + pkg.ThanksForUsing

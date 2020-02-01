@@ -129,21 +129,21 @@ schedule workloads to any Kubernetes cluster`,
 			}
 		}
 
-		fmt.Println(`
-=======================================================================
-= Crossplane has been installed.                                      =
-=======================================================================
-
-Get started by installing a stack for your favorite provider:
-* stack-gcp: https://crossplane.io/docs/master/install-crossplane.html#gcp-stack
-* stack-aws: https://crossplane.io/docs/master/install-crossplane.html#aws-stack
-* stack-azure: https://crossplane.io/docs/master/install-crossplane.html#azure-stack
-
-Learn more about Crossplane: https://crossplaneio.github.io/docs/
-
-` + pkg.ThanksForUsing)
+		fmt.Println(crossplaneInstallMsg)
 		return nil
 	}
 
 	return crossplane
 }
+
+const CrossplanInfoMsg = `# Get started by installing a stack for your favorite provider:
+* stack-gcp: https://crossplane.io/docs/master/install-crossplane.html#gcp-stack
+* stack-aws: https://crossplane.io/docs/master/install-crossplane.html#aws-stack
+* stack-azure: https://crossplane.io/docs/master/install-crossplane.html#azure-stack
+
+Learn more about Crossplane: https://crossplaneio.github.io/docs/`
+
+const crossplaneInstallMsg = `=======================================================================
+= Crossplane has been installed.                                      =
+=======================================================================` +
+	"\n\n" + CrossplanInfoMsg + "\n\n" + pkg.ThanksForUsing

@@ -117,11 +117,15 @@ func MakeInstallCronConnector() *cobra.Command {
 			return err
 		}
 
-		fmt.Println(`=======================================================================
-= cron-connector has been installed.                                   =
-=======================================================================
+		fmt.Println(cronConnectorInstallMsg)
 
-# Example usage to trigger nodeinfo every 5 minutes:
+		return nil
+	}
+
+	return command
+}
+
+const CronConnectorInfoMsg = `# Example usage to trigger nodeinfo every 5 minutes:
 
 faas-cli store deploy nodeinfo \
   --annotation schedule="*/5 * * * *" \
@@ -133,12 +137,9 @@ kubectl logs deploy/cron-connector -n openfaas -f
 
 # Find out more on the project homepage:
 
-# https://github.com/openfaas-incubator/cron-connector/
+# https://github.com/openfaas-incubator/cron-connector/`
 
-` + pkg.ThanksForUsing)
-
-		return nil
-	}
-
-	return command
-}
+const cronConnectorInstallMsg = `=======================================================================
+= cron-connector has been installed.                                  =
+=======================================================================` +
+	"\n\n" + CronConnectorInfoMsg + "\n\n" + pkg.ThanksForUsing
