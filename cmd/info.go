@@ -47,6 +47,9 @@ k3sup app info --help`,
 		case "metrics-server":
 			fmt.Printf("Info for app: %s\n", appName)
 			fmt.Println(apps.MetricsInfoMsg)
+		case "tiller":
+			fmt.Printf("Info for app: %s\n", appName)
+			fmt.Println(apps.TillerInfoMsg)
 		case "linkerd":
 			fmt.Printf("Info for app: %s\n", appName)
 			fmt.Println(apps.LinkerdInfoMsg)
