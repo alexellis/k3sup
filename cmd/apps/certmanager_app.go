@@ -116,21 +116,22 @@ func MakeInstallCertManager() *cobra.Command {
 			return fmt.Errorf("Error applying templated YAML files, error: %s", applyRes.Stderr)
 		}
 
-		fmt.Println(`=======================================================================
-= cert-manager has been installed.                                    =
-=======================================================================
-
-# Get started with cert-manager here:
-# https://docs.cert-manager.io/en/latest/tutorials/acme/http-validation.html
-
-# Check cert-manager's logs with:
-
-kubectl logs -n cert-manager deploy/cert-manager -f
-
-` + pkg.ThanksForUsing)
+		fmt.Println(certManagerInstallMsg)
 
 		return nil
 	}
 
 	return certManager
 }
+
+const CertManagerInfoMsg = `# Get started with cert-manager here:
+# https://docs.cert-manager.io/en/latest/tutorials/acme/http-validation.html
+
+# Check cert-manager's logs with:
+
+kubectl logs -n cert-manager deploy/cert-manager -f`
+
+const certManagerInstallMsg = `=======================================================================
+= cert-manager  has been installed.                                   =
+=======================================================================` +
+	"\n\n" + CertManagerInfoMsg + "\n\n" + pkg.ThanksForUsing
