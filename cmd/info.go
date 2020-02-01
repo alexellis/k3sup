@@ -35,24 +35,24 @@ k3sup app info --help`,
 		appName := args[0]
 
 		switch appName {
-		case "inlets-operator":
-			fmt.Printf("Info for app: %s\n", appName)
-			fmt.Println(apps.InletsOperatorInfoMsg)
 		case "openfaas":
 			fmt.Printf("Info for app: %s\n", appName)
 			fmt.Println(apps.OpenFaaSInfoMsg)
-		case "mongodb":
+		case "nginx-ingress":
 			fmt.Printf("Info for app: %s\n", appName)
-			fmt.Println(apps.MongoDBInfoMsg)
+			fmt.Println(apps.NginxIngressInfoMsg)
 		case "cert-manager":
 			fmt.Printf("Info for app: %s\n", appName)
 			fmt.Println(apps.CertManagerInfoMsg)
 		case "openfaas-ingress":
 			fmt.Printf("Info for app: %s\n", appName)
 			fmt.Println(apps.OpenfaasIngressInfoMsg)
-		case "nginx-ingress":
+		case "inlets-operator":
 			fmt.Printf("Info for app: %s\n", appName)
-			fmt.Println(apps.NginxIngressInfoMsg)
+			fmt.Println(apps.InletsOperatorInfoMsg)
+		case "mongodb":
+			fmt.Printf("Info for app: %s\n", appName)
+			fmt.Println(apps.MongoDBInfoMsg)
 		case "metrics-server":
 			fmt.Printf("Info for app: %s\n", appName)
 			fmt.Println(apps.MetricsInfoMsg)
