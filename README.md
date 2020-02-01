@@ -165,6 +165,7 @@ Apps that you can install today:
 * cert-manager
 * openfaas-ingress
 * inlets-operator
+* mongodb
 * metrics-server
 * tiller
 * linkerd
