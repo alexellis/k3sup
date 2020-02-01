@@ -44,6 +44,9 @@ k3sup app info --help`,
 		case "mongodb":
 			fmt.Printf("Info for app: %s\n", appName)
 			fmt.Println(apps.MongoDBInfoMsg)
+		case "nginx-ingress":
+			fmt.Printf("Info for app: %s\n", appName)
+			fmt.Println(apps.NginxIngressInfoMsg)
 		case "metrics-server":
 			fmt.Printf("Info for app: %s\n", appName)
 			fmt.Println(apps.MetricsInfoMsg)
