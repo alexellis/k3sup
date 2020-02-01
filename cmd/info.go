@@ -47,6 +47,9 @@ k3sup app info --help`,
 		case "metrics-server":
 			fmt.Printf("Info for app: %s\n", appName)
 			fmt.Println(apps.MetricsInfoMsg)
+		case "istio":
+			fmt.Printf("Info for app: %s\n", appName)
+			fmt.Println(apps.IstioInfoMsg)
 		case "crossplane":
 			fmt.Printf("Info for app: %s\n", appName)
 			fmt.Println(apps.CrossplanInfoMsg)

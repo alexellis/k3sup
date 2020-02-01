@@ -141,13 +141,13 @@ func MakeInstallIstio() *cobra.Command {
 	return istio
 }
 
-const istioInfoMsg = `# Find out more at:
+const IstioInfoMsg = `# Find out more at:
 # https://github.com/istio/`
 
 const istioPostInstallMsg = `=======================================================================
 = Istio has been installed.                                        =
 =======================================================================` +
-	"\n\n" + istioInfoMsg + "\n\n" + pkg.ThanksForUsing
+	"\n\n" + IstioInfoMsg + "\n\n" + pkg.ThanksForUsing
 
 func writeIstioValues() (string, error) {
 	out := `#
