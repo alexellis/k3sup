@@ -47,6 +47,9 @@ k3sup app info --help`,
 		case "cert-manager":
 			fmt.Printf("Info for app: %s\n", appName)
 			fmt.Println(apps.CertManagerInfoMsg)
+		case "openfaas-ingress":
+			fmt.Printf("Info for app: %s\n", appName)
+			fmt.Println(apps.OpenfaasIngressInfoMsg)
 		case "nginx-ingress":
 			fmt.Printf("Info for app: %s\n", appName)
 			fmt.Println(apps.NginxIngressInfoMsg)
