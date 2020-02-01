@@ -47,6 +47,9 @@ k3sup app info --help`,
 		case "metrics-server":
 			fmt.Printf("Info for app: %s\n", appName)
 			fmt.Println(apps.MetricsInfoMsg)
+		case "cron-connector":
+			fmt.Printf("Info for app: %s\n", appName)
+			fmt.Println(apps.CronConnectorInfoMsg)
 		case "kafka-connector":
 			fmt.Printf("Info for app: %s\n", appName)
 			fmt.Println(apps.KafkaConnectorInfoMsg)
