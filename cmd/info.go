@@ -47,6 +47,9 @@ k3sup app info --help`,
 		case "metrics-server":
 			fmt.Printf("Info for app: %s\n", appName)
 			fmt.Println(apps.MetricsInfoMsg)
+		case "kubernetes-dashboard":
+			fmt.Printf("Info for app: %s\n", appName)
+			fmt.Println(apps.KubernetesDashboardInfoMsg)
 		case "istio":
 			fmt.Printf("Info for app: %s\n", appName)
 			fmt.Println(apps.IstioInfoMsg)
