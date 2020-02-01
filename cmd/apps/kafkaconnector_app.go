@@ -131,22 +131,24 @@ func MakeInstallKafkaConnector() *cobra.Command {
 			return err
 		}
 
-		fmt.Println(`=======================================================================
-= kafka-connector has been installed.                                   =
-=======================================================================
-
-# View the connector's logs:
-
-kubectl logs deploy/kafka-connector -n openfaas -f
-
-# Find out more on the project homepage:
-
-# https://github.com/openfaas-incubator/kafka-connector/
-
-` + pkg.ThanksForUsing)
+		fmt.Println(kafkaConnectorInstallMsg)
 
 		return nil
 	}
 
 	return command
 }
+
+
+const KafkaConnectorInfoMsg = `# View the connector's logs:
+
+kubectl logs deploy/kafka-connector -n openfaas -f
+
+# Find out more on the project homepage:
+
+# https://github.com/openfaas-incubator/kafka-connector/`
+
+const kafkaConnectorInstallMsg = `=======================================================================
+= kafka-connector has been installed.                                   =
+=======================================================================` +
+	"\n\n" + KafkaConnectorInfoMsg + "\n\n" + pkg.ThanksForUsing
