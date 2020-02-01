@@ -46,7 +46,7 @@ func MakeInstallLinkerd() *cobra.Command {
 			return err
 		}
 
-		_, clientOS := env.GetClientArch()
+		_, clientOS := env.GetClientArch(true)
 
 		fmt.Printf("Client: %q\n", clientOS)
 

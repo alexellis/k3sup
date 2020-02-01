@@ -69,7 +69,7 @@ before using the generic helm chart installer command.`,
 			return err
 		}
 
-		clientArch, clientOS := env.GetClientArch()
+		clientArch, clientOS := env.GetClientArch(true)
 
 		fmt.Printf("Client: %s, %s\n", clientArch, clientOS)
 
