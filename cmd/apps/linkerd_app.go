@@ -41,7 +41,7 @@ func MakeInstallLinkerd() *cobra.Command {
 		arch := getNodeArchitecture()
 		fmt.Printf("Node architecture: %q\n", arch)
 
-		userPath, err := config.InitUserDir()
+		userPath, err := getUserPath()
 		if err != nil {
 			return err
 		}
@@ -164,3 +164,29 @@ func linkerdCli(parts ...string) (execute.ExecResult, error) {
 
 	return res, nil
 }
+
+func getUserPath() (string, error) {
+	userPath, err := config.InitUserDir()
+	return userPath, err
+}
+
+func getExportPath() string {
+	userPath, _ := getUserPath()
+	return path.Join(userPath, "bin/")
+}
+
+var LinkerdInfoMsg = `# Get the linkerd-cli
+curl -sL https://run.linkerd.io/install | sh
+
+# Find out more at:
+# https://linkerd.io
+
+# To use the Linkerd CLI set this path:
+
+export PATH=$PATH:` + getExportPath() + `
+linkerd --help`
+
+var linkerdInstallMsg = `=======================================================================
+= Linkerd has been installed.                                         =
+=======================================================================` +
+	"\n\n" + LinkerdInfoMsg + "\n\n" + pkg.ThanksForUsing
