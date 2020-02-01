@@ -35,18 +35,54 @@ k3sup app info --help`,
 		appName := args[0]
 
 		switch appName {
-		case "inlets-operator":
-			fmt.Printf("Info for app: %s\n", appName)
-			fmt.Println(apps.InletsOperatorInfoMsg)
 		case "openfaas":
 			fmt.Printf("Info for app: %s\n", appName)
 			fmt.Println(apps.OpenFaaSInfoMsg)
+		case "nginx-ingress":
+			fmt.Printf("Info for app: %s\n", appName)
+			fmt.Println(apps.NginxIngressInfoMsg)
+		case "cert-manager":
+			fmt.Printf("Info for app: %s\n", appName)
+			fmt.Println(apps.CertManagerInfoMsg)
+		case "openfaas-ingress":
+			fmt.Printf("Info for app: %s\n", appName)
+			fmt.Println(apps.OpenfaasIngressInfoMsg)
+		case "inlets-operator":
+			fmt.Printf("Info for app: %s\n", appName)
+			fmt.Println(apps.InletsOperatorInfoMsg)
 		case "mongodb":
 			fmt.Printf("Info for app: %s\n", appName)
 			fmt.Println(apps.MongoDBInfoMsg)
 		case "metrics-server":
 			fmt.Printf("Info for app: %s\n", appName)
 			fmt.Println(apps.MetricsInfoMsg)
+		case "tiller":
+			fmt.Printf("Info for app: %s\n", appName)
+			fmt.Println(apps.TillerInfoMsg)
+		case "linkerd":
+			fmt.Printf("Info for app: %s\n", appName)
+			fmt.Println(apps.LinkerdInfoMsg)
+		case "cron-connector":
+			fmt.Printf("Info for app: %s\n", appName)
+			fmt.Println(apps.CronConnectorInfoMsg)
+		case "kafka-connector":
+			fmt.Printf("Info for app: %s\n", appName)
+			fmt.Println(apps.KafkaConnectorInfoMsg)
+		case "minio":
+			fmt.Printf("Info for app: %s\n", appName)
+			fmt.Println(apps.MinioInfoMsg)
+		case "postgresql":
+			fmt.Printf("Info for app: %s\n", appName)
+			fmt.Println(apps.PostgresqlInfoMsg)
+		case "kubernetes-dashboard":
+			fmt.Printf("Info for app: %s\n", appName)
+			fmt.Println(apps.KubernetesDashboardInfoMsg)
+		case "istio":
+			fmt.Printf("Info for app: %s\n", appName)
+			fmt.Println(apps.IstioInfoMsg)
+		case "crossplane":
+			fmt.Printf("Info for app: %s\n", appName)
+			fmt.Println(apps.CrossplanInfoMsg)
 		default:
 			return fmt.Errorf("no info available for app: %s", appName)
 		}
