@@ -94,21 +94,14 @@ func MakeInstallTiller() *cobra.Command {
 	return tiller
 }
 
-func getClientArch() (string, string) {
-	clientArch, clientOS := env.GetClientArch()
-	return clientArch, clientOS
-}
-
 func getHelmBinaryPath() string {
 	userPath, _ := getUserPath()
 	helmBinaryPath := path.Join(path.Join(userPath, "bin"), "helm")
 	return helmBinaryPath
 }
 
-var helmBinaryPath = getHelmBinaryPath()
-
 var TillerInfoMsg = `# You can now use helm with tiller from the installation directory
-` + helmBinaryPath
+` + getHelmBinaryPath()
 
 var tillerInstallMsg = `=======================================================================
 = tiller has been installed.                   	                      =
