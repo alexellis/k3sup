@@ -137,11 +137,16 @@ func MakeInstallMinio() *cobra.Command {
 			return err
 		}
 
-		fmt.Println(`=======================================================================
-= minio has been installed.                                           =
-=======================================================================
+		fmt.Println(minioInstallMsg)
+		return nil
+	}
 
-# Forward the minio port to your machine
+	return minio
+}
+
+var _, clientOS = env.GetClientArch()
+
+var MinioInfoMsg = `# Forward the minio port to your machine
 kubectl port-forward -n default svc/minio 9000:9000 &
 
 # Get the access and secret key to gain access to minio
@@ -158,11 +163,9 @@ mc config host add minio http://127.0.0.1:9000 $ACCESSKEY $SECRETKEY
 # List buckets
 mc ls minio
 
-# Find out more at: https://min.io
+# Find out more at: https://min.io`
 
-` + pkg.ThanksForUsing)
-		return nil
-	}
-
-	return minio
-}
+var minioInstallMsg = `=======================================================================
+= Minio has been installed.                                           =
+=======================================================================` +
+	"\n\n" + MinioInfoMsg + "\n\n" + pkg.ThanksForUsing
