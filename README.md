@@ -183,7 +183,20 @@ You can also find about how to use the app after installation by using
 
 ```sh
 k3sup app info openfaas
+k3sup app info nginx-ingress
+k3sup app info cert-manager
 k3sup app info inlets-operator
+k3sup app info mongodb
+k3sup app info metrics-server
+k3sup app info tiller
+k3sup app info linkerd
+k3sup app info cron-connector
+k3sup app info kafka-connector
+k3sup app info minio
+k3sup app info postgresql
+k3sup app info kubernetes-dashboard
+k3sup app info istio
+k3sup app info crossplane
 ```
 
 Find out more with
