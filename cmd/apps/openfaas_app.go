@@ -76,7 +76,7 @@ func MakeInstallOpenFaaS() *cobra.Command {
 			return err
 		}
 
-		clientArch, clientOS := env.GetClientArch()
+		clientArch, clientOS := env.GetClientArch(true)
 		fmt.Printf("Client: %q, %q\n", clientArch, clientOS)
 		log.Printf("User dir established as: %s\n", userPath)
 		os.Setenv("HELM_HOME", path.Join(userPath, ".helm"))

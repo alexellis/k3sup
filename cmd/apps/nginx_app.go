@@ -47,7 +47,7 @@ func MakeInstallNginx() *cobra.Command {
 			return fmt.Errorf(`to override the "default", install via tiller`)
 		}
 
-		clientArch, clientOS := env.GetClientArch()
+		clientArch, clientOS := env.GetClientArch(true)
 
 		fmt.Printf("Client: %s, %s\n", clientArch, clientOS)
 		log.Printf("User dir established as: %s\n", userPath)

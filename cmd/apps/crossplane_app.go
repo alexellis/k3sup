@@ -59,7 +59,7 @@ schedule workloads to any Kubernetes cluster`,
 			return err
 		}
 
-		clientArch, clientOS := env.GetClientArch()
+		clientArch, clientOS := env.GetClientArch(true)
 
 		fmt.Printf("Client: %q, %q\n", clientArch, clientOS)
 

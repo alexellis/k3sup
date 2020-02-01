@@ -16,8 +16,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var clientArch, clientOS = env.GetClientArch()
-
 func MakeInstallMinio() *cobra.Command {
 	var minio = &cobra.Command{
 		Use:          "minio",
@@ -50,6 +48,8 @@ func MakeInstallMinio() *cobra.Command {
 		if err != nil {
 			return err
 		}
+
+		clientArch, clientOS := env.GetClientArch(true)
 
 		fmt.Printf("Client: %s, %s\n", clientArch, clientOS)
 		log.Printf("User dir established as: %s\n", userPath)
@@ -143,6 +143,8 @@ func MakeInstallMinio() *cobra.Command {
 
 	return minio
 }
+
+var _, clientOS = env.GetClientArch(false)
 
 var MinioInfoMsg = `# Forward the minio port to your machine
 kubectl port-forward -n default svc/minio 9000:9000 &
