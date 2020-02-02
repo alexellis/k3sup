@@ -361,6 +361,9 @@ MIT
 
 * [kube-rpi blog-post with 64-bit OS by Michael Hausenblas](https://mhausenblas.info/kube-rpi/)
 
+* [Scheduling Kubernetes workloads to Raspberry Pi using Inlets and Crossplane](https://github.com/crossplaneio/tbs/blob/master/episodes/9/assets/README.md) by [Daniel Mangum](https://github.com/hasheddan)
+  * Also checkout the live [demo](https://youtu.be/RVAFEAnirZA)
+
 * Blog post by Ruan Bekker:
 
     > Provision k3s to all the places with a awesome utility called "k3sup" by @alexellisuk. Definitely worth checking it out, its epic!
