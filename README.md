@@ -351,6 +351,10 @@ MIT
 
 ## 📢 What are people saying about `k3sup`?
 
+* [Multi-master HA Kubernetes in < 5 minutes](https://blog.alexellis.io/multi-master-ha-kubernetes-in-5-minutes/) by Alex Ellis
+
+* [Kubernetes Homelab with Raspberry Pi and k3sup](https://blog.alexellis.io/raspberry-pi-homelab-with-k3sup/)
+
 * [Multi-node Kubernetes on Civo in 5 minutes flat with k3sup!](https://www.civo.com/learn/kubernetes-on-civo-in-5-minutes-flat) - Civo Learn guide
 
 * [Zero to k3s Kubeconfig in seconds on AWS EC2 with k3sup](https://rancher.com/blog/2019/k3s-kubeconfig-in-seconds) by Saiyam Pathak
@@ -378,7 +382,21 @@ MIT
 
 * [Will it cluster? K3s on Raspbian](https://blog.alexellis.io/test-drive-k3s-on-raspberry-pi/)
 
-* Checkout the [Announcement tweet](https://twitter.com/alexellisuk/status/1162272786250735618?s=20)
+* [Kubernetes the Easy Way with k3sup – Cisco DevOps Series](https://blogs.cisco.com/developer/kubernetes-the-easy-way-devops-14)
+
+* [Trying tiny k3s on Google Cloud with k3sup](https://starkandwayne.com/blog/trying-tiny-k3s-on-google-cloud-with-k3sup/)
+
+* [Setting up a Raspberry Pi Kubernetes Cluster with Blinkt! Strips that Show Number of Pods per Node](https://pleasereleaseme.net/setting-up-a-raspberry-pi-kubernetes-cluster-with-blinkt-strips-that-show-number-of-pods-per-node-using-k3sup/)
+
+* [From Zero to Kubernetes Dashboard within Minutes with k3sup and Kontena Lens](https://medium.com/@laurinevala/from-zero-to-kubernetes-dashboard-within-minutes-with-k3sup-and-kontena-lens-84f881400b10) - by Lauri Nevala
+
+* [BYOK - Build your Own Kubernetes Cluster with Raspberry Pis, k3s, and k3sup](https://speakerdeck.com/mikesir87/byok-build-your-own-kubernetes-cluster-with-raspberry-pis-k3s-and-k3sup) by Michael Irwin
+
+* [Run Kubernetes On Your Machine with k3sup](https://itnext.io/run-kubernetes-on-your-machine-7ee463af21a2) by Luc Juggery
+
+* [Get TLS for OpenFaaS the easy way with k3sup](https://blog.alexellis.io/tls-the-easy-way-with-openfaas-and-k3sup/) by Alex Ellis
+
+Checkout the [Announcement tweet](https://twitter.com/alexellisuk/status/1162272786250735618?s=20)
 
 ## Similar tools & glossary
 
