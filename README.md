@@ -404,6 +404,8 @@ MIT
 
 * [Kubernetes 104: Create a 2-node k3s cluster with k3sup](https://ahmed-abdelsamad.blogspot.com/2019/09/kubernetes-104-create-2-node-k3s.html) by Ahmed Abelsamad
 
+* [My home Kubernetes cluster driven by GitOps and k3sup](https://github.com/onedr0p/k3s-gitops) - by Devin Buhl
+
 Checkout the [Announcement tweet](https://twitter.com/alexellisuk/status/1162272786250735618?s=20)
 
 ## Similar tools & glossary
