@@ -206,6 +206,10 @@ func getOverridesWithPlatform(command *cobra.Command) map[string]string {
 const InletsOperatorInfoMsg = `# The default configuration is for DigitalOcean and your secret is
 # stored as "inlets-access-key" in the "default" namespace.
 
+# Check the Operator logs
+
+kubectl logs deploy/inlets-operator
+
 # To get your first Public IP run the following:
 kubectl run nginx-1 --image=nginx --port=80 --restart=Always
 kubectl expose deployment nginx-1 --port=80 --type=LoadBalancer
