@@ -396,6 +396,14 @@ MIT
 
 * [Get TLS for OpenFaaS the easy way with k3sup](https://blog.alexellis.io/tls-the-easy-way-with-openfaas-and-k3sup/) by Alex Ellis
 
+* [Trying out k3sup](https://blog.baeke.info/2019/10/25/trying-out-k3sup/) by Geert Baeke
+
+* [Creating your first Kubernetes cluster with k3sup](https://dev.to/kalaspuffar/creating-your-first-kubernetes-cluster-3kp2) by Daniel Persson
+
+* [My 2019 In Review - Hello Open Source](https://blog.heyal.co.uk/My-2019/) by Alistair Hey
+
+* [Kubernetes 104: Create a 2-node k3s cluster with k3sup](https://ahmed-abdelsamad.blogspot.com/2019/09/kubernetes-104-create-2-node-k3s.html) by Ahmed Abelsamad
+
 Checkout the [Announcement tweet](https://twitter.com/alexellisuk/status/1162272786250735618?s=20)
 
 ## Similar tools & glossary
