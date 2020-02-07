@@ -50,16 +50,13 @@ func MakeInstallMongoDB() *cobra.Command {
 		log.Printf("User dir established as: %s\n", userPath)
 
 		os.Setenv("HELM_HOME", path.Join(userPath, ".helm"))
-		os.Setenv("HELM_VERSION", helm3Version)
 
-		helm3 := true
-
-		_, err = helm.TryDownloadHelm(userPath, clientArch, clientOS, helm3)
+		_, err = helm.TryDownloadHelm(userPath, clientArch, clientOS)
 		if err != nil {
 			return err
 		}
 
-		err = addHelmRepo("stable", "https://kubernetes-charts.storage.googleapis.com/", helm3)
+		err = addHelmRepo("stable", "https://kubernetes-charts.storage.googleapis.com/")
 		if err != nil {
 			return fmt.Errorf("unable to add repo %s", err)
 		}
@@ -67,7 +64,7 @@ func MakeInstallMongoDB() *cobra.Command {
 		updateRepo, _ := command.Flags().GetBool("update-repo")
 
 		if updateRepo {
-			err = updateHelmRepos(helm3)
+			err = updateHelmRepos()
 			if err != nil {
 				return fmt.Errorf("unable to update repos %s", err)
 			}
@@ -75,7 +72,7 @@ func MakeInstallMongoDB() *cobra.Command {
 
 		chartPath := path.Join(os.TempDir(), "charts")
 
-		err = fetchChart(chartPath, "stable/mongodb", helm3)
+		err = fetchChart(chartPath, "stable/mongodb")
 
 		if err != nil {
 			return fmt.Errorf("unable fetch chart %s", err)
@@ -94,7 +91,7 @@ func MakeInstallMongoDB() *cobra.Command {
 			return err
 		}
 
-		err = helm3Upgrade(outputPath, "stable/mongodb",
+		err = helmUpgrade(outputPath, "stable/mongodb",
 			namespace, "values.yaml", overrides, false)
 		if err != nil {
 			return fmt.Errorf("unable to mongodb chart with helm %s", err)

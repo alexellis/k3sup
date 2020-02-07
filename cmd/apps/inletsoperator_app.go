@@ -34,7 +34,6 @@ func MakeInstallInletsOperator() *cobra.Command {
 	inletsOperator.Flags().Bool("update-repo", true, "Update the helm repo")
 
 	inletsOperator.Flags().String("pro-client-image", "", "Docker image for inlets-pro's client")
-	inletsOperator.Flags().Bool("helm3", false, "Use helm3 instead of the default helm2")
 	inletsOperator.Flags().StringArray("set", []string{}, "Use custom flags or override existing flags \n(example --set=image=org/repo:tag)")
 
 	inletsOperator.RunE = func(command *cobra.Command, args []string) error {
@@ -46,11 +45,6 @@ func MakeInstallInletsOperator() *cobra.Command {
 
 		fmt.Printf("Using kubeconfig: %s\n", kubeConfigPath)
 
-		helm3, _ := command.Flags().GetBool("helm3")
-
-		if helm3 {
-			fmt.Println("Using helm3")
-		}
 		namespace, _ := command.Flags().GetString("namespace")
 
 		if namespace != "default" {
@@ -73,15 +67,12 @@ func MakeInstallInletsOperator() *cobra.Command {
 
 		os.Setenv("HELM_HOME", path.Join(userPath, ".helm"))
 
-		if helm3 {
-			os.Setenv("HELM_VERSION", helm3Version)
-		}
-		_, err = helm.TryDownloadHelm(userPath, clientArch, clientOS, helm3)
+		_, err = helm.TryDownloadHelm(userPath, clientArch, clientOS)
 		if err != nil {
 			return err
 		}
 
-		err = addHelmRepo("inlets", "https://inlets.github.io/inlets-operator/", helm3)
+		err = addHelmRepo("inlets", "https://inlets.github.io/inlets-operator/")
 		if err != nil {
 			return err
 		}
@@ -89,7 +80,7 @@ func MakeInstallInletsOperator() *cobra.Command {
 		updateRepo, _ := inletsOperator.Flags().GetBool("update-repo")
 
 		if updateRepo {
-			err = updateHelmRepos(helm3)
+			err = updateHelmRepos()
 			if err != nil {
 				return err
 			}
@@ -97,7 +88,7 @@ func MakeInstallInletsOperator() *cobra.Command {
 
 		chartPath := path.Join(os.TempDir(), "charts")
 
-		err = fetchChart(chartPath, "inlets/inlets-operator", helm3)
+		err = fetchChart(chartPath, "inlets/inlets-operator")
 		if err != nil {
 			return err
 		}
@@ -144,33 +135,16 @@ func MakeInstallInletsOperator() *cobra.Command {
 			overrides["proClientImage"] = val
 		}
 
-		if helm3 {
-			wait := false
+		wait := false
 
-			outputPath := path.Join(chartPath, "inlets-operator")
+		outputPath := path.Join(chartPath, "inlets-operator")
 
-			err := helm3Upgrade(outputPath, "inlets/inlets-operator",
-				namespace, "values.yaml", overrides, wait)
-			if err != nil {
-				return err
-			}
-
-		} else {
-			outputPath := path.Join(chartPath, "inlets-operator/rendered")
-			err = templateChart(chartPath, "inlets-operator", namespace, outputPath, "values.yaml", overrides)
-			if err != nil {
-				return err
-			}
-
-			applyRes, applyErr := kubectlTask("apply", "-R", "-f", outputPath)
-			if applyErr != nil {
-				return applyErr
-			}
-
-			if applyRes.ExitCode > 0 {
-				return fmt.Errorf("Error applying templated YAML files, error: %s", applyRes.Stderr)
-			}
+		err = helmUpgrade(outputPath, "inlets/inlets-operator",
+			namespace, "values.yaml", overrides, wait)
+		if err != nil {
+			return err
 		}
+
 		fmt.Println(inletsOperatorPostInstallMsg)
 
 		return nil

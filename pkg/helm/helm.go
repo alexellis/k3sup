@@ -13,28 +13,17 @@ import (
 	"github.com/alexellis/k3sup/pkg/env"
 )
 
-const helmVersion = "v2.16.0"
+const helmVersion = "v3.0.2"
 
-func TryDownloadHelm(userPath, clientArch, clientOS string, helm3 bool) (string, error) {
+func TryDownloadHelm(userPath, clientArch, clientOS string) (string, error) {
 	helmVal := "helm"
-	if helm3 {
-		helmVal = "helm3"
-	}
 
 	helmBinaryPath := path.Join(path.Join(userPath, "bin"), helmVal)
 	if _, statErr := os.Stat(helmBinaryPath); statErr != nil {
 		subdir := ""
-		if helm3 {
-			subdir = "helm3"
-		}
+
 		DownloadHelm(userPath, clientArch, clientOS, subdir)
 
-		if !helm3 {
-			err := HelmInit()
-			if err != nil {
-				return "", err
-			}
-		}
 	}
 	return helmBinaryPath, nil
 }

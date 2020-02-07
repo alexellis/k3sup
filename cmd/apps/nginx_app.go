@@ -54,20 +54,20 @@ func MakeInstallNginx() *cobra.Command {
 
 		os.Setenv("HELM_HOME", path.Join(userPath, ".helm"))
 
-		_, err = helm.TryDownloadHelm(userPath, clientArch, clientOS, false)
+		_, err = helm.TryDownloadHelm(userPath, clientArch, clientOS)
 		if err != nil {
 			return err
 		}
 
 		if updateRepo {
-			err = updateHelmRepos(false)
+			err = updateHelmRepos()
 			if err != nil {
 				return err
 			}
 		}
 
 		chartPath := path.Join(os.TempDir(), "charts")
-		err = fetchChart(chartPath, "stable/nginx-ingress", false)
+		err = fetchChart(chartPath, "stable/nginx-ingress")
 
 		if err != nil {
 			return err

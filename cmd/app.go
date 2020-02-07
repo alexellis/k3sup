@@ -13,11 +13,10 @@ func MakeApps() *cobra.Command {
 		Use:   "app",
 		Short: "Install Kubernetes apps from helm charts or YAML files",
 		Long: `Install Kubernetes apps from helm charts or YAML files using the "install" 
-command. Helm 2 is used by default unless a --helm3 flag exists and is passed. 
-You can also find the post-install message for each app with the "info" 
+command. Helm 3 is used by default. You can also find the post-install message for each app with the "info" 
 command.`,
 		Example: `  k3sup app install
-  k3sup app install openfaas --helm3 --gateways=2
+  k3sup app install openfaas --gateways=2
   k3sup app info inlets-operator`,
 		SilenceUsage: false,
 	}

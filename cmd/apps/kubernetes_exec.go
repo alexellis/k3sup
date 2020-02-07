@@ -11,12 +11,9 @@ import (
 	"github.com/alexellis/k3sup/pkg/env"
 )
 
-func fetchChart(path, chart string, helm3 bool) error {
+func fetchChart(path, chart string) error {
 
 	subdir := ""
-	if helm3 {
-		subdir = "helm3"
-	}
 
 	mkErr := os.MkdirAll(path, 0700)
 
@@ -49,7 +46,7 @@ func getNodeArchitecture() string {
 	return arch
 }
 
-func helm3Upgrade(basePath, chart, namespace, values string, overrides map[string]string, wait bool) error {
+func helmUpgrade(basePath, chart, namespace, values string, overrides map[string]string, wait bool) error {
 
 	chartName := chart
 	if index := strings.Index(chartName, "/"); index > -1 {
@@ -74,8 +71,10 @@ func helm3Upgrade(basePath, chart, namespace, values string, overrides map[strin
 		args = append(args, fmt.Sprintf("%s=%s", k, v))
 	}
 
+	subdir := ""
+
 	task := execute.ExecTask{
-		Command:     env.LocalBinary("helm", "helm3"),
+		Command:     env.LocalBinary("helm", subdir),
 		Args:        args,
 		Env:         os.Environ(),
 		Cwd:         basePath,
@@ -150,11 +149,8 @@ func templateChart(basePath, chart, namespace, outputPath, values string, overri
 	return nil
 }
 
-func addHelmRepo(name, url string, helm3 bool) error {
+func addHelmRepo(name, url string) error {
 	subdir := ""
-	if helm3 {
-		subdir = "helm3"
-	}
 
 	task := execute.ExecTask{
 		Command:     fmt.Sprintf("%s repo add %s %s", env.LocalBinary("helm", subdir), name, url),
@@ -173,11 +169,9 @@ func addHelmRepo(name, url string, helm3 bool) error {
 	return nil
 }
 
-func updateHelmRepos(helm3 bool) error {
+func updateHelmRepos() error {
 	subdir := ""
-	if helm3 {
-		subdir = "helm3"
-	}
+
 	task := execute.ExecTask{
 		Command:     fmt.Sprintf("%s repo update", env.LocalBinary("helm", subdir)),
 		Env:         os.Environ(),

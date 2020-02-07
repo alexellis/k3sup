@@ -60,19 +60,14 @@ func MakeInstallIstio() *cobra.Command {
 
 		os.Setenv("HELM_HOME", path.Join(userPath, ".helm"))
 
-		helm3 := true
-		if helm3 {
-			os.Setenv("HELM_VERSION", helm3Version)
-		}
-
-		_, err = helm.TryDownloadHelm(userPath, clientArch, clientOS, helm3)
+		_, err = helm.TryDownloadHelm(userPath, clientArch, clientOS)
 		if err != nil {
 			return err
 		}
 
 		istioVer := "1.3.3"
 
-		err = addHelmRepo("istio", "https://storage.googleapis.com/istio-release/releases/"+istioVer+"/charts", helm3)
+		err = addHelmRepo("istio", "https://storage.googleapis.com/istio-release/releases/"+istioVer+"/charts")
 		if err != nil {
 			return fmt.Errorf("unable to add repo %s", err)
 		}
@@ -80,7 +75,7 @@ func MakeInstallIstio() *cobra.Command {
 		updateRepo, _ := istio.Flags().GetBool("update-repo")
 
 		if updateRepo {
-			err = updateHelmRepos(helm3)
+			err = updateHelmRepos()
 			if err != nil {
 				return fmt.Errorf("unable to update repos %s", err)
 			}
@@ -94,7 +89,7 @@ func MakeInstallIstio() *cobra.Command {
 
 		chartPath := path.Join(os.TempDir(), "charts")
 
-		err = fetchChart(chartPath, "istio/istio", helm3)
+		err = fetchChart(chartPath, "istio/istio")
 
 		if err != nil {
 			return fmt.Errorf("unable fetch chart %s", err)
@@ -112,7 +107,7 @@ func MakeInstallIstio() *cobra.Command {
 		wait := true
 
 		if initIstio, _ := command.Flags().GetBool("init"); initIstio {
-			err = helm3Upgrade(outputPath, "istio/istio-init", namespace, "", overrides, wait)
+			err = helmUpgrade(outputPath, "istio/istio-init", namespace, "", overrides, wait)
 			if err != nil {
 				return fmt.Errorf("unable to istio-init install chart with helm %s", err)
 			}
@@ -128,7 +123,7 @@ func MakeInstallIstio() *cobra.Command {
 			return err
 		}
 
-		err = helm3Upgrade(outputPath, "istio/istio", namespace, valuesFile, overrides, wait)
+		err = helmUpgrade(outputPath, "istio/istio", namespace, valuesFile, overrides, wait)
 		if err != nil {
 			return fmt.Errorf("unable to istio install chart with helm %s", err)
 		}

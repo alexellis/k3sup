@@ -17,8 +17,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const helm3Version = "v3.0.2"
-
 func MakeInstallOpenFaaS() *cobra.Command {
 	var openfaas = &cobra.Command{
 		Use:          "openfaas",
@@ -42,8 +40,6 @@ func MakeInstallOpenFaaS() *cobra.Command {
 	openfaas.Flags().Int("queue-workers", 1, "Replicas of queue-worker")
 	openfaas.Flags().Int("gateways", 1, "Replicas of gateway")
 
-	openfaas.Flags().Bool("helm3", false, "Use helm3 instead of the default helm2")
-
 	openfaas.Flags().StringArray("set", []string{}, "Use custom flags or override existing flags \n(example --set=gateway.replicas=2)")
 
 	openfaas.RunE = func(command *cobra.Command, args []string) error {
@@ -55,11 +51,6 @@ func MakeInstallOpenFaaS() *cobra.Command {
 
 		fmt.Printf("Using kubeconfig: %s\n", kubeConfigPath)
 
-		helm3, _ := command.Flags().GetBool("helm3")
-
-		if helm3 {
-			fmt.Println("Using helm3")
-		}
 		namespace, _ := command.Flags().GetString("namespace")
 
 		if namespace != "openfaas" {
@@ -81,16 +72,12 @@ func MakeInstallOpenFaaS() *cobra.Command {
 		log.Printf("User dir established as: %s\n", userPath)
 		os.Setenv("HELM_HOME", path.Join(userPath, ".helm"))
 
-		if helm3 {
-			os.Setenv("HELM_VERSION", helm3Version)
-		}
-
-		_, err = helm.TryDownloadHelm(userPath, clientArch, clientOS, helm3)
+		_, err = helm.TryDownloadHelm(userPath, clientArch, clientOS)
 		if err != nil {
 			return err
 		}
 
-		err = addHelmRepo("openfaas", "https://openfaas.github.io/faas-netes/", helm3)
+		err = addHelmRepo("openfaas", "https://openfaas.github.io/faas-netes/")
 		if err != nil {
 			return err
 		}
@@ -98,7 +85,7 @@ func MakeInstallOpenFaaS() *cobra.Command {
 		updateRepo, _ := openfaas.Flags().GetBool("update-repo")
 
 		if updateRepo {
-			err = updateHelmRepos(helm3)
+			err = updateHelmRepos()
 			if err != nil {
 				return err
 			}
@@ -135,7 +122,7 @@ func MakeInstallOpenFaaS() *cobra.Command {
 
 		chartPath := path.Join(os.TempDir(), "charts")
 
-		err = fetchChart(chartPath, "openfaas/openfaas", helm3)
+		err = fetchChart(chartPath, "openfaas/openfaas")
 
 		if err != nil {
 			return err
@@ -200,37 +187,15 @@ func MakeInstallOpenFaaS() *cobra.Command {
 		}
 
 		wait := false
-		if helm3 {
-			outputPath := path.Join(chartPath, "openfaas")
 
-			err := helm3Upgrade(outputPath, "openfaas/openfaas", namespace,
-				"values"+valuesSuffix+".yaml",
-				overrides, wait)
+		outputPath := path.Join(chartPath, "openfaas")
 
-			if err != nil {
-				return err
-			}
+		err = helmUpgrade(outputPath, "openfaas/openfaas", namespace,
+			"values"+valuesSuffix+".yaml",
+			overrides, wait)
 
-		} else {
-			outputPath := path.Join(chartPath, "openfaas/rendered")
-			err = templateChart(chartPath, "openfaas",
-				namespace,
-				outputPath,
-				"values"+valuesSuffix+".yaml",
-				overrides)
-
-			if err != nil {
-				return err
-			}
-
-			applyRes, applyErr := kubectlTask("apply", "-R", "-f", outputPath)
-			if applyErr != nil {
-				return applyErr
-			}
-
-			if applyRes.ExitCode > 0 {
-				return fmt.Errorf("Error applying templated YAML files, error: %s", applyRes.Stderr)
-			}
+		if err != nil {
+			return err
 		}
 
 		fmt.Println(openfaasPostInstallMsg)

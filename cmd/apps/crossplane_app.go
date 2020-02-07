@@ -26,7 +26,6 @@ schedule workloads to any Kubernetes cluster`,
 
 	crossplane.Flags().StringP("namespace", "n", "crossplane-system", "The namespace used for installation")
 	crossplane.Flags().Bool("update-repo", true, "Update the helm repo")
-	crossplane.Flags().Bool("helm3", false, "Use helm3 instead of the default helm2")
 
 	crossplane.RunE = func(command *cobra.Command, args []string) error {
 		kubeConfigPath := getDefaultKubeconfig()
@@ -37,11 +36,6 @@ schedule workloads to any Kubernetes cluster`,
 
 		fmt.Printf("Using kubeconfig: %s\n", kubeConfigPath)
 
-		helm3, _ := command.Flags().GetBool("helm3")
-
-		if helm3 {
-			fmt.Println("Using helm3")
-		}
 		namespace, _ := command.Flags().GetString("namespace")
 
 		if namespace != "crossplane-system" {
@@ -67,15 +61,12 @@ schedule workloads to any Kubernetes cluster`,
 
 		os.Setenv("HELM_HOME", path.Join(userPath, ".helm"))
 
-		if helm3 {
-			os.Setenv("HELM_VERSION", helm3Version)
-		}
-		_, err = helm.TryDownloadHelm(userPath, clientArch, clientOS, helm3)
+		_, err = helm.TryDownloadHelm(userPath, clientArch, clientOS)
 		if err != nil {
 			return err
 		}
 
-		err = addHelmRepo("crossplane-alpha", "https://charts.crossplane.io/alpha", helm3)
+		err = addHelmRepo("crossplane-alpha", "https://charts.crossplane.io/alpha")
 		if err != nil {
 			return err
 		}
@@ -83,7 +74,7 @@ schedule workloads to any Kubernetes cluster`,
 		updateRepo, _ := crossplane.Flags().GetBool("update-repo")
 
 		if updateRepo {
-			err = updateHelmRepos(helm3)
+			err = updateHelmRepos()
 			if err != nil {
 				return err
 			}
@@ -91,42 +82,24 @@ schedule workloads to any Kubernetes cluster`,
 
 		chartPath := path.Join(os.TempDir(), "charts")
 
-		err = fetchChart(chartPath, "crossplane-alpha/crossplane", helm3)
+		err = fetchChart(chartPath, "crossplane-alpha/crossplane")
 		if err != nil {
 			return err
 		}
 
-		if helm3 {
-			wait := false
+		wait := false
 
-			outputPath := path.Join(chartPath, "crossplane")
+		outputPath := path.Join(chartPath, "crossplane")
 
-			_, nsErr := kubectlTask("create", "namespace", "crossplane-system")
-			if nsErr != nil && !strings.Contains(nsErr.Error(), "AlreadyExists") {
-				return nsErr
-			}
+		_, nsErr := kubectlTask("create", "namespace", "crossplane-system")
+		if nsErr != nil && !strings.Contains(nsErr.Error(), "AlreadyExists") {
+			return nsErr
+		}
 
-			err := helm3Upgrade(outputPath, "crossplane-alpha/crossplane",
-				namespace, "values.yaml", map[string]string{}, wait)
-			if err != nil {
-				return err
-			}
-
-		} else {
-			outputPath := path.Join(chartPath, "crossplane-alpha/crossplane")
-			err = templateChart(chartPath, "crossplane", namespace, outputPath, "values.yaml", map[string]string{})
-			if err != nil {
-				return err
-			}
-
-			applyRes, applyErr := kubectlTask("apply", "-R", "-f", outputPath)
-			if applyErr != nil {
-				return applyErr
-			}
-
-			if applyRes.ExitCode > 0 {
-				return fmt.Errorf("Error applying templated YAML files, error: %s", applyRes.Stderr)
-			}
+		err = helmUpgrade(outputPath, "crossplane-alpha/crossplane",
+			namespace, "values.yaml", map[string]string{}, wait)
+		if err != nil {
+			return err
 		}
 
 		fmt.Println(crossplaneInstallMsg)
