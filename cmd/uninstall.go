@@ -1,20 +1,14 @@
 package cmd
 
 import (
-	"bytes"
 	"fmt"
-	"io/ioutil"
 	"net"
-	"os"
 
 	operator "github.com/alexellis/k3sup/pkg/operator"
 
-	homedir "github.com/mitchellh/go-homedir"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"golang.org/x/crypto/ssh"
-	"golang.org/x/crypto/ssh/agent"
-	"golang.org/x/crypto/ssh/terminal"
 )
 
 func MakeUninstall() *cobra.Command {
@@ -128,72 +122,4 @@ func MakeUninstall() *cobra.Command {
 		return nil
 	}
 	return command
-}
-
-func uexpandPath(path string) string {
-	res, _ := homedir.Expand(path)
-	return res
-}
-
-func usshAgent(publicKeyPath string) (ssh.AuthMethod, func() error) {
-	if sshAgentConn, err := net.Dial("unix", os.Getenv("SSH_AUTH_SOCK")); err == nil {
-		sshAgent := agent.NewClient(sshAgentConn)
-
-		keys, _ := sshAgent.List()
-		if len(keys) == 0 {
-			return nil, sshAgentConn.Close
-		}
-
-		pubkey, err := ioutil.ReadFile(publicKeyPath)
-		if err != nil {
-			return nil, sshAgentConn.Close
-		}
-
-		authkey, _, _, _, err := ssh.ParseAuthorizedKey(pubkey)
-		if err != nil {
-			return nil, sshAgentConn.Close
-		}
-		parsedkey := authkey.Marshal()
-
-		for _, key := range keys {
-			if bytes.Equal(key.Blob, parsedkey) {
-				return ssh.PublicKeysCallback(sshAgent.Signers), sshAgentConn.Close
-			}
-		}
-	}
-	return nil, func() error { return nil }
-}
-
-func uloadPublickey(path string) (ssh.AuthMethod, func() error, error) {
-	noopCloseFunc := func() error { return nil }
-
-	key, err := ioutil.ReadFile(path)
-	if err != nil {
-		return nil, noopCloseFunc, err
-	}
-
-	signer, err := ssh.ParsePrivateKey(key)
-	if err != nil {
-		if err.Error() != "ssh: cannot decode encrypted private keys" {
-			return nil, noopCloseFunc, err
-		}
-
-		agent, close := sshAgent(path + ".pub")
-		if agent != nil {
-			return agent, close, nil
-		}
-
-		defer close()
-
-		fmt.Printf("Enter passphrase for '%s': ", path)
-		bytePassword, err := terminal.ReadPassword(int(os.Stdin.Fd()))
-		fmt.Println()
-
-		signer, err = ssh.ParsePrivateKeyWithPassphrase(key, bytePassword)
-		if err != nil {
-			return nil, noopCloseFunc, err
-		}
-	}
-
-	return ssh.PublicKeys(signer), noopCloseFunc, nil
 }
