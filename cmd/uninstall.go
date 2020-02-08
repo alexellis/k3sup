@@ -47,7 +47,7 @@ func MakeUninstall() *cobra.Command {
 			sudoPrefix = "sudo "
 		}
 
-		uninstallK3scommand := fmt.Sprintf(sudoPrefix + "/usr/local/bin/k3s-killall.sh && " + sudoPrefix + "/usr/local/bin/k3s-uninstall.sh")
+		uninstallK3scommand := fmt.Sprintf(sudoPrefix + "/usr/local/bin/k3s-uninstall.sh")
 		if local {
 			operator := operator.ExecOperator{}
 
