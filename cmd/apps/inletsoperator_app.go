@@ -25,7 +25,7 @@ func MakeInstallInletsOperator() *cobra.Command {
 
 	inletsOperator.Flags().StringP("namespace", "n", "default", "The namespace used for installation")
 	inletsOperator.Flags().StringP("license", "l", "", "The license key if using inlets-pro")
-	inletsOperator.Flags().StringP("provider", "p", "digitalocean", "Your infrastructure provider - 'packet', 'digitalocean', 'scaleway', 'civo', 'gce' or 'ec2'")
+	inletsOperator.Flags().StringP("provider", "p", "digitalocean", "Your infrastructure provider - 'packet', 'digitalocean', 'scaleway', 'gce' or 'ec2'")
 	inletsOperator.Flags().StringP("zone", "z", "us-central1-a", "The zone to provision the exit node (Used by GCE")
 	inletsOperator.Flags().String("project-id", "", "Project ID to be used (for GCE and Packet)")
 	inletsOperator.Flags().StringP("region", "r", "lon1", "The default region to provision the exit node (DigitalOcean, Packet and Scaleway")
@@ -188,11 +188,30 @@ func getInletsOperatorOverrides(command *cobra.Command) (map[string]string, erro
 	provider, _ := command.Flags().GetString("provider")
 	overrides["provider"] = strings.ToLower(provider)
 
-	if provider == "gce" {
-		gcpProjectID, _ := command.Flags().GetString("project-id")
-		overrides["gcpProjectID"] = gcpProjectID
+	providers := []string{
+		"digitalocean", "packet", "ec2", "scaleway", "gce",
+	}
+	found := false
+	for _, p := range providers {
+		if p == provider {
+			found = true
+		}
+	}
+	if !found {
+		return overrides, fmt.Errorf("provider: %s not supported at this time", provider)
+	}
 
-		zone, _ := command.Flags().GetString("zone")
+	if provider == "gce" {
+		gcpProjectID, err := command.Flags().GetString("project-id")
+		if err != nil {
+			return overrides, err
+		}
+		overrides["gcpProjectId"] = gcpProjectID
+
+		zone, err := command.Flags().GetString("zone")
+		if err != nil {
+			return overrides, err
+		}
 		overrides["zone"] = strings.ToLower(zone)
 
 		if len(zone) == 0 {
@@ -203,7 +222,10 @@ func getInletsOperatorOverrides(command *cobra.Command) (map[string]string, erro
 			return overrides, fmt.Errorf("project-id is required for provider %s", provider)
 		}
 	} else if provider == "packet" {
-		packetProjectID, _ := command.Flags().GetString("project-id")
+		packetProjectID, err := command.Flags().GetString("project-id")
+		if err != nil {
+			return overrides, err
+		}
 		overrides["packetProjectId"] = packetProjectID
 
 		if len(packetProjectID) == 0 {
@@ -211,7 +233,10 @@ func getInletsOperatorOverrides(command *cobra.Command) (map[string]string, erro
 		}
 
 	} else if provider == "scaleway" {
-		orgID, _ := command.Flags().GetString("organization-id")
+		orgID, err := command.Flags().GetString("organization-id")
+		if err != nil {
+			return overrides, err
+		}
 		overrides["organization-id"] = orgID
 
 		if len(orgID) == 0 {
