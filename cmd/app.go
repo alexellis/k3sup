@@ -63,6 +63,7 @@ command.`,
 	install.AddCommand(apps.MakeInstallIstio())
 	install.AddCommand(apps.MakeInstallCrossplane())
 	install.AddCommand(apps.MakeInstallMongoDB())
+	install.AddCommand(apps.MakeInstallRegistry())
 
 	command.AddCommand(MakeInfo())
 

@@ -3,6 +3,7 @@ module github.com/alexellis/k3sup
 go 1.12
 
 require (
+	github.com/GehirnInc/crypt v0.0.0-20190301055215-6c0105aabd46
 	github.com/alexellis/go-execute v0.0.0-20191207085904-961405ea7544
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/morikuni/aec v1.0.0
