@@ -31,6 +31,12 @@ func MakeInstallRegistry() *cobra.Command {
 	registry.Flags().StringP("username", "u", "admin", "Username for the registry")
 	registry.Flags().StringP("password", "p", "", "Password for the registry, leave blank to generate")
 
+	// Flags for generating an Ingress record like openfaas-ingress
+	// registry.Flags().String("issuer", "", "Cert-manager issuer")
+	// registry.Flags().String("cluster-issuer", "", "Cert-manager cluster-issuer")
+	// registry.Flags().String("domain", "", "Domain for an Ingress record")
+	// registry.Flags().String("ingress-class", "nginx", "Ingress class (required for --domain)")
+
 	registry.RunE = func(command *cobra.Command, args []string) error {
 		kubeConfigPath := getDefaultKubeconfig()
 
