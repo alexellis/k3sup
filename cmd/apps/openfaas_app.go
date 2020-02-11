@@ -42,7 +42,7 @@ func MakeInstallOpenFaaS() *cobra.Command {
 	openfaas.Flags().Int("queue-workers", 1, "Replicas of queue-worker")
 	openfaas.Flags().Int("gateways", 1, "Replicas of gateway")
 
-	openfaas.Flags().Bool("helm3", false, "Use helm3, if set to false uses helm2")
+	openfaas.Flags().Bool("helm3", true, "Use helm3, if set to false uses helm2")
 
 	openfaas.Flags().StringArray("set", []string{}, "Use custom flags or override existing flags \n(example --set=gateway.replicas=2)")
 
