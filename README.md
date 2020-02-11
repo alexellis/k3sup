@@ -149,6 +149,9 @@ k3sup app install cert-manager
 # nginx - install the Nginx IngressController
 # PC, RPi and ARM64
 k3sup app install nginx-ingress
+
+# docker-registry - host your own registry
+k3sup app install docker-registry
 ```
 
 Find out more with:
@@ -175,6 +178,7 @@ Apps that you can install today:
 * kubernetes-dashboard
 * istio
 * crossplane
+* docker-registry
 
 Want to request an app? [Raise an issue](https://github.com/alexellis/k3sup/issues) or let me know on [Slack](https://slack.openfaas.io).
 
