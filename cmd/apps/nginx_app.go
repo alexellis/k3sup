@@ -25,7 +25,7 @@ func MakeInstallNginx() *cobra.Command {
 	nginx.Flags().StringP("namespace", "n", "default", "The namespace used for installation")
 	nginx.Flags().Bool("update-repo", true, "Update the helm repo")
 	nginx.Flags().Bool("host-mode", false, "If we should install nginx-ingress in host mode.")
-	nginx.Flags().Bool("helm3", true, "Use helm3 instead of the default helm2")
+	nginx.Flags().Bool("helm3", true, "Use helm3, if set to false uses helm2")
 
 	nginx.RunE = func(command *cobra.Command, args []string) error {
 		kubeConfigPath := getDefaultKubeconfig()
