@@ -27,7 +27,7 @@ func MakeInstallInletsOperator() *cobra.Command {
 	inletsOperator.Flags().StringP("license", "l", "", "The license key if using inlets-pro")
 	inletsOperator.Flags().StringP("provider", "p", "digitalocean", "The default provider to use")
 	inletsOperator.Flags().StringP("zone", "z", "us-central1-a", "The zone to provision the exit node (Used by GCE")
-	inletsOperator.Flags().String("project-id", "", "Project ID to be used (Used by GCE and packet)")
+	inletsOperator.Flags().String("project-id", "", "Project ID to be used (Used by GCE and Packet)")
 	inletsOperator.Flags().StringP("region", "r", "lon1", "The default region to provision the exit node (Used by Digital Ocean, Packet and Scaleway")
 	inletsOperator.Flags().String("organization-id", "", "The organization id (Used by Scaleway")
 	inletsOperator.Flags().StringP("token-file", "t", "", "Text file containing token or a service account JSON file")
@@ -102,6 +102,11 @@ func MakeInstallInletsOperator() *cobra.Command {
 		if err != nil {
 			return err
 		}
+		overrides, err := getInletsOperatorOverrides(command)
+
+		if err != nil {
+			return err
+		}
 
 		_, err = kubectlTask("apply", "-f", "https://raw.githubusercontent.com/inlets/inlets-operator/master/artifacts/crd.yaml")
 		if err != nil {
@@ -125,8 +130,6 @@ func MakeInstallInletsOperator() *cobra.Command {
 		} else if err != nil {
 			return err
 		}
-
-		overrides := getOverridesWithPlatform(command)
 
 		customFlags, _ := command.Flags().GetStringArray("set")
 
@@ -180,7 +183,7 @@ func MakeInstallInletsOperator() *cobra.Command {
 	return inletsOperator
 }
 
-func getOverridesWithPlatform(command *cobra.Command) map[string]string {
+func getInletsOperatorOverrides(command *cobra.Command) (map[string]string, error) {
 	overrides := map[string]string{}
 	provider, _ := command.Flags().GetString("provider")
 	overrides["provider"] = strings.ToLower(provider)
@@ -192,16 +195,31 @@ func getOverridesWithPlatform(command *cobra.Command) map[string]string {
 		zone, _ := command.Flags().GetString("zone")
 		overrides["zone"] = strings.ToLower(zone)
 
+		if len(zone) == 0 {
+			return overrides, fmt.Errorf("zone is required for provider %s", provider)
+		}
+
+		if len(gcpProjectID) == 0 {
+			return overrides, fmt.Errorf("project-id is required for provider %s", provider)
+		}
 	} else if provider == "packet" {
 		packetProjectID, _ := command.Flags().GetString("project-id")
 		overrides["packetProjectId"] = packetProjectID
 
+		if len(packetProjectID) == 0 {
+			return overrides, fmt.Errorf("project-id is required for provider %s", provider)
+		}
+
 	} else if provider == "scaleway" {
 		orgID, _ := command.Flags().GetString("organization-id")
 		overrides["organization-id"] = orgID
+
+		if len(orgID) == 0 {
+			return overrides, fmt.Errorf("organization-id is required for provider %s", provider)
+		}
 	}
 
-	return overrides
+	return overrides, nil
 }
 
 const InletsOperatorInfoMsg = `# The default configuration is for DigitalOcean and your secret is
