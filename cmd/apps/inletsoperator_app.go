@@ -202,11 +202,11 @@ func getInletsOperatorOverrides(command *cobra.Command) (map[string]string, erro
 	}
 
 	if provider == "gce" {
-		gcpProjectID, err := command.Flags().GetString("project-id")
+		gceProjectID, err := command.Flags().GetString("project-id")
 		if err != nil {
 			return overrides, err
 		}
-		overrides["gcpProjectId"] = gcpProjectID
+		overrides["gceProjectId"] = gceProjectID
 
 		zone, err := command.Flags().GetString("zone")
 		if err != nil {
@@ -218,7 +218,7 @@ func getInletsOperatorOverrides(command *cobra.Command) (map[string]string, erro
 			return overrides, fmt.Errorf("zone is required for provider %s", provider)
 		}
 
-		if len(gcpProjectID) == 0 {
+		if len(gceProjectID) == 0 {
 			return overrides, fmt.Errorf("project-id is required for provider %s", provider)
 		}
 	} else if provider == "packet" {
