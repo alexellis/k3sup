@@ -23,7 +23,7 @@ func MakeInstallMetricsServer() *cobra.Command {
 	}
 
 	metricsServer.Flags().StringP("namespace", "n", "kube-system", "The namespace used for installation")
-	metricsServer.Flags().Bool("helm3", false, "Use helm3 instead of the default helm2")
+	metricsServer.Flags().Bool("helm3", false, "Use helm3, if set to false uses helm2")
 
 	metricsServer.RunE = func(command *cobra.Command, args []string) error {
 		kubeConfigPath := getDefaultKubeconfig()
