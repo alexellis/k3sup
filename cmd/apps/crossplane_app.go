@@ -26,7 +26,7 @@ schedule workloads to any Kubernetes cluster`,
 
 	crossplane.Flags().StringP("namespace", "n", "crossplane-system", "The namespace used for installation")
 	crossplane.Flags().Bool("update-repo", true, "Update the helm repo")
-	crossplane.Flags().Bool("helm3", false, "Use helm3, if set to false uses helm2")
+	crossplane.Flags().Bool("helm3", true, "Use helm3, if set to false uses helm2")
 
 	crossplane.RunE = func(command *cobra.Command, args []string) error {
 		kubeConfigPath := getDefaultKubeconfig()
