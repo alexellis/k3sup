@@ -34,7 +34,7 @@ func MakeInstallInletsOperator() *cobra.Command {
 	inletsOperator.Flags().Bool("update-repo", true, "Update the helm repo")
 
 	inletsOperator.Flags().String("pro-client-image", "", "Docker image for inlets-pro's client")
-	inletsOperator.Flags().Bool("helm3", false, "Use helm3 instead of the default helm2")
+	inletsOperator.Flags().Bool("helm3", true, "Use helm3 instead of the default helm2")
 	inletsOperator.Flags().StringArray("set", []string{}, "Use custom flags or override existing flags \n(example --set=image=org/repo:tag)")
 
 	inletsOperator.RunE = func(command *cobra.Command, args []string) error {
@@ -51,6 +51,7 @@ func MakeInstallInletsOperator() *cobra.Command {
 		if helm3 {
 			fmt.Println("Using helm3")
 		}
+
 		namespace, _ := command.Flags().GetString("namespace")
 
 		if namespace != "default" {

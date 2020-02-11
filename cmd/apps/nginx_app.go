@@ -25,6 +25,7 @@ func MakeInstallNginx() *cobra.Command {
 	nginx.Flags().StringP("namespace", "n", "default", "The namespace used for installation")
 	nginx.Flags().Bool("update-repo", true, "Update the helm repo")
 	nginx.Flags().Bool("host-mode", false, "If we should install nginx-ingress in host mode.")
+	nginx.Flags().Bool("helm3", true, "Use helm3 instead of the default helm2")
 
 	nginx.RunE = func(command *cobra.Command, args []string) error {
 		kubeConfigPath := getDefaultKubeconfig()
@@ -36,6 +37,11 @@ func MakeInstallNginx() *cobra.Command {
 		updateRepo, _ := nginx.Flags().GetBool("update-repo")
 
 		fmt.Printf("Using kubeconfig: %s\n", kubeConfigPath)
+		helm3, _ := command.Flags().GetBool("helm3")
+
+		if helm3 {
+			fmt.Println("Using helm3")
+		}
 
 		userPath, err := config.InitUserDir()
 		if err != nil {
@@ -54,20 +60,25 @@ func MakeInstallNginx() *cobra.Command {
 
 		os.Setenv("HELM_HOME", path.Join(userPath, ".helm"))
 
-		_, err = helm.TryDownloadHelm(userPath, clientArch, clientOS, false)
+		_, err = helm.TryDownloadHelm(userPath, clientArch, clientOS, helm3)
+		if err != nil {
+			return err
+		}
+
+		err = addHelmRepo("stable", "https://kubernetes-charts.storage.googleapis.com", helm3)
 		if err != nil {
 			return err
 		}
 
 		if updateRepo {
-			err = updateHelmRepos(false)
+			err = updateHelmRepos(helm3)
 			if err != nil {
 				return err
 			}
 		}
 
 		chartPath := path.Join(os.TempDir(), "charts")
-		err = fetchChart(chartPath, "stable/nginx-ingress", false)
+		err = fetchChart(chartPath, "stable/nginx-ingress", helm3)
 
 		if err != nil {
 			return err
@@ -102,24 +113,38 @@ func MakeInstallNginx() *cobra.Command {
 		}
 		fmt.Println("Chart path: ", chartPath)
 
-		outputPath := path.Join(chartPath, "nginx-ingress/rendered")
-
+		wait := false
 		ns := "default"
-		err = templateChart(chartPath,
-			"nginx-ingress",
-			ns,
-			outputPath,
-			"values.yaml",
-			overrides)
 
-		if err != nil {
-			return err
-		}
+		if helm3 {
+			outputPath := path.Join(chartPath, "nginx-ingress")
 
-		err = kubectl("apply", "-R", "-f", outputPath)
+			err := helm3Upgrade(outputPath, "stable/nginx-ingress", ns,
+				"values.yaml",
+				overrides, wait)
 
-		if err != nil {
-			return err
+			if err != nil {
+				return err
+			}
+		} else {
+			outputPath := path.Join(chartPath, "nginx-ingress/rendered")
+
+			err = templateChart(chartPath,
+				"nginx-ingress",
+				ns,
+				outputPath,
+				"values.yaml",
+				overrides)
+
+			if err != nil {
+				return err
+			}
+
+			err = kubectl("apply", "-R", "-f", outputPath)
+
+			if err != nil {
+				return err
+			}
 		}
 
 		fmt.Println(nginxIngressInstallMsg)
