@@ -25,11 +25,11 @@ func MakeInstallInletsOperator() *cobra.Command {
 
 	inletsOperator.Flags().StringP("namespace", "n", "default", "The namespace used for installation")
 	inletsOperator.Flags().StringP("license", "l", "", "The license key if using inlets-pro")
-	inletsOperator.Flags().StringP("provider", "p", "digitalocean", "The default provider to use")
+	inletsOperator.Flags().StringP("provider", "p", "digitalocean", "Your infrastructure provider - 'packet', 'digitalocean', 'scaleway', 'civo', 'gce' or 'ec2'")
 	inletsOperator.Flags().StringP("zone", "z", "us-central1-a", "The zone to provision the exit node (Used by GCE")
-	inletsOperator.Flags().String("project-id", "", "Project ID to be used (Used by GCE and Packet)")
-	inletsOperator.Flags().StringP("region", "r", "lon1", "The default region to provision the exit node (Used by Digital Ocean, Packet and Scaleway")
-	inletsOperator.Flags().String("organization-id", "", "The organization id (Used by Scaleway")
+	inletsOperator.Flags().String("project-id", "", "Project ID to be used (for GCE and Packet)")
+	inletsOperator.Flags().StringP("region", "r", "lon1", "The default region to provision the exit node (DigitalOcean, Packet and Scaleway")
+	inletsOperator.Flags().String("organization-id", "", "The organization id (Scaleway")
 	inletsOperator.Flags().StringP("token-file", "t", "", "Text file containing token or a service account JSON file")
 	inletsOperator.Flags().Bool("update-repo", true, "Update the helm repo")
 
@@ -225,10 +225,6 @@ func getInletsOperatorOverrides(command *cobra.Command) (map[string]string, erro
 const InletsOperatorInfoMsg = `# The default configuration is for DigitalOcean and your secret is
 # stored as "inlets-access-key" in the "default" namespace.
 
-# Check the Operator logs
-
-kubectl logs deploy/inlets-operator
-
 # To get your first Public IP run the following:
 kubectl run nginx-1 --image=nginx --port=80 --restart=Always
 kubectl expose deployment nginx-1 --port=80 --type=LoadBalancer
@@ -240,6 +236,9 @@ kubectl get svc -w
 
 # When you're done, remove the tunnel by deleting the service
 kubectl delete svc/nginx-1
+
+# Check the logs
+kubectl logs deploy/inlets-operator -f
 
 # Find out more at:
 # https://github.com/inlets/inlets-operator`
