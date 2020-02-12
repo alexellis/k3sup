@@ -126,7 +126,7 @@ func MakeInstallInletsOperator() *cobra.Command {
 		if len(res.Stderr) > 0 && strings.Contains(res.Stderr, "AlreadyExists") {
 			fmt.Println("[Warning] secret inlets-access-key already exists and will be used.")
 		} else if len(res.Stderr) > 0 {
-			return fmt.Errorf("Error from kubectl\n%q", res.Stderr)
+			return fmt.Errorf("error from kubectl\n%q", res.Stderr)
 		} else if err != nil {
 			return err
 		}
@@ -172,7 +172,7 @@ func MakeInstallInletsOperator() *cobra.Command {
 			}
 
 			if applyRes.ExitCode > 0 {
-				return fmt.Errorf("Error applying templated YAML files, error: %s", applyRes.Stderr)
+				return fmt.Errorf("error applying templated YAML files, error: %s", applyRes.Stderr)
 			}
 		}
 		fmt.Println(inletsOperatorPostInstallMsg)

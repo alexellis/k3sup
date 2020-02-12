@@ -229,7 +229,7 @@ func MakeInstallOpenFaaS() *cobra.Command {
 			}
 
 			if applyRes.ExitCode > 0 {
-				return fmt.Errorf("Error applying templated YAML files, error: %s", applyRes.Stderr)
+				return fmt.Errorf("error applying templated YAML files, error: %s", applyRes.Stderr)
 			}
 		}
 

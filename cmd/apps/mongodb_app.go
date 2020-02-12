@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"path"
+	"strconv"
 
 	"github.com/alexellis/k3sup/pkg"
 	"github.com/alexellis/k3sup/pkg/config"
@@ -25,6 +26,7 @@ func MakeInstallMongoDB() *cobra.Command {
 
 	command.Flags().StringArray("set", []string{},
 		"Use custom flags or override existing flags \n(example --set=mongodbUsername=admin)")
+	command.Flags().Bool("persistence", false, "Create and bind a persistent volume, not recommended for development")
 
 	command.RunE = func(command *cobra.Command, args []string) error {
 
@@ -53,6 +55,8 @@ func MakeInstallMongoDB() *cobra.Command {
 		os.Setenv("HELM_VERSION", helm3Version)
 
 		helm3 := true
+
+		persistence, _ := command.Flags().GetBool("persistence")
 
 		_, err = helm.TryDownloadHelm(userPath, clientArch, clientOS, helm3)
 		if err != nil {
@@ -83,6 +87,8 @@ func MakeInstallMongoDB() *cobra.Command {
 
 		overrides := map[string]string{}
 
+		overrides["persistence.enabled"] = strconv.FormatBool(persistence)
+
 		outputPath := path.Join(chartPath, "mongodb")
 
 		customFlags, err := command.Flags().GetStringArray("set")
@@ -111,19 +117,21 @@ const mongoDBPostInstallMsg = `=================================================
 	"\n\n" + pkg.ThanksForUsing
 
 var MongoDBInfoMsg = `
-MongoDB can be accessed via port 27017 on the following DNS name from within your cluster:
+# MongoDB can be accessed via port 27017 on the following DNS name from within your cluster:
 
 mongodb.{{namespace}}.svc.cluster.local
 
-To get the root password run:
+# To get the root password run:
 
 export MONGODB_ROOT_PASSWORD=$(kubectl get secret --namespace {{namespace}} mongodb -o jsonpath="{.data.mongodb-root-password}" | base64 --decode)
 
-To connect to your database run the following command:
+# To connect to your database run the following command:
 
 kubectl run --namespace {{namespace}} mongodb-client --rm --tty -i --restart='Never' --image bitnami/mongodb --command -- mongo admin --host mongodb --authenticationDatabase admin -u root -p $MONGODB_ROOT_PASSWORD
 
-To connect to your database from outside the cluster execute the following commands:
+# To connect to your database from outside the cluster execute the following commands:
 
 kubectl port-forward --namespace {{namespace}} svc/mongodb 27017:27017 &
-mongo --host 127.0.0.1 --authenticationDatabase admin -p $MONGODB_ROOT_PASSWORD`
+mongo --host 127.0.0.1 --authenticationDatabase admin -p $MONGODB_ROOT_PASSWORD
+
+# More on GitHub : https://github.com/helm/charts/tree/master/stable/mongodb`

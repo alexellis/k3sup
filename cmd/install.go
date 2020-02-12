@@ -154,7 +154,7 @@ func MakeInstall() *cobra.Command {
 			res, err := operator.Execute(installK3scommand)
 
 			if err != nil {
-				return fmt.Errorf("Error received processing command: %s", err)
+				return fmt.Errorf("error received processing command: %s", err)
 			}
 
 			fmt.Printf("Result: %s %s\n", string(res.StdOut), string(res.StdErr))
@@ -190,7 +190,7 @@ func obtainKubeconfig(operator operator.CommandOperator, getConfigcommand, ip, c
 	res, err := operator.Execute(getConfigcommand)
 
 	if err != nil {
-		return fmt.Errorf("Error received processing command: %s", err)
+		return fmt.Errorf("error received processing command: %s", err)
 	}
 
 	fmt.Printf("Result: %s %s\n", string(res.StdOut), string(res.StdErr))
