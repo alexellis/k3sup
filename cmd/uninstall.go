@@ -11,12 +11,12 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
-func MakeUninstall() *cobra.Command {
+func MakeRemove() *cobra.Command {
 	var command = &cobra.Command{
-		Use:          "uninstall",
-		Short:        "Uninstall k3s",
-		Long:         `Uninstall k3s.`,
-		Example:      `  k3sup uninstall --ip 192.168.0.100 --user ubuntu`,
+		Use:          "remove",
+	k	Short:        "remove k3s",
+		Long:         `remove k3s.`,
+		Example:      `  k3sup remove --ip 192.168.0.100 --user ubuntu`,
 		SilenceUsage: true,
 	}
 	command.Flags().IP("ip", net.ParseIP("127.0.0.1"), "Public IP of node")
@@ -29,7 +29,7 @@ func MakeUninstall() *cobra.Command {
 
 	command.RunE = func(command *cobra.Command, args []string) error {
 
-		fmt.Printf("Running: k3sup uninstall\n")
+		fmt.Printf("Running: k3sup remove\n")
 
 		local, _ := command.Flags().GetBool("local")
 
@@ -41,13 +41,13 @@ func MakeUninstall() *cobra.Command {
 			sudoPrefix = "sudo "
 		}
 
-		uninstallK3scommand := fmt.Sprintf(sudoPrefix + "/usr/local/bin/k3s-uninstall.sh")
+		removeK3scommand := fmt.Sprintf(sudoPrefix + "/usr/local/bin/k3s-uninstall.sh")
 		if local {
 			operator := operator.ExecOperator{}
 
-			fmt.Printf("Executing: %s\n", uninstallK3scommand)
+			fmt.Printf("Executing: %s\n", removeK3scommand)
 
-			res, err := operator.Execute(uninstallK3scommand)
+			res, err := operator.Execute(removeK3scommand)
 			if err != nil {
 				return err
 			}
@@ -96,8 +96,8 @@ func MakeUninstall() *cobra.Command {
 
 		defer operator.Close()
 
-		fmt.Printf("ssh: %s\n", uninstallK3scommand)
-		res, err := operator.Execute(uninstallK3scommand)
+		fmt.Printf("ssh: %s\n", removeK3scommand)
+		res, err := operator.Execute(removeK3scommand)
 
 		if err != nil {
 			return fmt.Errorf("Error received processing command: %s", err)
