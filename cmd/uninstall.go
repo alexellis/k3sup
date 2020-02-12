@@ -14,7 +14,7 @@ import (
 func MakeRemove() *cobra.Command {
 	var command = &cobra.Command{
 		Use:          "remove",
-	k	Short:        "remove k3s",
+		Short:        "remove k3s",
 		Long:         `remove k3s.`,
 		Example:      `  k3sup remove --ip 192.168.0.100 --user ubuntu`,
 		SilenceUsage: true,
