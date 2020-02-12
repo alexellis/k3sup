@@ -1,6 +1,6 @@
 module github.com/alexellis/k3sup
 
-go 1.12
+go 1.13
 
 require (
 	github.com/alexellis/go-execute v0.0.0-20191207085904-961405ea7544
