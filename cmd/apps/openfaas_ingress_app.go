@@ -63,7 +63,7 @@ func MakeInstallOpenFaaSIngress() *cobra.Command {
 			return templateErr
 		}
 
-		tempFile, tempFileErr := writeTempFile(yamlBytes)
+		tempFile, tempFileErr := writeTempFile(yamlBytes, "temp_openfaas_ingress.yaml")
 		if tempFileErr != nil {
 			log.Print("Unable to save generated yaml file into the temporary directory")
 			return tempFileErr
@@ -104,13 +104,13 @@ func createTempDirectory(directory string) (string, error) {
 	return tempDirectory, nil
 }
 
-func writeTempFile(input []byte) (string, error) {
+func writeTempFile(input []byte, fileLocation string) (string, error) {
 	var tempDirectory, dirErr = createTempDirectory(".k3sup/")
 	if dirErr != nil {
 		return "", dirErr
 	}
 
-	filename := filepath.Join(tempDirectory, "temp_openfaas_ingress.yaml")
+	filename := filepath.Join(tempDirectory, fileLocation)
 
 	err := ioutil.WriteFile(filename, input, 0744)
 	if err != nil {

@@ -56,7 +56,7 @@ spec:
 
 func Test_writeTempFile_writes_to_tmp(t *testing.T) {
 	var want = "some input string"
-	tmpLocation, _ := writeTempFile([]byte(want))
+	tmpLocation, _ := writeTempFile([]byte(want), "tmp_file_name.yaml")
 
 	got, _ := ioutil.ReadFile(tmpLocation)
 	if string(got) != want {

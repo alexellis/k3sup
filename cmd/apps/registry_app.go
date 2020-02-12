@@ -31,12 +31,6 @@ func MakeInstallRegistry() *cobra.Command {
 	registry.Flags().StringP("username", "u", "admin", "Username for the registry")
 	registry.Flags().StringP("password", "p", "", "Password for the registry, leave blank to generate")
 
-	// Flags for generating an Ingress record like openfaas-ingress
-	// registry.Flags().String("issuer", "", "Cert-manager issuer")
-	// registry.Flags().String("cluster-issuer", "", "Cert-manager cluster-issuer")
-	// registry.Flags().String("domain", "", "Domain for an Ingress record")
-	// registry.Flags().String("ingress-class", "nginx", "Ingress class (required for --domain)")
-
 	registry.RunE = func(command *cobra.Command, args []string) error {
 		kubeConfigPath := getDefaultKubeconfig()
 
@@ -51,6 +45,7 @@ func MakeInstallRegistry() *cobra.Command {
 
 		if helm3 {
 			fmt.Println("Using helm3")
+			os.Setenv("HELM_VERSION", helm3Version)
 		}
 
 		userPath, err := config.InitUserDir()
@@ -68,6 +63,7 @@ func MakeInstallRegistry() *cobra.Command {
 		log.Printf("User dir established as: %s\n", userPath)
 
 		os.Setenv("HELM_HOME", path.Join(userPath, ".helm"))
+
 
 		_, err = helm.TryDownloadHelm(userPath, clientArch, clientOS, helm3)
 		if err != nil {
@@ -157,7 +153,7 @@ func MakeInstallRegistry() *cobra.Command {
 			}
 		}
 
-		fmt.Println(registryIngressInstallMsg)
+		fmt.Println(registryInstallMsg)
 		fmt.Printf("Registry credentials: %s %s\nexport PASSWORD=%s\n", username, pass, pass)
 
 		return nil
@@ -166,7 +162,7 @@ func MakeInstallRegistry() *cobra.Command {
 	return registry
 }
 
-const registryIngressInfoMsg = `# Your docker-registry has been configured
+const registryInfoMsg = `# Your docker-registry has been configured
 
 kubectl logs deploy/docker-registry
 
@@ -181,7 +177,7 @@ docker push $IP:5000/alpine:3.11
 # Find out more at:
 # https://github.com/helm/charts/tree/master/stable/registry`
 
-const registryIngressInstallMsg = `=======================================================================
+const registryInstallMsg = `=======================================================================
 = docker-registry has been installed.                                 =
 =======================================================================` +
-	"\n\n" + registryIngressInfoMsg + "\n\n" + pkg.ThanksForUsing
+	"\n\n" + registryInfoMsg + "\n\n" + pkg.ThanksForUsing
