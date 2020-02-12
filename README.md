@@ -152,6 +152,9 @@ k3sup app install nginx-ingress
 
 # docker-registry - host your own registry
 k3sup app install docker-registry
+
+# docker-registry-ingress - add TLS to your registry and ingress on port 443 and 80
+k3sup app install docker-registry-ingress --email example@example.com --domain reg.example.com
 ```
 
 Find out more with:

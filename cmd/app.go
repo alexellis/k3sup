@@ -64,6 +64,7 @@ command.`,
 	install.AddCommand(apps.MakeInstallCrossplane())
 	install.AddCommand(apps.MakeInstallMongoDB())
 	install.AddCommand(apps.MakeInstallRegistry())
+	install.AddCommand(apps.MakeInstallRegistryIngress())
 
 	command.AddCommand(MakeInfo())
 
@@ -88,5 +89,7 @@ func getApps() []string {
 		"istio",
 		"crosspane",
 		"mongodb",
+		"docker-registry",
+		"docker-registry-ingress",
 	}
 }

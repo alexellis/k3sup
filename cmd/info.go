@@ -83,6 +83,9 @@ k3sup app info --help`,
 		case "crossplane":
 			fmt.Printf("Info for app: %s\n", appName)
 			fmt.Println(apps.CrossplanInfoMsg)
+		case "docker-registry-ingress":
+			fmt.Printf("Info for app: %s\n", appName)
+			fmt.Println(apps.RegistryIngressInfoMsg)
 		default:
 			return fmt.Errorf("no info available for app: %s", appName)
 		}
