@@ -8,6 +8,8 @@ import (
 	"testing"
 
 	"github.com/alexellis/k3sup/pkg/helm"
+
+	"golang.org/x/crypto/ssh"
 )
 
 const privateKey = `-----BEGIN RSA PRIVATE KEY-----
@@ -53,7 +55,7 @@ users:
 `
 
 func Test_loadPublickeyEncrypted(t *testing.T) {
-	expected := "x509: decryption password incorrect"
+	type expected = ssh.PassphraseMissingError
 
 	tmpfile, err := ioutil.TempFile("", "key")
 	if err != nil {
@@ -67,8 +69,8 @@ func Test_loadPublickeyEncrypted(t *testing.T) {
 
 	tmpfile.Close()
 	_, _, err = loadPublickey(tmpfile.Name())
-	if err.Error() != expected {
-		t.Errorf("Unexpected error, got: %q, want: %q.", err.Error(), expected)
+	if _, ok := err.(*expected); !ok {
+		t.Errorf("Unexpected error, got: %#v, want: %#v.", err, expected{})
 	}
 }
 
