@@ -18,7 +18,7 @@ type RegInputData struct {
 	CertmanagerEmail string
 	IngressClass     string
 	Namespace        string
-	MaxSize          string
+	NginxMaxBuffer	 string
 }
 
 func MakeInstallRegistryIngress() *cobra.Command {
@@ -105,7 +105,11 @@ func buildRegistryYAML(domain, email, ingressClass, namespace, maxSize string) (
 		CertmanagerEmail: email,
 		IngressClass:     ingressClass,
 		Namespace:        namespace,
-		MaxSize:          maxSize,
+		NginxMaxBuffer:   "",
+	}
+
+	if ingressClass == "nginx" {
+		inputData.NginxMaxBuffer = fmt.Sprintf("    nginx.ingress.kubernetes.io/proxy-body-size: %s", maxSize)
 	}
 
 	var tpl bytes.Buffer
@@ -156,7 +160,7 @@ metadata:
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod-registry
     kubernetes.io/ingress.class: {{.IngressClass}}
-	nginx.ingress.kubernetes.io/proxy-body-size: {{.MaxSize}}
+{{.NginxMaxBuffer}}
 spec:
   rules:
   - host: {{.IngressDomain}}
