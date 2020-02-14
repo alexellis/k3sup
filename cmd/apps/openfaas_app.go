@@ -17,7 +17,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const helm3Version = "v3.0.2"
 
 func MakeInstallOpenFaaS() *cobra.Command {
 	var openfaas = &cobra.Command{
@@ -81,9 +80,6 @@ func MakeInstallOpenFaaS() *cobra.Command {
 		log.Printf("User dir established as: %s\n", userPath)
 		os.Setenv("HELM_HOME", path.Join(userPath, ".helm"))
 
-		if helm3 {
-			os.Setenv("HELM_VERSION", helm3Version)
-		}
 
 		_, err = helm.TryDownloadHelm(userPath, clientArch, clientOS, helm3)
 		if err != nil {

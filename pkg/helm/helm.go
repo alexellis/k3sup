@@ -14,20 +14,19 @@ import (
 )
 
 const helmVersion = "v2.16.0"
+const helm3Version = "v3.0.2"
 
 func TryDownloadHelm(userPath, clientArch, clientOS string, helm3 bool) (string, error) {
 	helmVal := "helm"
+	subdir := ""
 	if helm3 {
 		helmVal = "helm3"
+		subdir = "helm3"
 	}
 
 	helmBinaryPath := path.Join(path.Join(userPath, "bin"), helmVal)
 	if _, statErr := os.Stat(helmBinaryPath); statErr != nil {
-		subdir := ""
-		if helm3 {
-			subdir = "helm3"
-		}
-		DownloadHelm(userPath, clientArch, clientOS, subdir)
+		DownloadHelm(userPath, clientArch, clientOS, subdir, helm3)
 
 		if !helm3 {
 			err := HelmInit()
@@ -52,8 +51,14 @@ func GetHelmURL(arch, os, version string) string {
 	return fmt.Sprintf("https://get.helm.sh/helm-%s-%s-%s.tar.gz", version, osSuffix, archSuffix)
 }
 
-func DownloadHelm(userPath, clientArch, clientOS, subdir string) error {
+func DownloadHelm(userPath, clientArch, clientOS, subdir string, helm3 bool) error {
+
 	useHelmVersion := helmVersion
+	if helm3 {
+		useHelmVersion = helm3Version
+	}
+
+	// This is an override users can set, its documented in the README
 	if val, ok := os.LookupEnv("HELM_VERSION"); ok && len(val) > 0 {
 		useHelmVersion = val
 	}
