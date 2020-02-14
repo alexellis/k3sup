@@ -61,9 +61,6 @@ func MakeInstallIstio() *cobra.Command {
 		os.Setenv("HELM_HOME", path.Join(userPath, ".helm"))
 
 		helm3 := true
-		if helm3 {
-			os.Setenv("HELM_VERSION", helm3Version)
-		}
 
 		_, err = helm.TryDownloadHelm(userPath, clientArch, clientOS, helm3)
 		if err != nil {

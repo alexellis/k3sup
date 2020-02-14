@@ -52,7 +52,6 @@ func MakeInstallMongoDB() *cobra.Command {
 		log.Printf("User dir established as: %s\n", userPath)
 
 		os.Setenv("HELM_HOME", path.Join(userPath, ".helm"))
-		os.Setenv("HELM_VERSION", helm3Version)
 
 		helm3 := true
 
