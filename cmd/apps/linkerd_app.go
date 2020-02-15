@@ -38,8 +38,12 @@ func MakeInstallLinkerd() *cobra.Command {
 			kubeConfigPath, _ = command.Flags().GetString("kubeconfig")
 		}
 		fmt.Printf("Using kubeconfig: %s\n", kubeConfigPath)
+
 		arch := getNodeArchitecture()
 		fmt.Printf("Node architecture: %q\n", arch)
+		if arch != IntelArch {
+			return fmt.Errorf(`only Intel, i.e. PC architecture is supported for this app`)
+		}
 
 		userPath, err := getUserPath()
 		if err != nil {

@@ -34,8 +34,8 @@ func MakeInstallTiller() *cobra.Command {
 		arch := getNodeArchitecture()
 		fmt.Printf("Node architecture: %q\n", arch)
 
-		if arch != "x86_64" && arch != "amd64" {
-			return fmt.Errorf("This app is not known to work with the %s architecture", arch)
+		if arch != IntelArch {
+			return fmt.Errorf(`only Intel, i.e. PC architecture is supported for this app`)
 		}
 
 		userPath, err := getUserPath()

@@ -122,9 +122,11 @@ kubectl get node
 
 ### 🎬 Install an `app` with `k3sup`
 
-Install apps with `k3sup` `>=0.4.0` directly into any Kubernetes cluster, all you need is `kubectl` access.
+Install apps with `k3sup` `>=0.4.0` directly **into any Kubernetes cluster**, all you need is `kubectl` access.
 
 You can install [openfaas](https://github.com/openfaas/faas) for Kubernetes in a single command, it will detect whether you're using a Raspberry Pi or a regular computer.
+
+> What does "PC" only mean? It means that you cannot install the app to a computer running an ARM processor. For instance, Istio has no support for ARM, only Intel aka PC.
 
 ```sh
 # OpenFaaS - microservices and functions for Kubernetes
@@ -150,8 +152,8 @@ k3sup app install cert-manager
 # PC, RPi and ARM64
 k3sup app install nginx-ingress
 
-# docker-registry - host your own registry
-k3sup app install docker-registry
+# PC only
+k3sup app install istio
 
 # docker-registry-ingress - add TLS to your registry and ingress on port 443 and 80
 k3sup app install docker-registry-ingress --email example@example.com --domain reg.example.com
@@ -166,10 +168,9 @@ k3sup app install APP_NAME --help
 ```
 
 Apps that you can install today:
-* openfaas
+* `openfaas` / `openfaas-ingress`
 * nginx-ingress
 * cert-manager
-* openfaas-ingress
 * inlets-operator
 * metrics-server
 * tiller
@@ -181,7 +182,7 @@ Apps that you can install today:
 * kubernetes-dashboard
 * istio
 * crossplane
-* docker-registry
+* `docker-registry` / `docker-registry-ingress`
 
 Want to request an app? [Raise an issue](https://github.com/alexellis/k3sup/issues) or let me know on [Slack](https://slack.openfaas.io).
 

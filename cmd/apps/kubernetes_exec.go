@@ -200,7 +200,7 @@ func kubectlTask(parts ...string) (execute.ExecResult, error) {
 	task := execute.ExecTask{
 		Command:     "kubectl",
 		Args:        parts,
-		StreamStdio: true,
+		StreamStdio: false,
 	}
 
 	res, err := task.Execute()

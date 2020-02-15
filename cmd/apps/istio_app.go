@@ -14,6 +14,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var IntelArch = "amd64"
+
 func MakeInstallIstio() *cobra.Command {
 	var istio = &cobra.Command{
 		Use:          "istio",
@@ -46,6 +48,10 @@ func MakeInstallIstio() *cobra.Command {
 
 		arch := getNodeArchitecture()
 		fmt.Printf("Node architecture: %q\n", arch)
+
+		if arch != IntelArch {
+			return fmt.Errorf(`only Intel, i.e. PC architecture is supported for this app`)
+		}
 
 		userPath, err := config.InitUserDir()
 		if err != nil {
