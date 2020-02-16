@@ -439,10 +439,6 @@ Related tools:
 
 Currently there is an issue in k3s involving `iptables >= 1.8` that can affect the network communication. See the [k3s issue](https://github.com/rancher/k3s/issues/703) and the corresponding [kubernetes one](https://github.com/kubernetes/kubernetes/issues/71305) for more information and workarounds. The issue has been observed in Debian Buster but it can affect other distributions as well.
 
-### Custom helm versions
-
-Custom helm versions can be used with `k3sup app install`, if you set the environment variable `HELM_VERSION`
-
 ### Go modules
 
 * [Go modules wiki](https://github.com/golang/go/wiki/Modules)
