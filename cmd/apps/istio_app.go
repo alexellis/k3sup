@@ -115,10 +115,8 @@ func MakeInstallIstio() *cobra.Command {
 
 		outputPath := path.Join(chartPath, "istio")
 
-		wait := true
-
 		if initIstio, _ := command.Flags().GetBool("init"); initIstio {
-			err = helm3Upgrade(outputPath, "istio/istio-init", namespace, "", overrides, wait)
+			err = helm3Upgrade(outputPath, "istio/istio-init", namespace, "", "", overrides)
 			if err != nil {
 				return fmt.Errorf("unable to istio-init install chart with helm %s", err)
 			}
@@ -134,7 +132,7 @@ func MakeInstallIstio() *cobra.Command {
 			return err
 		}
 
-		err = helm3Upgrade(outputPath, "istio/istio", namespace, valuesFile, overrides, wait)
+		err = helm3Upgrade(outputPath, "istio/istio", namespace, valuesFile, "", overrides)
 		if err != nil {
 			return fmt.Errorf("unable to istio install chart with helm %s", err)
 		}

@@ -97,7 +97,6 @@ schedule workloads to any Kubernetes cluster`,
 		}
 
 		if helm3 {
-			wait := false
 
 			outputPath := path.Join(chartPath, "crossplane")
 
@@ -107,14 +106,14 @@ schedule workloads to any Kubernetes cluster`,
 			}
 
 			err := helm3Upgrade(outputPath, "crossplane-alpha/crossplane",
-				namespace, "values.yaml", map[string]string{}, wait)
+				namespace, "values.yaml", "", map[string]string{})
 			if err != nil {
 				return err
 			}
 
 		} else {
 			outputPath := path.Join(chartPath, "crossplane-alpha/crossplane")
-			err = templateChart(chartPath, "crossplane", namespace, outputPath, "values.yaml", map[string]string{})
+			err = templateChart(chartPath, "crossplane", namespace, outputPath, "values.yaml", "", map[string]string{})
 			if err != nil {
 				return err
 			}

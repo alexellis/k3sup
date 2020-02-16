@@ -113,7 +113,6 @@ func MakeInstallNginx() *cobra.Command {
 		}
 		fmt.Println("Chart path: ", chartPath)
 
-		wait := false
 		ns := "default"
 
 		if helm3 {
@@ -121,7 +120,8 @@ func MakeInstallNginx() *cobra.Command {
 
 			err := helm3Upgrade(outputPath, "stable/nginx-ingress", ns,
 				"values.yaml",
-				overrides, wait)
+				"",
+				overrides)
 
 			if err != nil {
 				return err
@@ -134,6 +134,7 @@ func MakeInstallNginx() *cobra.Command {
 				ns,
 				outputPath,
 				"values.yaml",
+				"",
 				overrides)
 
 			if err != nil {

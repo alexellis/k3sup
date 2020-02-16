@@ -80,14 +80,13 @@ func MakeInstallMetricsServer() *cobra.Command {
 		overrides["args"] = `{--kubelet-insecure-tls,--kubelet-preferred-address-types=InternalIP\,ExternalIP\,Hostname}`
 		fmt.Println("Chart path: ", chartPath)
 
-		wait := false
-
 		if helm3 {
 			outputPath := path.Join(chartPath, "metrics-server")
 
 			err := helm3Upgrade(outputPath, "stable/metrics-server", namespace,
 				"values.yaml",
-				overrides, wait)
+				"",
+				overrides)
 
 			if err != nil {
 				return err
@@ -101,6 +100,7 @@ func MakeInstallMetricsServer() *cobra.Command {
 				namespace,
 				outputPath,
 				"values.yaml",
+				"",
 				overrides)
 
 			if err != nil {

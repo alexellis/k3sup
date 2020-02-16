@@ -107,20 +107,20 @@ func MakeInstallCertManager() *cobra.Command {
 
 		outputPath := path.Join(chartPath, "cert-manager/rendered")
 		overrides := map[string]string{}
-		wait := false
 
 		if helm3 {
 			outputPath := path.Join(chartPath, "cert-manager")
 
 			err := helm3Upgrade(outputPath, "jetstack/cert-manager", namespace,
 				"values.yaml",
-				overrides, wait)
+				"v0.12.0",
+				overrides)
 
 			if err != nil {
 				return err
 			}
 		} else {
-			err = templateChart(chartPath, "cert-manager", namespace, outputPath, "values.yaml", nil)
+			err = templateChart(chartPath, "cert-manager", namespace, outputPath, "values.yaml", "v0.12.0", nil)
 			if err != nil {
 				return err
 			}

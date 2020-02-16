@@ -119,7 +119,6 @@ func MakeInstallRegistry() *cobra.Command {
 
 		fmt.Println("Chart path: ", chartPath)
 
-		wait := false
 		ns := "default"
 
 		if helm3 {
@@ -127,7 +126,8 @@ func MakeInstallRegistry() *cobra.Command {
 
 			err := helm3Upgrade(outputPath, "stable/docker-registry", ns,
 				"values.yaml",
-				overrides, wait)
+				"",
+				overrides)
 
 			if err != nil {
 				return err
@@ -140,6 +140,7 @@ func MakeInstallRegistry() *cobra.Command {
 				ns,
 				outputPath,
 				"values.yaml",
+				"",
 				overrides)
 
 			if err != nil {
