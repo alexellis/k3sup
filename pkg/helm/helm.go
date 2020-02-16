@@ -58,11 +58,6 @@ func DownloadHelm(userPath, clientArch, clientOS, subdir string, helm3 bool) err
 		useHelmVersion = helm3Version
 	}
 
-	// This is an override users can set, its documented in the README
-	if val, ok := os.LookupEnv("HELM_VERSION"); ok && len(val) > 0 {
-		useHelmVersion = val
-	}
-
 	helmURL := GetHelmURL(clientArch, clientOS, useHelmVersion)
 	fmt.Println(helmURL)
 	parsedURL, _ := url.Parse(helmURL)
