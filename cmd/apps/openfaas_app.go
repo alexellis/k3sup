@@ -199,13 +199,13 @@ func MakeInstallOpenFaaS() *cobra.Command {
 			return err
 		}
 
-		wait := false
 		if helm3 {
 			outputPath := path.Join(chartPath, "openfaas")
 
 			err := helm3Upgrade(outputPath, "openfaas/openfaas", namespace,
 				"values"+valuesSuffix+".yaml",
-				overrides, wait)
+				"",
+				overrides)
 
 			if err != nil {
 				return err
@@ -217,6 +217,7 @@ func MakeInstallOpenFaaS() *cobra.Command {
 				namespace,
 				outputPath,
 				"values"+valuesSuffix+".yaml",
+				"",
 				overrides)
 
 			if err != nil {

@@ -105,6 +105,7 @@ func MakeInstallCronConnector() *cobra.Command {
 			ns,
 			outputPath,
 			"values.yaml",
+			"",
 			overrides)
 
 		if err != nil {

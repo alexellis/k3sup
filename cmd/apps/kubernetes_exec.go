@@ -49,7 +49,7 @@ func getNodeArchitecture() string {
 	return arch
 }
 
-func helm3Upgrade(basePath, chart, namespace, values string, overrides map[string]string, wait bool) error {
+func helm3Upgrade(basePath, chart, namespace, values, version string, overrides map[string]string) error {
 
 	chartName := chart
 	if index := strings.Index(chartName, "/"); index > -1 {
@@ -58,7 +58,13 @@ func helm3Upgrade(basePath, chart, namespace, values string, overrides map[strin
 
 	chartRoot := basePath
 
-	args := []string{"upgrade", "--install", chartName, chart, "--namespace", namespace}
+
+
+	args := []string{"upgrade", "--install", chartName, chart, "--namespace", namespace, }
+	if len(version) > 0 {
+		args = append(args, "--version", version)
+	}
+
 	fmt.Println("VALUES", values)
 	if len(values) > 0 {
 		args = append(args, "--values")
@@ -100,7 +106,7 @@ func helm3Upgrade(basePath, chart, namespace, values string, overrides map[strin
 	return nil
 }
 
-func templateChart(basePath, chart, namespace, outputPath, values string, overrides map[string]string) error {
+func templateChart(basePath, chart, namespace, outputPath, values, version string, overrides map[string]string) error {
 
 	rmErr := os.RemoveAll(outputPath)
 
@@ -125,9 +131,14 @@ func templateChart(basePath, chart, namespace, outputPath, values string, overri
 		valuesStr = "--values " + path.Join(chartRoot, values)
 	}
 
+	versionStr := ""
+	if len(version) > 0 {
+		versionStr = "--version " + version
+	}
+
 	task := execute.ExecTask{
-		Command: fmt.Sprintf("%s template %s --name %s --namespace %s --output-dir %s %s %s",
-			env.LocalBinary("helm", ""), chart, chart, namespace, outputPath, valuesStr, overridesStr),
+		Command: fmt.Sprintf("%s template %s --name %s --namespace %s --output-dir %s %s %s %s",
+			env.LocalBinary("helm", ""), chart, chart, namespace, outputPath, valuesStr, overridesStr, versionStr),
 		Env:         os.Environ(),
 		Cwd:         basePath,
 		StreamStdio: true,

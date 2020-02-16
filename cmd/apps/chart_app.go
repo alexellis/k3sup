@@ -130,7 +130,7 @@ before using the generic helm chart installer command.`,
 			}
 		}
 
-		err = templateChart(chartPath, chartName, namespace, outputPath, "values.yaml", setMap)
+		err = templateChart(chartPath, chartName, namespace, outputPath, "values.yaml", "", setMap)
 		if err != nil {
 			return err
 		}
