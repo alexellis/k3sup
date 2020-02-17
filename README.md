@@ -414,6 +414,8 @@ MIT
 
 * [My home Kubernetes cluster driven by GitOps and k3sup](https://github.com/onedr0p/k3s-gitops) - by Devin Buhl
 
+* [Raspberry Pi: From 0 to k3s cluster in 5 min with k3sup and Ansible](https://blog.cloudgsx.es/topic/10/raspberry-pi-from-0-to-k3s-cluster-in-5-min-with-k3sup-and-ansible) - by Pablo Caderno
+
 Checkout the [Announcement tweet](https://twitter.com/alexellisuk/status/1162272786250735618?s=20)
 
 ## Similar tools & glossary
