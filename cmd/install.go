@@ -23,6 +23,7 @@ import (
 
 var kubeconfig []byte
 
+// MakeInstall returns the install sub command of k3sup
 func MakeInstall() *cobra.Command {
 	var command = &cobra.Command{
 		Use:          "install",

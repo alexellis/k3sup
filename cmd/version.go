@@ -8,15 +8,19 @@ import (
 )
 
 var (
-	Version   string
+	// Version stores the version of the build
+	Version string
+	// GitCommit stores the git commit of the build
 	GitCommit string
 )
 
+// PrintK3supASCIIArt prints the ascii art of k3sup
 func PrintK3supASCIIArt() {
 	k3supLogo := aec.RedF.Apply(k3supFigletStr)
 	fmt.Print(k3supLogo)
 }
 
+// MakeVersion returns the version sub command of k3sup
 func MakeVersion() *cobra.Command {
 	var command = &cobra.Command{
 		Use:          "version",

@@ -6,6 +6,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// MakeUpdate returns the update sub command of k3sup
 func MakeUpdate() *cobra.Command {
 	var command = &cobra.Command{
 		Use:          "update",

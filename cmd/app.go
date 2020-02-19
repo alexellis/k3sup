@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// MakeApps returns the apps sub command of k3sup
 func MakeApps() *cobra.Command {
 	var command = &cobra.Command{
 		Use:   "app",

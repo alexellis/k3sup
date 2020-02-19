@@ -12,6 +12,7 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
+// MakeJoin returns the join sub command of k3sup
 func MakeJoin() *cobra.Command {
 	var command = &cobra.Command{
 		Use:          "join",

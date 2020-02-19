@@ -7,6 +7,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// MakeInfo returns the info sub command of k3sup
 func MakeInfo() *cobra.Command {
 
 	info := &cobra.Command{
