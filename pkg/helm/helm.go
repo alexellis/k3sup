@@ -14,6 +14,8 @@ import (
 )
 
 const helmVersion = "v2.16.0"
+const helm3Version = "v3.0.2"
+
 
 func TryDownloadHelm(userPath, clientArch, clientOS string, helm3 bool) (string, error) {
 	helmVal := "helm"
@@ -27,7 +29,7 @@ func TryDownloadHelm(userPath, clientArch, clientOS string, helm3 bool) (string,
 		if helm3 {
 			subdir = "helm3"
 		}
-		DownloadHelm(userPath, clientArch, clientOS, subdir)
+		DownloadHelm(userPath, clientArch, clientOS, subdir, helm3)
 
 		if !helm3 {
 			err := HelmInit()
@@ -52,10 +54,11 @@ func GetHelmURL(arch, os, version string) string {
 	return fmt.Sprintf("https://get.helm.sh/helm-%s-%s-%s.tar.gz", version, osSuffix, archSuffix)
 }
 
-func DownloadHelm(userPath, clientArch, clientOS, subdir string) error {
+func DownloadHelm(userPath, clientArch, clientOS, subdir string, helm3 bool) error {
 	useHelmVersion := helmVersion
-	if val, ok := os.LookupEnv("HELM_VERSION"); ok && len(val) > 0 {
-		useHelmVersion = val
+
+	if helm3 {
+		useHelmVersion = helm3Version
 	}
 
 	helmURL := GetHelmURL(clientArch, clientOS, useHelmVersion)

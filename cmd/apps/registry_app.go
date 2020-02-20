@@ -43,11 +43,6 @@ func MakeInstallRegistry() *cobra.Command {
 		fmt.Printf("Using kubeconfig: %s\n", kubeConfigPath)
 		helm3, _ := command.Flags().GetBool("helm3")
 
-		if helm3 {
-			fmt.Println("Using helm3")
-			os.Setenv("HELM_VERSION", helm3Version)
-		}
-
 		userPath, err := config.InitUserDir()
 		if err != nil {
 			return err
