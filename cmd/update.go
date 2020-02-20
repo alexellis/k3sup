@@ -21,6 +21,9 @@ func MakeUpdate() *cobra.Command {
 
 const k3supUpdate = `You can update k3sup with the following:
 
+# Remove cached versions of tools
+rm -rf $HOME/.k3sup
+
 # For Linux/MacOS:
 curl -SLfs https://get.k3sup.dev | sudo sh
 
