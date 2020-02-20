@@ -28,6 +28,7 @@ func MakeInstallOpenFaaS() *cobra.Command {
 	}
 
 	openfaas.Flags().BoolP("basic-auth", "a", true, "Enable authentication")
+	openfaas.Flags().String("basic-auth-password", "", "Overide the default random basic-auth-password if this is set")
 	openfaas.Flags().BoolP("load-balancer", "l", false, "Add a loadbalancer")
 	openfaas.Flags().StringP("namespace", "n", "openfaas", "The namespace for the core services")
 	openfaas.Flags().Bool("update-repo", true, "Update the helm repo")
@@ -111,9 +112,14 @@ func MakeInstallOpenFaaS() *cobra.Command {
 			return err
 		}
 
-		pass, err := password.Generate(25, 10, 0, false, true)
-		if err != nil {
-			return err
+		pass, _ := command.Flags().GetString("basic-auth-password")
+
+		if len(pass) == 0 {
+			var err error
+			pass, err = password.Generate(25, 10, 0, false, true)
+			if err != nil {
+				return err
+			}
 		}
 
 		res, secretErr := kubectlTask("-n", namespace, "create", "secret", "generic",
