@@ -14,6 +14,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+const defaultVersion = "" // If we don't set version then we get latest
+
 func MakeInstallChart() *cobra.Command {
 	var chartCmd = &cobra.Command{
 		Use:   "chart",
@@ -109,7 +111,7 @@ before using the generic helm chart installer command.`,
 
 		chartPath := path.Join(os.TempDir(), "charts")
 
-		err = fetchChart(chartPath, chartRepoName, false)
+		err = fetchChart(chartPath, chartRepoName, defaultVersion, false)
 		if err != nil {
 			return err
 		}
@@ -130,7 +132,7 @@ before using the generic helm chart installer command.`,
 			}
 		}
 
-		err = templateChart(chartPath, chartName, namespace, outputPath, "values.yaml", "", setMap)
+		err = templateChart(chartPath, chartName, namespace, outputPath, "values.yaml", setMap)
 		if err != nil {
 			return err
 		}

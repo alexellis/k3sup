@@ -27,6 +27,7 @@ func MakeInstallCertManager() *cobra.Command {
 	certManager.Flags().Bool("helm3", true, "Use helm3, if set to false uses helm2")
 
 	certManager.RunE = func(command *cobra.Command, args []string) error {
+		const certManagerVersion = "v0.12.0"
 		kubeConfigPath := getDefaultKubeconfig()
 
 		if command.Flags().Changed("kubeconfig") {
@@ -88,7 +89,7 @@ func MakeInstallCertManager() *cobra.Command {
 
 		chartPath := path.Join(os.TempDir(), "charts")
 
-		err = fetchChart(chartPath, "jetstack/cert-manager", helm3)
+		err = fetchChart(chartPath, "jetstack/cert-manager", certManagerVersion, helm3)
 		if err != nil {
 			return err
 		}
@@ -120,7 +121,7 @@ func MakeInstallCertManager() *cobra.Command {
 				return err
 			}
 		} else {
-			err = templateChart(chartPath, "cert-manager", namespace, outputPath, "values.yaml", "v0.12.0", nil)
+			err = templateChart(chartPath, "cert-manager", namespace, outputPath, "values.yaml", nil)
 			if err != nil {
 				return err
 			}

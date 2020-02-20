@@ -97,7 +97,7 @@ func MakeInstallIstio() *cobra.Command {
 
 		chartPath := path.Join(os.TempDir(), "charts")
 
-		err = fetchChart(chartPath, "istio/istio", helm3)
+		err = fetchChart(chartPath, "istio/istio", defaultVersion, helm3)
 
 		if err != nil {
 			return fmt.Errorf("unable fetch chart %s", err)

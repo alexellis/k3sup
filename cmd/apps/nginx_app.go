@@ -78,7 +78,7 @@ func MakeInstallNginx() *cobra.Command {
 		}
 
 		chartPath := path.Join(os.TempDir(), "charts")
-		err = fetchChart(chartPath, "stable/nginx-ingress", helm3)
+		err = fetchChart(chartPath, "stable/nginx-ingress", defaultVersion, helm3)
 
 		if err != nil {
 			return err
@@ -134,7 +134,6 @@ func MakeInstallNginx() *cobra.Command {
 				ns,
 				outputPath,
 				"values.yaml",
-				"",
 				overrides)
 
 			if err != nil {

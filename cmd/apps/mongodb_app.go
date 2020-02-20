@@ -78,7 +78,7 @@ func MakeInstallMongoDB() *cobra.Command {
 
 		chartPath := path.Join(os.TempDir(), "charts")
 
-		err = fetchChart(chartPath, "stable/mongodb", helm3)
+		err = fetchChart(chartPath, "stable/mongodb", defaultVersion, helm3)
 
 		if err != nil {
 			return fmt.Errorf("unable fetch chart %s", err)
