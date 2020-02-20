@@ -75,7 +75,7 @@ func MakeInstallMinio() *cobra.Command {
 		}
 
 		chartPath := path.Join(os.TempDir(), "charts")
-		err = fetchChart(chartPath, "stable/minio", false)
+		err = fetchChart(chartPath, "stable/minio", defaultVersion, false)
 
 		if err != nil {
 			return err
@@ -125,7 +125,6 @@ func MakeInstallMinio() *cobra.Command {
 			ns,
 			outputPath,
 			"values.yaml",
-			"",
 			overrides)
 
 		if err != nil {

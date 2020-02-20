@@ -95,7 +95,7 @@ func MakeInstallInletsOperator() *cobra.Command {
 
 		chartPath := path.Join(os.TempDir(), "charts")
 
-		err = fetchChart(chartPath, "inlets/inlets-operator", helm3)
+		err = fetchChart(chartPath, "inlets/inlets-operator", defaultVersion, helm3)
 		if err != nil {
 			return err
 		}
@@ -156,7 +156,7 @@ func MakeInstallInletsOperator() *cobra.Command {
 
 		} else {
 			outputPath := path.Join(chartPath, "inlets-operator/rendered")
-			err = templateChart(chartPath, "inlets-operator", namespace, outputPath, "values.yaml", "", overrides)
+			err = templateChart(chartPath, "inlets-operator", namespace, outputPath, "values.yaml", overrides)
 			if err != nil {
 				return err
 			}

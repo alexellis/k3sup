@@ -73,7 +73,7 @@ func MakeInstallPostgresql() *cobra.Command {
 		}
 
 		chartPath := path.Join(os.TempDir(), "charts")
-		err = fetchChart(chartPath, "stable/postgresql", false)
+		err = fetchChart(chartPath, "stable/postgresql", defaultVersion, false)
 
 		if err != nil {
 			return err
@@ -105,7 +105,6 @@ func MakeInstallPostgresql() *cobra.Command {
 			ns,
 			outputPath,
 			"values.yaml",
-			"",
 			overrides)
 
 		if err != nil {

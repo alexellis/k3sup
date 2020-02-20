@@ -17,6 +17,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+const latestVersion  = ""
 
 func MakeInstallOpenFaaS() *cobra.Command {
 	var openfaas = &cobra.Command{
@@ -131,7 +132,7 @@ func MakeInstallOpenFaaS() *cobra.Command {
 
 		chartPath := path.Join(os.TempDir(), "charts")
 
-		err = fetchChart(chartPath, "openfaas/openfaas", helm3)
+		err = fetchChart(chartPath, "openfaas/openfaas", defaultVersion, helm3)
 
 		if err != nil {
 			return err
@@ -213,7 +214,6 @@ func MakeInstallOpenFaaS() *cobra.Command {
 				namespace,
 				outputPath,
 				"values"+valuesSuffix+".yaml",
-				"",
 				overrides)
 
 			if err != nil {

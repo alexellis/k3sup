@@ -88,7 +88,7 @@ schedule workloads to any Kubernetes cluster`,
 
 		chartPath := path.Join(os.TempDir(), "charts")
 
-		err = fetchChart(chartPath, "crossplane-alpha/crossplane", helm3)
+		err = fetchChart(chartPath, "crossplane-alpha/crossplane", defaultVersion, helm3)
 		if err != nil {
 			return err
 		}
@@ -110,7 +110,7 @@ schedule workloads to any Kubernetes cluster`,
 
 		} else {
 			outputPath := path.Join(chartPath, "crossplane-alpha/crossplane")
-			err = templateChart(chartPath, "crossplane", namespace, outputPath, "values.yaml", "", map[string]string{})
+			err = templateChart(chartPath, "crossplane", namespace, outputPath, "values.yaml", map[string]string{})
 			if err != nil {
 				return err
 			}

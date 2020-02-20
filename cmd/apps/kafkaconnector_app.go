@@ -76,7 +76,7 @@ func MakeInstallKafkaConnector() *cobra.Command {
 		}
 
 		chartPath := path.Join(os.TempDir(), "charts")
-		err = fetchChart(chartPath, "openfaas/kafka-connector", false)
+		err = fetchChart(chartPath, "openfaas/kafka-connector", defaultVersion, false)
 
 		if err != nil {
 			return err
@@ -122,7 +122,6 @@ func MakeInstallKafkaConnector() *cobra.Command {
 			ns,
 			outputPath,
 			"values.yaml",
-			"",
 			overrides)
 
 		if err != nil {

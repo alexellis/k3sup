@@ -98,7 +98,7 @@ func MakeInstallRegistry() *cobra.Command {
 		}
 
 		chartPath := path.Join(os.TempDir(), "charts")
-		err = fetchChart(chartPath, "stable/docker-registry", helm3)
+		err = fetchChart(chartPath, "stable/docker-registry", defaultVersion, helm3)
 
 		if err != nil {
 			return err
@@ -121,7 +121,7 @@ func MakeInstallRegistry() *cobra.Command {
 
 			err := helm3Upgrade(outputPath, "stable/docker-registry", ns,
 				"values.yaml",
-				"",
+				defaultVersion,
 				overrides)
 
 			if err != nil {
@@ -135,7 +135,6 @@ func MakeInstallRegistry() *cobra.Command {
 				ns,
 				outputPath,
 				"values.yaml",
-				"",
 				overrides)
 
 			if err != nil {

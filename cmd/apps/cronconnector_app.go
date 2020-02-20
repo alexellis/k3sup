@@ -75,7 +75,7 @@ func MakeInstallCronConnector() *cobra.Command {
 		}
 
 		chartPath := path.Join(os.TempDir(), "charts")
-		err = fetchChart(chartPath, "openfaas/cron-connector", false)
+		err = fetchChart(chartPath, "openfaas/cron-connector", defaultVersion, false)
 
 		if err != nil {
 			return err
@@ -105,7 +105,6 @@ func MakeInstallCronConnector() *cobra.Command {
 			ns,
 			outputPath,
 			"values.yaml",
-			"",
 			overrides)
 
 		if err != nil {

@@ -11,8 +11,12 @@ import (
 	"github.com/alexellis/k3sup/pkg/env"
 )
 
-func fetchChart(path, chart string, helm3 bool) error {
+func fetchChart(path, chart, version string, helm3 bool) error {
+	versionStr := ""
 
+	if len(version) > 0 {
+		versionStr = "--version " + version
+	}
 	subdir := ""
 	if helm3 {
 		subdir = "helm3"
@@ -25,7 +29,7 @@ func fetchChart(path, chart string, helm3 bool) error {
 	}
 
 	task := execute.ExecTask{
-		Command:     fmt.Sprintf("%s fetch %s --untar --untardir %s", env.LocalBinary("helm", subdir), chart, path),
+		Command:     fmt.Sprintf("%s fetch %s --untar --untardir %s %s", env.LocalBinary("helm", subdir), chart, path, versionStr),
 		Env:         os.Environ(),
 		StreamStdio: true,
 	}
@@ -60,10 +64,11 @@ func helm3Upgrade(basePath, chart, namespace, values, version string, overrides 
 
 
 
-	args := []string{"upgrade", "--install", chartName, chart, "--namespace", namespace, }
+	args := []string{"upgrade", "--install", chartName, chart, "--namespace", namespace, "--wait"}
 	if len(version) > 0 {
 		args = append(args, "--version", version)
 	}
+
 
 	fmt.Println("VALUES", values)
 	if len(values) > 0 {
@@ -106,7 +111,7 @@ func helm3Upgrade(basePath, chart, namespace, values, version string, overrides 
 	return nil
 }
 
-func templateChart(basePath, chart, namespace, outputPath, values, version string, overrides map[string]string) error {
+func templateChart(basePath, chart, namespace, outputPath, values string, overrides map[string]string) error {
 
 	rmErr := os.RemoveAll(outputPath)
 
@@ -131,14 +136,9 @@ func templateChart(basePath, chart, namespace, outputPath, values, version strin
 		valuesStr = "--values " + path.Join(chartRoot, values)
 	}
 
-	versionStr := ""
-	if len(version) > 0 {
-		versionStr = "--version " + version
-	}
-
 	task := execute.ExecTask{
-		Command: fmt.Sprintf("%s template %s --name %s --namespace %s --output-dir %s %s %s %s",
-			env.LocalBinary("helm", ""), chart, chart, namespace, outputPath, valuesStr, overridesStr, versionStr),
+		Command: fmt.Sprintf("%s template %s --name %s --namespace %s --output-dir %s %s %s",
+			env.LocalBinary("helm", ""), chart, chart, namespace, outputPath, valuesStr, overridesStr),
 		Env:         os.Environ(),
 		Cwd:         basePath,
 		StreamStdio: true,
