@@ -30,7 +30,7 @@ func fetchChart(path, chart, version string, helm3 bool) error {
 		return mkErr
 	}
 
- println(fmt.Sprintf("%s fetch %s --untar=true --untardir %s %s", env.LocalBinary("helm", subdir), chart, path, versionStr))
+	println(fmt.Sprintf("%s fetch %s --untar=true --untardir %s %s", env.LocalBinary("helm", subdir), chart, path, versionStr))
 	task := execute.ExecTask{
 		Command:     fmt.Sprintf("%s fetch %s --untar=true --untardir %s%s", env.LocalBinary("helm", subdir), chart, path, versionStr),
 		Env:         os.Environ(),
@@ -65,9 +65,7 @@ func helm3Upgrade(basePath, chart, namespace, values, version string, overrides 
 
 	chartRoot := basePath
 
-
-
-	args := []string{"upgrade", "--install", chartName, chart, "--namespace", namespace,}
+	args := []string{"upgrade", "--install", chartName, chart, "--namespace", namespace}
 	if len(version) > 0 {
 		args = append(args, "--version", version)
 	}

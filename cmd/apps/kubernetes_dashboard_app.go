@@ -43,7 +43,6 @@ func MakeInstallKubernetesDashboard() *cobra.Command {
 	return kubeDashboard
 }
 
-
 const KubernetesDashboardInfoMsg = `# To create the Service Account and the ClusterRoleBinding
 # @See https://github.com/kubernetes/dashboard/blob/master/docs/user/access-control/creating-sample-user.md#creating-sample-user
 

@@ -56,7 +56,6 @@ func MakeInstallMetricsServer() *cobra.Command {
 		log.Printf("User dir established as: %s\n", userPath)
 		os.Setenv("HELM_HOME", path.Join(userPath, ".helm"))
 
-
 		_, err = helm.TryDownloadHelm(userPath, clientArch, clientOS, helm3)
 		if err != nil {
 			return err
