@@ -446,3 +446,11 @@ Currently there is an issue in k3s involving `iptables >= 1.8` that can affect t
 
 * [Go modules wiki](https://github.com/golang/go/wiki/Modules)
 
+
+### Troubleshooting
+
+There was an odd edge case in one of the previous versions, If you are having error with helm throwing an
+error about tiller not being ready then you might want to remove the `~/.k3sup/` directory, which holds some
+info used by `k3sup`. Once you have removed this you should try again.
+
+If you are having any other issues or have questions please open an issue.

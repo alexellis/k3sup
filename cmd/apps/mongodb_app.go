@@ -30,6 +30,7 @@ func MakeInstallMongoDB() *cobra.Command {
 
 	command.RunE = func(command *cobra.Command, args []string) error {
 
+		wait, _ := command.Flags().GetBool("wait")
 		kubeConfigPath := getDefaultKubeconfig()
 
 		if command.Flags().Changed("kubeconfig") {
@@ -100,7 +101,7 @@ func MakeInstallMongoDB() *cobra.Command {
 		}
 
 		err = helm3Upgrade(outputPath, "stable/mongodb",
-			namespace, "values.yaml", "",overrides)
+			namespace, "values.yaml", defaultVersion,overrides, wait)
 		if err != nil {
 			return fmt.Errorf("unable to mongodb chart with helm %s", err)
 		}

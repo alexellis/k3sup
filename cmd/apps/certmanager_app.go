@@ -27,6 +27,7 @@ func MakeInstallCertManager() *cobra.Command {
 	certManager.Flags().Bool("helm3", true, "Use helm3, if set to false uses helm2")
 
 	certManager.RunE = func(command *cobra.Command, args []string) error {
+		wait, _ := command.Flags().GetBool("wait")
 		const certManagerVersion = "v0.12.0"
 		kubeConfigPath := getDefaultKubeconfig()
 
@@ -115,7 +116,8 @@ func MakeInstallCertManager() *cobra.Command {
 			err := helm3Upgrade(outputPath, "jetstack/cert-manager", namespace,
 				"values.yaml",
 				"v0.12.0",
-				overrides)
+				overrides,
+				wait)
 
 			if err != nil {
 				return err

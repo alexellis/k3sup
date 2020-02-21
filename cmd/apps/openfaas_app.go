@@ -49,7 +49,7 @@ func MakeInstallOpenFaaS() *cobra.Command {
 
 	openfaas.RunE = func(command *cobra.Command, args []string) error {
 		kubeConfigPath := getDefaultKubeconfig()
-
+		wait, _ := command.Flags().GetBool("wait")
 		if command.Flags().Changed("kubeconfig") {
 			kubeConfigPath, _ = command.Flags().GetString("kubeconfig")
 		}
@@ -138,8 +138,9 @@ func MakeInstallOpenFaaS() *cobra.Command {
 
 		chartPath := path.Join(os.TempDir(), "charts")
 
+		println("foo")
 		err = fetchChart(chartPath, "openfaas/openfaas", defaultVersion, helm3)
-
+		println("foo")
 		if err != nil {
 			return err
 		}
@@ -208,7 +209,8 @@ func MakeInstallOpenFaaS() *cobra.Command {
 			err := helm3Upgrade(outputPath, "openfaas/openfaas", namespace,
 				"values"+valuesSuffix+".yaml",
 				"",
-				overrides)
+				overrides,
+				wait)
 
 			if err != nil {
 				return err

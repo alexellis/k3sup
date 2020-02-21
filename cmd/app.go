@@ -33,6 +33,7 @@ command.`,
 	}
 
 	install.PersistentFlags().String("kubeconfig", "kubeconfig", "Local path for your kubeconfig file")
+	install.PersistentFlags().Bool("wait", false, "If we should wait for the resource to be ready before returning (helm3 only, default false)")
 
 	install.RunE = func(command *cobra.Command, args []string) error {
 
