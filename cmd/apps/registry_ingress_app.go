@@ -18,7 +18,7 @@ type RegInputData struct {
 	CertmanagerEmail string
 	IngressClass     string
 	Namespace        string
-	NginxMaxBuffer	 string
+	NginxMaxBuffer   string
 }
 
 func MakeInstallRegistryIngress() *cobra.Command {
