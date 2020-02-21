@@ -15,7 +15,9 @@ func fetchChart(path, chart, version string, helm3 bool) error {
 	versionStr := ""
 
 	if len(version) > 0 {
-		versionStr = "--version " + version
+		// Issue in helm where adding a space to the command makes it think that it's another chart of " " we want to template,
+		// So we add the space before version here rather than on the command
+		versionStr = " --version " + version
 	}
 	subdir := ""
 	if helm3 {
@@ -28,8 +30,9 @@ func fetchChart(path, chart, version string, helm3 bool) error {
 		return mkErr
 	}
 
+ println(fmt.Sprintf("%s fetch %s --untar=true --untardir %s %s", env.LocalBinary("helm", subdir), chart, path, versionStr))
 	task := execute.ExecTask{
-		Command:     fmt.Sprintf("%s fetch %s --untar --untardir %s %s", env.LocalBinary("helm", subdir), chart, path, versionStr),
+		Command:     fmt.Sprintf("%s fetch %s --untar=true --untardir %s%s", env.LocalBinary("helm", subdir), chart, path, versionStr),
 		Env:         os.Environ(),
 		StreamStdio: true,
 	}
@@ -53,7 +56,7 @@ func getNodeArchitecture() string {
 	return arch
 }
 
-func helm3Upgrade(basePath, chart, namespace, values, version string, overrides map[string]string) error {
+func helm3Upgrade(basePath, chart, namespace, values, version string, overrides map[string]string, wait bool) error {
 
 	chartName := chart
 	if index := strings.Index(chartName, "/"); index > -1 {
@@ -64,11 +67,14 @@ func helm3Upgrade(basePath, chart, namespace, values, version string, overrides 
 
 
 
-	args := []string{"upgrade", "--install", chartName, chart, "--namespace", namespace, "--wait"}
+	args := []string{"upgrade", "--install", chartName, chart, "--namespace", namespace,}
 	if len(version) > 0 {
 		args = append(args, "--version", version)
 	}
 
+	if wait {
+		args = append(args, "--wait")
+	}
 
 	fmt.Println("VALUES", values)
 	if len(values) > 0 {

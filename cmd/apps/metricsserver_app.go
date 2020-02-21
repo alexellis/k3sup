@@ -26,6 +26,7 @@ func MakeInstallMetricsServer() *cobra.Command {
 	metricsServer.Flags().Bool("helm3", true, "Use helm3, if set to false uses helm2")
 
 	metricsServer.RunE = func(command *cobra.Command, args []string) error {
+		wait, _ := command.Flags().GetBool("wait")
 		kubeConfigPath := getDefaultKubeconfig()
 
 		if command.Flags().Changed("kubeconfig") {
@@ -82,8 +83,9 @@ func MakeInstallMetricsServer() *cobra.Command {
 
 			err := helm3Upgrade(outputPath, "stable/metrics-server", namespace,
 				"values.yaml",
-				"",
-				overrides)
+				defaultVersion,
+				overrides,
+				wait)
 
 			if err != nil {
 				return err

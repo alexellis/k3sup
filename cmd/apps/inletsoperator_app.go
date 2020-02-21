@@ -40,6 +40,7 @@ func MakeInstallInletsOperator() *cobra.Command {
 	inletsOperator.RunE = func(command *cobra.Command, args []string) error {
 		kubeConfigPath := getDefaultKubeconfig()
 
+		wait, _ := command.Flags().GetBool("wait")
 		if command.Flags().Changed("kubeconfig") {
 			kubeConfigPath, _ = command.Flags().GetString("kubeconfig")
 		}
@@ -149,7 +150,7 @@ func MakeInstallInletsOperator() *cobra.Command {
 			outputPath := path.Join(chartPath, "inlets-operator")
 
 			err := helm3Upgrade(outputPath, "inlets/inlets-operator",
-				namespace, "values.yaml", "", overrides)
+				namespace, "values.yaml", "", overrides, wait)
 			if err != nil {
 				return err
 			}

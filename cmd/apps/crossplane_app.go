@@ -29,6 +29,7 @@ schedule workloads to any Kubernetes cluster`,
 	crossplane.Flags().Bool("helm3", true, "Use helm3, if set to false uses helm2")
 
 	crossplane.RunE = func(command *cobra.Command, args []string) error {
+		wait, _ := command.Flags().GetBool("wait")
 		kubeConfigPath := getDefaultKubeconfig()
 
 		if command.Flags().Changed("kubeconfig") {
@@ -103,7 +104,7 @@ schedule workloads to any Kubernetes cluster`,
 			}
 
 			err := helm3Upgrade(outputPath, "crossplane-alpha/crossplane",
-				namespace, "values.yaml", "", map[string]string{})
+				namespace, "values.yaml", "", map[string]string{}, wait)
 			if err != nil {
 				return err
 			}

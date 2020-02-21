@@ -33,6 +33,7 @@ func MakeInstallIstio() *cobra.Command {
 
 	istio.RunE = func(command *cobra.Command, args []string) error {
 		kubeConfigPath := getDefaultKubeconfig()
+		wait, _ := command.Flags().GetBool("wait")
 
 		if command.Flags().Changed("kubeconfig") {
 			kubeConfigPath, _ = command.Flags().GetString("kubeconfig")
@@ -113,7 +114,7 @@ func MakeInstallIstio() *cobra.Command {
 		outputPath := path.Join(chartPath, "istio")
 
 		if initIstio, _ := command.Flags().GetBool("init"); initIstio {
-			err = helm3Upgrade(outputPath, "istio/istio-init", namespace, "", "", overrides)
+			err = helm3Upgrade(outputPath, "istio/istio-init", namespace, "", defaultVersion, overrides, wait)
 			if err != nil {
 				return fmt.Errorf("unable to istio-init install chart with helm %s", err)
 			}
@@ -129,7 +130,7 @@ func MakeInstallIstio() *cobra.Command {
 			return err
 		}
 
-		err = helm3Upgrade(outputPath, "istio/istio", namespace, valuesFile, "", overrides)
+		err = helm3Upgrade(outputPath, "istio/istio", namespace, valuesFile, defaultVersion, overrides, wait)
 		if err != nil {
 			return fmt.Errorf("unable to istio install chart with helm %s", err)
 		}
