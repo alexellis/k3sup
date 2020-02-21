@@ -94,4 +94,5 @@ k3sup app info --help`,
 	}
 
 	return info
+
 }
