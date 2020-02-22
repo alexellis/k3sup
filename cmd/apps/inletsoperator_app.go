@@ -31,6 +31,7 @@ func MakeInstallInletsOperator() *cobra.Command {
 	inletsOperator.Flags().StringP("region", "r", "lon1", "The default region to provision the exit node (DigitalOcean, Packet and Scaleway")
 	inletsOperator.Flags().String("organization-id", "", "The organization id (Scaleway")
 	inletsOperator.Flags().StringP("token-file", "t", "", "Text file containing token or a service account JSON file")
+	inletsOperator.Flags().StringP("secret-key-file", "s", "", "Text file containing secret key, used for providers like ec2")
 	inletsOperator.Flags().Bool("update-repo", true, "Update the helm repo")
 
 	inletsOperator.Flags().String("pro-client-image", "", "Docker image for inlets-pro's client")
@@ -111,15 +112,15 @@ func MakeInstallInletsOperator() *cobra.Command {
 			return err
 		}
 
-		secretFileName, _ := command.Flags().GetString("token-file")
+		tokenFileName, _ := command.Flags().GetString("token-file")
 
-		if len(secretFileName) == 0 {
+		if len(tokenFileName) == 0 {
 			return fmt.Errorf(`--token-file is a required field for your cloud API token or service account JSON file`)
 		}
 
 		res, err := kubectlTask("create", "secret", "generic",
 			"inlets-access-key",
-			"--from-file", "inlets-access-key="+secretFileName)
+			"--from-file", "inlets-access-key="+tokenFileName)
 
 		if len(res.Stderr) > 0 && strings.Contains(res.Stderr, "AlreadyExists") {
 			fmt.Println("[Warning] secret inlets-access-key already exists and will be used.")
@@ -127,6 +128,21 @@ func MakeInstallInletsOperator() *cobra.Command {
 			return fmt.Errorf("error from kubectl\n%q", res.Stderr)
 		} else if err != nil {
 			return err
+		}
+
+		secretKeyFile, _ := command.Flags().GetString("secret-key-file")
+
+		if len(secretKeyFile) > 0 {
+			res, err := kubectlTask("create", "secret", "generic",
+				"inlets-secret-key",
+				"--from-file", "inlets-secret-key="+secretKeyFile)
+			if len(res.Stderr) > 0 && strings.Contains(res.Stderr, "AlreadyExists") {
+				fmt.Println("[Warning] secret inlets-access-key already exists and will be used.")
+			} else if len(res.Stderr) > 0 {
+				return fmt.Errorf("error from kubectl\n%q", res.Stderr)
+			} else if err != nil {
+				return err
+			}
 		}
 
 		customFlags, _ := command.Flags().GetStringArray("set")
@@ -184,6 +200,12 @@ func getInletsOperatorOverrides(command *cobra.Command) (map[string]string, erro
 	provider, _ := command.Flags().GetString("provider")
 	overrides["provider"] = strings.ToLower(provider)
 
+	secretKeyFile, _ := command.Flags().GetString("secret-key-file")
+
+	if len(secretKeyFile) > 0 {
+		overrides["secretKeyFile"] = "/var/secrets/inlets/secret/inlets-secret-key"
+	}
+
 	providers := []string{
 		"digitalocean", "packet", "ec2", "scaleway", "gce",
 	}
@@ -235,8 +257,16 @@ func getInletsOperatorOverrides(command *cobra.Command) (map[string]string, erro
 		}
 		overrides["organization-id"] = orgID
 
+		if len(secretKeyFile) == 0 {
+			return overrides, fmt.Errorf("secret-key-file is required for provider %s", provider)
+		}
+
 		if len(orgID) == 0 {
 			return overrides, fmt.Errorf("organization-id is required for provider %s", provider)
+		}
+	} else if provider == "ec2" {
+		if len(secretKeyFile) == 0 {
+			return overrides, fmt.Errorf("secret-key-file is required for provider %s", provider)
 		}
 	}
 

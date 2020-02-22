@@ -137,9 +137,7 @@ func MakeInstallOpenFaaS() *cobra.Command {
 
 		chartPath := path.Join(os.TempDir(), "charts")
 
-		println("foo")
 		err = fetchChart(chartPath, "openfaas/openfaas", defaultVersion, helm3)
-		println("foo")
 		if err != nil {
 			return err
 		}

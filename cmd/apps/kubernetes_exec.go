@@ -30,7 +30,6 @@ func fetchChart(path, chart, version string, helm3 bool) error {
 		return mkErr
 	}
 
-	println(fmt.Sprintf("%s fetch %s --untar=true --untardir %s %s", env.LocalBinary("helm", subdir), chart, path, versionStr))
 	task := execute.ExecTask{
 		Command:     fmt.Sprintf("%s fetch %s --untar=true --untardir %s%s", env.LocalBinary("helm", subdir), chart, path, versionStr),
 		Env:         os.Environ(),
