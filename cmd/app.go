@@ -2,9 +2,7 @@ package cmd
 
 import (
 	"fmt"
-	"strings"
 
-	"github.com/alexellis/k3sup/cmd/apps"
 	"github.com/spf13/cobra"
 )
 
@@ -19,78 +17,29 @@ command.`,
 		Example: `  k3sup app install
   k3sup app install openfaas --helm3 --gateways=2
   k3sup app info inlets-operator`,
-		SilenceUsage: false,
-	}
-
-	var install = &cobra.Command{
-		Use:   "install",
-		Short: "Install a Kubernetes app",
-		Example: `  k3sup app install [APP]
-  k3sup app install openfaas --help
-  k3sup app install inlets-operator --token-file $HOME/do
-  k3sup app install --help`,
 		SilenceUsage: true,
 	}
 
-	install.PersistentFlags().String("kubeconfig", "kubeconfig", "Local path for your kubeconfig file")
-	install.PersistentFlags().Bool("wait", false, "If we should wait for the resource to be ready before returning (helm3 only, default false)")
+	command.RunE = func(cmd *cobra.Command, args []string) error {
+		fmt.Printf(
+			`The "k3sup app install/info" command has moved to a new home.
+You can now install Kubernetes apps via the arkade project.
 
-	install.RunE = func(command *cobra.Command, args []string) error {
+To find out more about this decision, see the following issue:
+https://github.com/alexellis/k3sup/issues/217
 
-		if len(args) == 0 {
-			fmt.Printf("You can install: %s\n%s\n\n", strings.TrimRight("\n - "+strings.Join(getApps(), "\n - "), "\n - "),
-				`Run k3sup app install NAME --help to see configuration options.`)
-			return nil
-		}
+Example:
 
+  k3sup app install  -> arkade install
+  k3sup app info     -> arkade info
+
+curl -sSL https://dl.get-arkade.dev/ | sudo sh
+
+Read more about https://get-arkade.dev/
+
+`)
 		return nil
 	}
 
-	command.AddCommand(install)
-	install.AddCommand(apps.MakeInstallOpenFaaS())
-	install.AddCommand(apps.MakeInstallMetricsServer())
-	install.AddCommand(apps.MakeInstallInletsOperator())
-	install.AddCommand(apps.MakeInstallCertManager())
-	install.AddCommand(apps.MakeInstallOpenFaaSIngress())
-	install.AddCommand(apps.MakeInstallNginx())
-	install.AddCommand(apps.MakeInstallChart())
-	install.AddCommand(apps.MakeInstallTiller())
-	install.AddCommand(apps.MakeInstallLinkerd())
-	install.AddCommand(apps.MakeInstallCronConnector())
-	install.AddCommand(apps.MakeInstallKafkaConnector())
-	install.AddCommand(apps.MakeInstallMinio())
-	install.AddCommand(apps.MakeInstallPostgresql())
-	install.AddCommand(apps.MakeInstallKubernetesDashboard())
-	install.AddCommand(apps.MakeInstallIstio())
-	install.AddCommand(apps.MakeInstallCrossplane())
-	install.AddCommand(apps.MakeInstallMongoDB())
-	install.AddCommand(apps.MakeInstallRegistry())
-	install.AddCommand(apps.MakeInstallRegistryIngress())
-
-	command.AddCommand(MakeInfo())
-
 	return command
-}
-
-func getApps() []string {
-	return []string{"openfaas",
-		"nginx-ingress",
-		"cert-manager",
-		"openfaas-ingress",
-		"inlets-operator",
-		"metrics-server",
-		"chart",
-		"tiller",
-		"linkerd",
-		"cron-connector",
-		"kafka-connector",
-		"minio",
-		"postgresql",
-		"kubernetes-dashboard",
-		"istio",
-		"crosspane",
-		"mongodb",
-		"docker-registry",
-		"docker-registry-ingress",
-	}
 }
