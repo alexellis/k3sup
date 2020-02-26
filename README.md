@@ -1,6 +1,6 @@
 # k3sup 🚀 (said 'ketchup')
 
-k3sup is a light-weight utility to get from zero to KUBECONFIG with [k3s](https://k3s.io/) on any local or remote VM. All you need is `ssh` access and the `k3sup` binary to get `kubectl` access immediately. `k3sup app install` then provides several tillerless-helm charts out of the box.
+k3sup is a light-weight utility to get from zero to KUBECONFIG with [k3s](https://k3s.io/) on any local or remote VM. All you need is `ssh` access and the `k3sup` binary to get `kubectl` access immediately.
 
 The tool is written in Go and is cross-compiled for Linux, Windows, MacOS and even on Raspberry Pi.
 
@@ -26,22 +26,27 @@ k3sup was developed to automate what can be a very manual and confusing process 
 * Get from zero to `kubectl` with `k3s` on Raspberry Pi (RPi), VMs, AWS EC2, Packet bare-metal, DigitalOcean, Civo, Scaleway, and others
 * Fetch a working KUBECONFIG from an existing `k3s` cluster
 * Join nodes into an existing `k3s` cluster with `k3sup join`
-* Install selected helm charts without `tiller` with `k3sup app install`
 
-### Use-case 1: Bootstrapping Kubernetes
+### Bootstrapping Kubernetes
 
 ![](./docs/k3sup-cloud.png)
 *Conceptual architecture, showing `k3sup` running locally against any VM such as AWS EC2 or a VPS such as DigitalOcean.*
 
-### Use-case 2: Strongly typed Helm charts aka `k3sup app install`
+### `k3sup app install` - easy installation of Kubernetes apps
 
-Install selected helm charts without `tiller` using `k3sup app install`. The community has encoded default values and the steps required to install projects like openfaas and cert-manager so that you can get up and running with a single command.
+The `k3sup app install/info` command has been spun-out into its own project named [arkade](https://get-arkade.dev/).
 
-![](./docs/k3sup-app-install.png)
+If you're follow a tutorial or readme, don't worry, you can still use all the apps.
 
-You can run `k3sup app install` against any Kubernetes cluster, not just k3s.
+```sh
+k3sup app install openfaas
 
-[Click here for a list of apps available](https://github.com/alexellis/k3sup#-install-an-app-with-k3sup) or request [your favourite chart here](https://github.com/alexellis/k3sup/issues).
+# Simply becomes:
+
+arkade install openfaas
+```
+
+Find out why [in this GitHub Issue](https://github.com/alexellis/k3sup/issues/217)
 
 ## Download `k3sup` (tl;dr)
 
@@ -57,7 +62,7 @@ k3sup --help
 
 ### A note for Windows users
 
-Windows users can use `k3sup install` and `k3sup join` with a normal "Windows command prompt", but the `k3sup app install` feature needs to be run inside a [Git Bash](https://git-scm.com/downloads) terminal.
+Windows users can use `k3sup install` and `k3sup join` with a normal "Windows command prompt".
 
 ## Demo 📼
 
@@ -118,87 +123,6 @@ Other options for `install`:
 ```sh
 export KUBECONFIG=`pwd`/kubeconfig
 kubectl get node
-```
-
-### 🎬 Install an `app` with `k3sup`
-
-Install apps with `k3sup` `>=0.4.0` directly **into any Kubernetes cluster**, all you need is `kubectl` access.
-
-You can install [openfaas](https://github.com/openfaas/faas) for Kubernetes in a single command, it will detect whether you're using a Raspberry Pi or a regular computer.
-
-> What does "PC" only mean? It means that you cannot install the app to a computer running an ARM processor. For instance, Istio has no support for ARM, only Intel aka PC.
-
-```sh
-# OpenFaaS - microservices and functions for Kubernetes
-# PC, RPi and ARM64
-k3sup app install openfaas
-
-# Explore the various options with:
-k3sup app install openfaas --help
-
-# Metrics for Pods and Nodes, PC only
-k3sup app install metrics-server
-
-# Get a public IP / Service LoadBalancer via DigitalOcean
-# or Packet.com
-# PC, RPi and ARM64
-k3sup app install inlets-operator
-
-# cert-manager - obtain free TLS certificates from LetsEncrypt
-# PC, RPi and ARM64
-k3sup app install cert-manager
-
-# nginx - install the Nginx IngressController
-# PC, RPi and ARM64
-k3sup app install nginx-ingress
-
-# PC only
-k3sup app install istio
-
-# docker-registry-ingress - add TLS to your registry and ingress on port 443 and 80
-k3sup app install docker-registry-ingress --email example@example.com --domain reg.example.com
-```
-
-Find out more with:
-
-```sh
-k3sup app --help
-k3sup app install --help
-k3sup app install APP_NAME --help
-```
-
-Apps that you can install today:
-* `openfaas` / `openfaas-ingress`
-* nginx-ingress
-* cert-manager
-* inlets-operator
-* metrics-server
-* tiller
-* linkerd
-* cron-connector
-* kafka-connector
-* minio
-* postgresql
-* kubernetes-dashboard
-* istio
-* crossplane
-* `docker-registry` / `docker-registry-ingress`
-
-Want to request an app? [Raise an issue](https://github.com/alexellis/k3sup/issues) or let me know on [Slack](https://slack.openfaas.io).
-
-You can also find about how to use the app after installation by using
-
-```sh
-k3sup app info openfaas
-k3sup app info inlets-operator
-```
-
-Find out more with
-
-```sh
-k3sup app info --help
-# To know for which apps you can get info
-k3sup app info
 ```
 
 ### 😸 Join some agents to your Kubernetes server
