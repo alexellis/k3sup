@@ -66,6 +66,7 @@ command.`,
 	install.AddCommand(apps.MakeInstallMongoDB())
 	install.AddCommand(apps.MakeInstallRegistry())
 	install.AddCommand(apps.MakeInstallRegistryIngress())
+	install.AddCommand(apps.MakeInstallHelmOperator())
 
 	command.AddCommand(MakeInfo())
 
@@ -92,5 +93,6 @@ func getApps() []string {
 		"mongodb",
 		"docker-registry",
 		"docker-registry-ingress",
+		"helm-operator",
 	}
 }
