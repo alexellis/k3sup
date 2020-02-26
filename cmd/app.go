@@ -21,8 +21,8 @@ command.`,
 	}
 
 	command.RunE = func(cmd *cobra.Command, args []string) error {
-		fmt.Printf(
-			`The "k3sup app install/info" command has moved to a new home.
+		return fmt.Errorf(`
+The "k3sup app install/info" command has moved to a new home.
 You can now install Kubernetes apps via the arkade project.
 
 To find out more about this decision, see the following issue:
@@ -35,10 +35,7 @@ Example:
 
 curl -sSL https://dl.get-arkade.dev/ | sudo sh
 
-Read more about https://get-arkade.dev/
-
-`)
-		return nil
+Read more about https://get-arkade.dev/`)
 	}
 
 	return command
