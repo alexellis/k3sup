@@ -14,6 +14,7 @@ func main() {
 	cmdJoin := cmd.MakeJoin()
 	cmdApps := cmd.MakeApps()
 	cmdUpdate := cmd.MakeUpdate()
+
 	printk3supASCIIArt := cmd.PrintK3supASCIIArt
 
 	var rootCmd = &cobra.Command{
