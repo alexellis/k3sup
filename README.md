@@ -360,6 +360,12 @@ Related tools:
 
 ## Appendix
 
+### `sudo` required for kubectl
+
+It's recommended that you *do not* run kubectl on your node, or RPi cluster, but use the KUBECONFIG file from your controller/laptop.
+
+See also: [Set kubeconfig to world-readable](https://github.com/rancher/k3s/issues/389)
+
 ### `iptables`
 
 > Note added by Eduardo Minguez Perez
