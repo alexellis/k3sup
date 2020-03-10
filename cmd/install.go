@@ -42,8 +42,11 @@ func MakeInstall() *cobra.Command {
 	command.Flags().String("local-path", "kubeconfig", "Local path to save the kubeconfig file")
 	command.Flags().String("context", "default", "Set the name of the kubeconfig context.")
 	command.Flags().String("k3s-extra-args", "", "Optional extra arguments to pass to k3s installer, wrapped in quotes (e.g. --k3s-extra-args '--no-deploy servicelb')")
+	command.Flags().Bool("no-extras", false, `Disable "servicelb" and "traefik"`)
+
 	command.Flags().Bool("ipsec", false, "Enforces and/or activates optional extra argument for k3s: flannel-backend option: ipsec")
-	command.Flags().Bool("merge", false, "Merge the config with existing kubeconfig if it already exists.\nProvide the --local-path flag with --merge if a kubeconfig already exists in some other directory")
+	command.Flags().Bool("merge", false, `Merge the config with existing kubeconfig if it already exists.
+Provide the --local-path flag with --merge if a kubeconfig already exists in some other directory`)
 	command.Flags().String("k3s-version", config.K3sVersion, "Optional version to install, pinned at a default")
 
 	command.Flags().Bool("local", false, "Perform a local install without using ssh")
@@ -65,6 +68,8 @@ func MakeInstall() *cobra.Command {
 
 		k3sVersion, _ := command.Flags().GetString("k3s-version")
 		k3sExtraArgs, _ := command.Flags().GetString("k3s-extra-args")
+		k3sNoExtras, _ := command.Flags().GetBool("no-extras")
+
 		flannelIPSec, _ := command.Flags().GetBool("ipsec")
 
 		local, _ := command.Flags().GetBool("local")
@@ -80,6 +85,9 @@ func MakeInstall() *cobra.Command {
 
 		if flannelIPSec {
 			k3sExtraArgs += ` '--flannel-backend ipsec'`
+		}
+		if k3sNoExtras {
+			k3sExtraArgs += `--no-deploy servicelb --no-deploy traefik`
 		}
 
 		installk3sExec := fmt.Sprintf("INSTALL_K3S_EXEC='server %s --tls-san %s %s'", clusterStr, ip, strings.TrimSpace(k3sExtraArgs))
