@@ -28,11 +28,12 @@ func MakeInstall() *cobra.Command {
 		Use:          "install",
 		Short:        "Install k3s on a server via SSH",
 		Long:         `Install k3s on a server via SSH.`,
-		Example:      `  k3sup install --ip 192.168.0.100 --user root`,
+		Example:      `  k3sup install --host 192.168.0.100 --user root`,
 		SilenceUsage: true,
 	}
 
 	command.Flags().IP("ip", net.ParseIP("127.0.0.1"), "Public IP of node")
+	command.Flags().String("host", "", "Public IP or hostname of node")
 	command.Flags().String("user", "root", "Username for SSH login")
 
 	command.Flags().String("ssh-key", "~/.ssh/id_rsa", "The ssh key to use for remote login")
@@ -52,6 +53,7 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 	command.Flags().Bool("local", false, "Perform a local install without using ssh")
 	command.Flags().Bool("cluster", false, "Form a dqlite cluster")
 
+	command.Flags().MarkDeprecated("ip", "please use --host instead")
 	command.RunE = func(command *cobra.Command, args []string) error {
 
 		fmt.Printf("Running: k3sup install\n")
@@ -75,6 +77,11 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 		local, _ := command.Flags().GetBool("local")
 
 		ip, _ := command.Flags().GetIP("ip")
+		host, _ := command.Flags().GetString("host")
+
+		if host == "" {
+			host = ip.String()
+		}
 
 		cluster, _ := command.Flags().GetBool("cluster")
 
@@ -90,7 +97,7 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 			k3sExtraArgs += `--no-deploy servicelb --no-deploy traefik`
 		}
 
-		installk3sExec := fmt.Sprintf("INSTALL_K3S_EXEC='server %s --tls-san %s %s'", clusterStr, ip, strings.TrimSpace(k3sExtraArgs))
+		installk3sExec := fmt.Sprintf("INSTALL_K3S_EXEC='server %s --tls-san %s %s'", clusterStr, host, strings.TrimSpace(k3sExtraArgs))
 
 		installK3scommand := fmt.Sprintf("curl -sLS https://get.k3s.io | %s INSTALL_K3S_VERSION='%s' sh -\n", installk3sExec, k3sVersion)
 		getConfigcommand := fmt.Sprintf(sudoPrefix + "cat /etc/rancher/k3s/k3s.yaml\n")
@@ -114,7 +121,7 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 				fmt.Printf("stdout: %q", res.StdOut)
 			}
 
-			err = obtainKubeconfig(operator, getConfigcommand, ip.String(), context, localKubeconfig, merge)
+			err = obtainKubeconfig(operator, getConfigcommand, host, context, localKubeconfig, merge)
 			if err != nil {
 				return err
 			}
@@ -124,13 +131,13 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 
 		port, _ := command.Flags().GetInt("ssh-port")
 
-		fmt.Println("Public IP: " + ip.String())
+		fmt.Println("Host: " + host)
 
 		user, _ := command.Flags().GetString("user")
 		sshKey, _ := command.Flags().GetString("ssh-key")
 
 		sshKeyPath := expandPath(sshKey)
-		fmt.Printf("ssh -i %s -p %d %s@%s\n", sshKeyPath, port, user, ip.String())
+		fmt.Printf("ssh -i %s -p %d %s@%s\n", sshKeyPath, port, user, host)
 
 		authMethod, closeSSHAgent, err := loadPublickey(sshKeyPath)
 		if err != nil {
@@ -147,7 +154,7 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 			HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 		}
 
-		address := fmt.Sprintf("%s:%d", ip.String(), port)
+		address := fmt.Sprintf("%s:%d", host, port)
 		operator, err := operator.NewSSHOperator(address, config)
 
 		if err != nil {
@@ -170,7 +177,7 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 
 		fmt.Printf("ssh: %s\n", getConfigcommand)
 
-		err = obtainKubeconfig(operator, getConfigcommand, ip.String(), context, localKubeconfig, merge)
+		err = obtainKubeconfig(operator, getConfigcommand, host, context, localKubeconfig, merge)
 		if err != nil {
 			return err
 		}
@@ -182,6 +189,11 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 		_, ipErr := command.Flags().GetIP("ip")
 		if ipErr != nil {
 			return ipErr
+		}
+
+		_, hostErr := command.Flags().GetString("host")
+		if hostErr != nil {
+			return hostErr
 		}
 
 		_, sshPortErr := command.Flags().GetInt("ssh-port")

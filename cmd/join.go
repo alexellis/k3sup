@@ -17,12 +17,15 @@ func MakeJoin() *cobra.Command {
 		Use:          "join",
 		Short:        "Install the k3s agent on a remote host and join it to an existing server",
 		Long:         `Install the k3s agent on a remote host and join it to an existing server`,
-		Example:      `  k3sup join --user root --server-ip 192.168.0.100 --ip 192.168.0.101`,
+		Example:      `  k3sup join --user root --server-host 192.168.0.100 --host 192.168.0.101`,
 		SilenceUsage: true,
 	}
 
-	command.Flags().IP("server-ip", nil, "Public IP of existing k3s server")
-	command.Flags().IP("ip", nil, "Public IP of node on which to install agent")
+	command.Flags().IP("server-ip", net.ParseIP("127.0.0.1"), "Public IP of existing k3s server")
+	command.Flags().String("server-host", "", "Public IP or hostname of existing k3s server")
+
+	command.Flags().IP("ip", net.ParseIP("127.0.0.1"), "Public IP of node on which to install agent")
+	command.Flags().String("host", "", "Public IP or hostname of node on which to install agent")
 
 	command.Flags().String("user", "root", "Username for SSH login")
 	command.Flags().String("server-user", "root", "Server username for SSH login (Default to --user)")
@@ -37,14 +40,25 @@ func MakeJoin() *cobra.Command {
 
 	command.Flags().Bool("server", false, "Join the cluster as a server rather than as an agent")
 
+	command.Flags().MarkDeprecated("server-ip", "please use --server-host instead")
+	command.Flags().MarkDeprecated("ip", "please use --host instead")
+
 	command.RunE = func(command *cobra.Command, args []string) error {
 		fmt.Printf("Running: k3sup join\n")
 
 		ip, _ := command.Flags().GetIP("ip")
+		host, _ := command.Flags().GetString("host")
+		if host == "" {
+			host = ip.String()
+		}
 
 		serverIP, _ := command.Flags().GetIP("server-ip")
+		serverHost, _ := command.Flags().GetString("server-host")
+		if serverHost == "" {
+			serverHost = serverIP.String()
+		}
 
-		fmt.Println("Server IP: " + serverIP.String())
+		fmt.Println("Server Host: " + serverHost)
 
 		user, _ := command.Flags().GetString("user")
 
@@ -75,7 +89,7 @@ func MakeJoin() *cobra.Command {
 		}
 
 		sshKeyPath := expandPath(sshKey)
-		fmt.Printf("ssh -i %s -p %v %s@%s\n", sshKeyPath, serverPort, serverUser, serverIP.String())
+		fmt.Printf("ssh -i %s -p %v %s@%s\n", sshKeyPath, serverPort, serverUser, serverHost)
 
 		authMethod, closeSSHAgent, err := loadPublickey(sshKeyPath)
 		if err != nil {
@@ -92,7 +106,7 @@ func MakeJoin() *cobra.Command {
 			HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 		}
 
-		address := fmt.Sprintf("%s:%d", serverIP.String(), serverPort)
+		address := fmt.Sprintf("%s:%d", serverHost, serverPort)
 		operator, err := operator.NewSSHOperator(address, config)
 
 		if err != nil {
@@ -121,9 +135,9 @@ func MakeJoin() *cobra.Command {
 
 		var boostrapErr error
 		if server {
-			boostrapErr = setupAdditionalServer(serverIP, ip, port, user, sshKeyPath, joinToken, k3sExtraArgs, k3sVersion)
+			boostrapErr = setupAdditionalServer(serverHost, host, port, user, sshKeyPath, joinToken, k3sExtraArgs, k3sVersion)
 		} else {
-			boostrapErr = setupAgent(serverIP, ip, port, user, sshKeyPath, joinToken, k3sExtraArgs, k3sVersion)
+			boostrapErr = setupAgent(serverHost, host, port, user, sshKeyPath, joinToken, k3sExtraArgs, k3sVersion)
 		}
 
 		return boostrapErr
@@ -135,9 +149,9 @@ func MakeJoin() *cobra.Command {
 			return ipErr
 		}
 
-		_, ipErr = command.Flags().GetIP("server-ip")
-		if ipErr != nil {
-			return ipErr
+		_, hostErr := command.Flags().GetString("host")
+		if hostErr != nil {
+			return hostErr
 		}
 
 		_, sshPortErr := command.Flags().GetInt("ssh-port")
@@ -150,7 +164,7 @@ func MakeJoin() *cobra.Command {
 	return command
 }
 
-func setupAdditionalServer(serverIP, ip net.IP, port int, user, sshKeyPath, joinToken, k3sExtraArgs, k3sVersion string) error {
+func setupAdditionalServer(serverHost, host string, port int, user, sshKeyPath, joinToken, k3sExtraArgs, k3sVersion string) error {
 
 	authMethod, closeSSHAgent, err := loadPublickey(sshKeyPath)
 	if err != nil {
@@ -167,7 +181,7 @@ func setupAdditionalServer(serverIP, ip net.IP, port int, user, sshKeyPath, join
 		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 	}
 
-	address := fmt.Sprintf("%s:%d", ip.String(), port)
+	address := fmt.Sprintf("%s:%d", host, port)
 	operator, err := operator.NewSSHOperator(address, config)
 
 	if err != nil {
@@ -176,8 +190,8 @@ func setupAdditionalServer(serverIP, ip net.IP, port int, user, sshKeyPath, join
 
 	defer operator.Close()
 	getTokenCommand := fmt.Sprintf("curl -sfL https://get.k3s.io/ | K3S_URL='https://%s:6443' INSTALL_K3S_EXEC='server --server https://%s:6443' K3S_TOKEN='%s' INSTALL_K3S_VERSION='%s' sh -s - %s",
-		serverIP.String(),
-		serverIP.String(),
+		serverHost,
+		serverHost,
 		strings.TrimSpace(joinToken),
 		k3sVersion,
 		k3sExtraArgs)
@@ -200,7 +214,7 @@ func setupAdditionalServer(serverIP, ip net.IP, port int, user, sshKeyPath, join
 	return nil
 }
 
-func setupAgent(serverIP, ip net.IP, port int, user, sshKeyPath, joinToken, k3sExtraArgs, k3sVersion string) error {
+func setupAgent(serverHost, host string, port int, user, sshKeyPath, joinToken, k3sExtraArgs, k3sVersion string) error {
 
 	authMethod, closeSSHAgent, err := loadPublickey(sshKeyPath)
 	if err != nil {
@@ -217,7 +231,7 @@ func setupAgent(serverIP, ip net.IP, port int, user, sshKeyPath, joinToken, k3sE
 		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 	}
 
-	address := fmt.Sprintf("%s:%d", ip.String(), port)
+	address := fmt.Sprintf("%s:%d", host, port)
 	operator, err := operator.NewSSHOperator(address, config)
 
 	if err != nil {
@@ -227,7 +241,7 @@ func setupAgent(serverIP, ip net.IP, port int, user, sshKeyPath, joinToken, k3sE
 	defer operator.Close()
 
 	getTokenCommand := fmt.Sprintf("curl -sfL https://get.k3s.io/ | K3S_URL='https://%s:6443' K3S_TOKEN='%s' INSTALL_K3S_VERSION='%s' sh -s - %s",
-		serverIP.String(),
+		serverHost,
 		strings.TrimSpace(joinToken),
 		k3sVersion,
 		k3sExtraArgs)
