@@ -98,14 +98,14 @@ getPackage() {
         targetFile="$(pwd)/$REPO$suffix"
     fi
 
-    if [ -e $targetFile ]; then
-        rm $targetFile
+    if [ -e "$targetFile" ]; then
+        rm "$targetFile"
     fi
 
     url=https://github.com/$OWNER/$REPO/releases/download/$version/$REPO$suffix
     echo "Downloading package $url as $targetFile"
 
-    curl -sSL $url --output $targetFile
+    curl -sSL $url --output "$targetFile"
 
     if [ "$?" = "0" ]; then
 
@@ -113,7 +113,7 @@ getPackage() {
             checkHash
         fi
 
-    chmod +x $targetFile
+    chmod +x "$targetFile"
 
     echo "Download complete."
        
@@ -158,8 +158,8 @@ getPackage() {
                 echo "New version of $REPO installed to $BINLOCATION"
             fi
 
-            if [ -e $targetFile ]; then
-                rm $targetFile
+            if [ -e "$targetFile" ]; then
+                rm "$targetFile"
             fi
 
             if [ -n "$ALIAS_NAME" ]; then
