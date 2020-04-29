@@ -340,6 +340,8 @@ MIT
 
 * [Kubernetes: from Zero to Hero with Kompose, Minikube, k3sup and Helm](https://blog.mi.hdm-stuttgart.de/index.php/2020/02/29/image-editor-on-kubernetes-with-kompose-minikube-k3s-k3sup-and-helm-part-2/) by Leon Klingele, Alexander Merker & Florian Wintel
 
+* [Deploying a highly-available K3s with k3sup](https://ma.ttias.be/deploying-highly-available-k3s-k3sup/) by Dmitriy Akulov
+
 Checkout the [Announcement tweet](https://twitter.com/alexellisuk/status/1162272786250735618?s=20)
 
 ## Similar tools & glossary
