@@ -327,6 +327,10 @@ func loadPublickey(path string) (ssh.AuthMethod, func() error, error) {
 
 		fmt.Printf("Enter passphrase for '%s': ", path)
 		bytePassword, err := terminal.ReadPassword(int(os.Stdin.Fd()))
+		if err != nil {
+			return nil, noopCloseFunc, err
+		}
+
 		fmt.Println()
 
 		signer, err = ssh.ParsePrivateKeyWithPassphrase(key, bytePassword)
