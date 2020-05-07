@@ -6,8 +6,8 @@ import (
 	"path"
 )
 
-// K3sVersion default version
-const K3sVersion = "v1.17.2+k3s1"
+// K3sBranch default branch
+const K3sBranch = "stable"
 
 func InitUserDir() (string, error) {
 	home := os.Getenv("HOME")
