@@ -95,9 +95,9 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 		var k3sVersionCmd string
 
 		if k3sVersion != "" {
-			k3sVersionCmd = fmt.Sprintf("INSTALL_K3S_VERSION='%s'",k3sVersion)
+			k3sVersionCmd = fmt.Sprintf("INSTALL_K3S_VERSION='%s'", k3sVersion)
 		} else {
-			k3sVersionCmd = fmt.Sprintf("INSTALL_K3S_CHANNEL='%s'",k3sBranch)
+			k3sVersionCmd = fmt.Sprintf("INSTALL_K3S_CHANNEL='%s'", k3sBranch)
 		}
 
 		installk3sExec := fmt.Sprintf("INSTALL_K3S_EXEC='server %s --tls-san %s %s'", clusterStr, ip, strings.TrimSpace(k3sExtraArgs))

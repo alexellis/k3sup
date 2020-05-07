@@ -73,9 +73,9 @@ func MakeJoin() *cobra.Command {
 		var k3sVersionCmd string
 
 		if k3sVersion != "" {
-			k3sVersionCmd = fmt.Sprintf("INSTALL_K3S_VERSION='%s'",k3sVersion)
+			k3sVersionCmd = fmt.Sprintf("INSTALL_K3S_VERSION='%s'", k3sVersion)
 		} else {
-			k3sVersionCmd = fmt.Sprintf("INSTALL_K3S_CHANNEL='%s'",k3sBranch)
+			k3sVersionCmd = fmt.Sprintf("INSTALL_K3S_CHANNEL='%s'", k3sBranch)
 		}
 
 		useSudo, _ := command.Flags().GetBool("sudo")
