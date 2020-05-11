@@ -283,6 +283,8 @@ MIT
 
 ## 📢 What are people saying about `k3sup`?
 
+* [Five years of Raspberry Pi clusters](https://www.raspberrypi.org/blog/five-years-of-raspberry-pi-clusters/) - raspberrypi.org
+
 * [Multi-master HA Kubernetes in < 5 minutes](https://blog.alexellis.io/multi-master-ha-kubernetes-in-5-minutes/) by Alex Ellis
 
 * [Kubernetes Homelab with Raspberry Pi and k3sup](https://blog.alexellis.io/raspberry-pi-homelab-with-k3sup/)
@@ -293,9 +295,9 @@ MIT
 
 * [Create a 3-node k3s cluster with k3sup & DigitalOcean](https://blog.alexellis.io/create-a-3-node-k3s-cluster-with-k3sup-digitalocean/)
 
-* [k3sup mentioned on Kubernetes Podcast episode 67](https://kubernetespodcast.com/episode/067-orka/) by Craig Box & Adam Glick
+* [Cheap k3s cluster using Amazon Lightsail](https://eamonbauman.com/2020/05/09/cheap-k3s-cluster-using-amazon-lightsail/)
 
-* [kube-rpi blog-post with 64-bit OS by Michael Hausenblas](https://mhausenblas.info/kube-rpi/)
+* [k3sup mentioned on Kubernetes Podcast episode 67](https://kubernetespodcast.com/episode/067-orka/) by Craig Box & Adam Glick
 
 * [Scheduling Kubernetes workloads to Raspberry Pi using Inlets and Crossplane](https://github.com/crossplaneio/tbs/blob/master/episodes/9/assets/README.md) by [Daniel Mangum](https://github.com/hasheddan)
   * Also checkout the live [demo](https://youtu.be/RVAFEAnirZA)
