@@ -10,25 +10,60 @@ import (
 	"github.com/alexellis/k3sup/pkg/helm"
 )
 
+// To regenerate:
+// openssl genrsa -des3 -out /tmp/id_rsa_encrypted 2048
 const privateKey = `-----BEGIN RSA PRIVATE KEY-----
 Proc-Type: 4,ENCRYPTED
-DEK-Info: DES-EDE3-CBC,6015676AEB0A96A9
+DEK-Info: DES-EDE3-CBC,4FA02C824DA7DA35
 
-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
+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
 -----END RSA PRIVATE KEY-----
 `
+
+func Test_loadPublickeyEncrypted(t *testing.T) {
+	want := "parse private key with passphrase failed: x509: decryption password incorrect"
+
+	tmpfile, err := ioutil.TempFile("", "key")
+	if err != nil {
+		t.Error(err)
+	}
+
+	fileName := tmpfile.Name()
+	defer os.Remove(fileName)
+	if _, err := tmpfile.Write([]byte(privateKey)); err != nil {
+		t.Fatalf("unable to write test file %s, %s", fileName, err)
+	}
+
+	tmpfile.Close()
+	_, _, err = loadPublickey(fileName)
+	if err.Error() != want {
+		t.Fatalf("want: %q, but got: %q", want, err.Error())
+	}
+}
 
 const kubeconfigExample = `
 apiVersion: v1
@@ -52,26 +87,6 @@ users:
     username: admin
 `
 
-func Test_loadPublickeyEncrypted(t *testing.T) {
-	expected := "x509: decryption password incorrect"
-
-	tmpfile, err := ioutil.TempFile("", "key")
-	if err != nil {
-		t.Error(err)
-	}
-
-	defer os.Remove(tmpfile.Name())
-	if _, err := tmpfile.Write([]byte(privateKey)); err != nil {
-		t.Error(err)
-	}
-
-	tmpfile.Close()
-	_, _, err = loadPublickey(tmpfile.Name())
-	if err.Error() != expected {
-		t.Errorf("Unexpected error, got: %q, want: %q.", err.Error(), expected)
-	}
-}
-
 func Test_RewriteKubeconfig(t *testing.T) {
 	var ip = "192.168.0.25"
 	var context = "context-test"
@@ -83,7 +98,7 @@ func Test_RewriteKubeconfig(t *testing.T) {
 	group := re.FindSubmatch(kubeconfig)
 
 	if len(group) == 0 || string(group[1]) != ip {
-		t.Errorf("Unexpected error, got: %q, want: %q.", string(group[1]), ip)
+		t.Fatalf("unexpected error, got: %q, want: %q.", string(group[1]), ip)
 	}
 
 	kubeconfigExampleIPLocal := strings.Replace(kubeconfigExample, "localhost", "127.0.0.1", -1)
@@ -91,7 +106,7 @@ func Test_RewriteKubeconfig(t *testing.T) {
 
 	group = re.FindSubmatch(kubeconfig)
 	if len(group) == 0 || string(group[1]) != ip {
-		t.Errorf("Unexpected error, got: %q, want: %q.", string(group[1]), ip)
+		t.Fatalf("unexpected error, got: %q, want: %q.", string(group[1]), ip)
 	}
 
 	// Test context
@@ -102,7 +117,7 @@ func Test_RewriteKubeconfig(t *testing.T) {
 	match := re.FindAllIndex(kubeconfig, -1)
 
 	if len(match) != len(expectedContextsToReplace) {
-		t.Errorf("Unexpected error, got: %q, want: %q.", len(match), len(expectedContextsToReplace))
+		t.Fatalf("unexpected error, got: %q, want: %q.", len(match), len(expectedContextsToReplace))
 	}
 
 	kubeconfig = rewriteKubeconfig(kubeconfigExample, ip, context)
@@ -111,7 +126,7 @@ func Test_RewriteKubeconfig(t *testing.T) {
 	match = re.FindAllIndex(kubeconfig, -1)
 
 	if len(match) != len(expectedContextsToReplace) {
-		t.Errorf("Unexpected error, got: %q, want: %q.", len(match), len(expectedContextsToReplace))
+		t.Fatalf("unexpected error, got: %q, want: %q.", len(match), len(expectedContextsToReplace))
 	}
 }
 
@@ -120,6 +135,6 @@ func Test_getHelmURL(t *testing.T) {
 	want := "https://get.helm.sh/helm-v2.14.3-darwin-amd64.tar.gz"
 
 	if want != got {
-		t.Errorf("want %s, got %s", want, got)
+		t.Errorf("incorrect Helm URL - want: %s, but got: %s", want, got)
 	}
 }
