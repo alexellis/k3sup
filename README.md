@@ -113,6 +113,7 @@ Other options for `install`:
 * `--merge` - Merge config into existing file instead of overwriting (e.g. to add config to the default kubectl config, use `--local-path ~/.kube/config --merge`).
 * `--context` - default is `default` - set the name of the kubeconfig context.
 * `--ssh-port` - default is `22`, but you can specify an alternative port i.e. `2222`
+* `--root` - default is `true`, use sudo for installation. Set to false when using the root user and no sudo is available.
 * `--k3s-extra-args` - Optional extra arguments to pass to k3s installer, wrapped in quotes, i.e. `--k3s-extra-args '--no-deploy traefik'` or `--k3s-extra-args '--docker'`. For multiple args combine then within single quotes `--k3s-extra-args '--no-deploy traefik --docker'`.
 * `--k3s-version` - set the specific version of k3s, i.e. `v0.9.1`
 - `--ipsec` - Enforces the optional extra argument for k3s: `--flannel-backend` option: `ipsec`
