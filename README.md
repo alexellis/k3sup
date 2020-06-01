@@ -22,31 +22,15 @@ k3sup was developed to automate what can be a very manual and confusing process 
 
 ### Uses
 
-* Bootstrap Kubernetes with k3s onto any VM - either manually, during CI or through `cloudinit`
+* Bootstrap Kubernetes with k3s onto any VM with `k3usp install` - either manually, during CI or through `cloudinit`
 * Get from zero to `kubectl` with `k3s` on Raspberry Pi (RPi), VMs, AWS EC2, Packet bare-metal, DigitalOcean, Civo, Scaleway, and others
 * Fetch a working KUBECONFIG from an existing `k3s` cluster
 * Join nodes into an existing `k3s` cluster with `k3sup join`
 
 ### Bootstrapping Kubernetes
 
-![](./docs/k3sup-cloud.png)
+![Conceptual architecture](./docs/k3sup-cloud.png)
 *Conceptual architecture, showing `k3sup` running locally against any VM such as AWS EC2 or a VPS such as DigitalOcean.*
-
-### `k3sup app install` - easy installation of Kubernetes apps
-
-The `k3sup app install/info` command has been spun-out into its own project named [arkade](https://get-arkade.dev/).
-
-If you're follow a tutorial or readme, don't worry, you can still use all the apps.
-
-```sh
-k3sup app install openfaas
-
-# Simply becomes:
-
-arkade install openfaas
-```
-
-Find out why [in this GitHub Issue](https://github.com/alexellis/k3sup/issues/217)
 
 ## Download `k3sup` (tl;dr)
 
@@ -77,11 +61,11 @@ Watch the demo:
 
 ## Who is the author? 👏
 
-`k3sup` is Open Source Software (OSS) and was created by [Alex Ellis](https://www.alexellis.io/) - the Founder of [OpenFaaS &reg;](https://www.openfaas.com/) and a voluntary [CNCF Ambassador](https://www.cncf.io/people/ambassadors/).
+`k3sup` is Open Source Software (OSS) and was created by [Alex Ellis](https://www.alexellis.io/) - the founder of [OpenFaaS &reg;](https://www.openfaas.com/) & [inlets](https://inlets.dev/). Alex is also an active part of the Docker & Kubernetes community as a [CNCF Ambassador](https://www.cncf.io/people/ambassadors/).
 
-Do you like `k3sup` or enjoy any of Alex's other work? 🍻
+If you've benefitted from his open source projects or blog posts in some way, then and join dozens of other developers today by buying an Insiders Subscription 🏆
 
-Join dozens of other developers 🏆 in supporting Alex and his work through [GitHub Sponsors](https://github.com/users/alexellis/sponsorship) today. You'll get into the Insiders Track and access to regular email updates on all his work.
+* Buy an Insiders Subscription via [GitHub](https://github.com/users/alexellis/sponsorship) today
 
 ## Usage ✅
 
@@ -248,22 +232,22 @@ On most Linux systems and MacOS, ssh-agent is automatically configured and execu
 
 To start the ssh-agent manually and add your key run the following commands:
 
-```
+```bash
 eval `ssh-agent`
 ssh-add ~/.ssh/id_rsa
 ```
 
 You can now just run k3sup as usual. No special parameters are necessary.
 
-```
+```bash
 k3sup --ip $IP --user user
 ```
 
 ## Contributing
 
-### Say thanks ☕️ 👏
+### Insiders Subscription ☕️ 👏
 
-Show your support for `k3sup` and through [GitHub Sponsors](https://github.com/users/alexellis/sponsorship) today, pay whatever you want.
+Buy an Insiders Subscription today via [GitHub](https://github.com/users/alexellis/sponsorship).
 
 ### Blog posts & tweets
 
@@ -379,7 +363,6 @@ Currently there is an issue in k3s involving `iptables >= 1.8` that can affect t
 ### Go modules
 
 * [Go modules wiki](https://github.com/golang/go/wiki/Modules)
-
 
 ### Troubleshooting
 
