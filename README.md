@@ -18,13 +18,14 @@ This tool uses `ssh` to install `k3s` to a remote Linux host. You can also use i
 
 You may wonder why a tool like this needs to exist when you can do this sort of thing with bash.
 
-k3sup was developed to automate what can be a very manual and confusing process for many developers, who are already short on time. Once you've provisioned a VM with your favourite tooling, `k3sup` means you are only 60 seconds away from running `kubectl get pods` on your own computer. With version 0.2.0, you can even `join` other nodes into any existing k3s cluster.
+k3sup was developed to automate what can be a very manual and confusing process for many developers, who are already short on time. Once you've provisioned a VM with your favourite tooling, `k3sup` means you are only 60 seconds away from running `kubectl get pods` on your own computer. If you are a local computer, you can bypass SSH with `k3sup install --local`
 
 ### Uses
 
-* Bootstrap Kubernetes with k3s onto any VM with `k3usp install` - either manually, during CI or through `cloudinit`
+* Bootstrap Kubernetes with k3s onto any VM with `k3usp install` - either manually, during CI or through `cloud-init`
 * Get from zero to `kubectl` with `k3s` on Raspberry Pi (RPi), VMs, AWS EC2, Packet bare-metal, DigitalOcean, Civo, Scaleway, and others
-* Fetch a working KUBECONFIG from an existing `k3s` cluster
+* Build a HA, multi-master (server) cluster
+* Fetch the KUBECONFIG from an existing `k3s` cluster
 * Join nodes into an existing `k3s` cluster with `k3sup join`
 
 ### Bootstrapping Kubernetes
@@ -69,7 +70,7 @@ If you've benefitted from his open source projects or blog posts in some way, th
 
 ## Usage ✅
 
-The `k3sup` tool is designed to be run on your desktop/laptop computer, but binaries are provided for MacOS, Windows, and Linux (including ARM).
+The `k3sup` tool is a client application which you can run on your own computer. It uses SSH to connect to remote servers and creates a local KUBECONFIG file on your disk. Binaries are provided for MacOS, Windows, and Linux (including ARM).
 
 ### 👑 Setup a Kubernetes *server* with `k3sup`
 
@@ -104,10 +105,31 @@ Other options for `install`:
 
 * Now try the access:
 
-```sh
+```bash
 export KUBECONFIG=`pwd`/kubeconfig
 kubectl get node
 ```
+
+Note that you should always use `pwd/` so that a full path is set, and you can change directory if you wish.
+
+### Advanced KUBECONFIG options
+
+You can also merge the remote config into your main KUBECONFIG file `$HOME/.kube/config`, then use `kubectl config get-contexts` or `kubectx` to manage it.
+
+The default "context" name for the remote k3s cluster is `default`, however you can override this as below.
+
+For example:
+
+```bash
+k3sup install \
+  --ip $IP \
+  --user $USER \
+  --merge \
+  --local-path $HOME/.kube/config \
+  --context my-k3s
+```
+
+Here we set a context of `my-k3s` and also merge into our main local `KUBECONFIG` file, so we could run `kubectl config set-context my-k3s` or `kubectx my-k3s`.
 
 ### 😸 Join some agents to your Kubernetes server
 
