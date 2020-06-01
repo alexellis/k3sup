@@ -36,7 +36,7 @@ k3sup was developed to automate what can be a very manual and confusing process 
 
 The `k3sup app install/info` command has been spun-out into its own project named [arkade](https://get-arkade.dev/).
 
-If you're follow a tutorial or readme, don't worry, you can still use all the apps.
+If you're following a tutorial or readme, don't worry, you can still use all the apps.
 
 ```sh
 k3sup app install openfaas
