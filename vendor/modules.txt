@@ -1,4 +1,4 @@
-# github.com/alexellis/go-execute v0.0.0-20191207085904-961405ea7544
+# github.com/alexellis/go-execute v0.0.0-20200124154445-8697e4e28c5e
 github.com/alexellis/go-execute/pkg/v1
 # github.com/inconshreveable/mousetrap v1.0.0
 github.com/inconshreveable/mousetrap
@@ -6,27 +6,26 @@ github.com/inconshreveable/mousetrap
 github.com/mitchellh/go-homedir
 # github.com/morikuni/aec v1.0.0
 github.com/morikuni/aec
-# github.com/pkg/errors v0.8.1
+# github.com/pkg/errors v0.9.1
 github.com/pkg/errors
-# github.com/sethvargo/go-password v0.1.2
-github.com/sethvargo/go-password/password
-# github.com/spf13/cobra v0.0.5
+# github.com/spf13/cobra v1.0.0
 github.com/spf13/cobra
 # github.com/spf13/pflag v1.0.5
 github.com/spf13/pflag
-# golang.org/x/crypto v0.0.0-20190701094942-4def268fd1a4
-golang.org/x/crypto/bcrypt
+# golang.org/x/crypto v0.0.0-20200604202706-70a84ac30bf9
 golang.org/x/crypto/blowfish
+golang.org/x/crypto/chacha20
 golang.org/x/crypto/curve25519
 golang.org/x/crypto/ed25519
 golang.org/x/crypto/ed25519/internal/edwards25519
-golang.org/x/crypto/internal/chacha20
 golang.org/x/crypto/internal/subtle
 golang.org/x/crypto/poly1305
 golang.org/x/crypto/ssh
 golang.org/x/crypto/ssh/agent
+golang.org/x/crypto/ssh/internal/bcrypt_pbkdf
 golang.org/x/crypto/ssh/terminal
-# golang.org/x/sys v0.0.0-20190826190057-c7b8b68b1456
+# golang.org/x/sys v0.0.0-20200620081246-981b61492c35
 golang.org/x/sys/cpu
+golang.org/x/sys/internal/unsafeheader
 golang.org/x/sys/unix
 golang.org/x/sys/windows
