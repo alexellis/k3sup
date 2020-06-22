@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"io/ioutil"
 	"os"
 	"regexp"
@@ -8,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/alexellis/k3sup/pkg/helm"
+	"golang.org/x/crypto/ssh"
 )
 
 // To regenerate:
@@ -45,7 +47,7 @@ kfFJfrUjElq6Bx9oPPxc2vD40gqnYL57A+Y+X+A0kL4fO7pfh2VxOw==
 `
 
 func Test_loadPublickeyEncrypted(t *testing.T) {
-	want := "parse private key with passphrase failed: x509: decryption password incorrect"
+	want := &ssh.PassphraseMissingError{}
 
 	tmpfile, err := ioutil.TempFile("", "key")
 	if err != nil {
@@ -60,7 +62,7 @@ func Test_loadPublickeyEncrypted(t *testing.T) {
 
 	tmpfile.Close()
 	_, _, err = loadPublickey(fileName)
-	if err.Error() != want {
+	if errors.Is(err, want) {
 		t.Fatalf("want: %q, but got: %q", want, err.Error())
 	}
 }
