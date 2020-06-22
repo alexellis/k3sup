@@ -314,7 +314,7 @@ func loadPublickey(path string) (ssh.AuthMethod, func() error, error) {
 
 	signer, err := ssh.ParsePrivateKey(key)
 	if err != nil {
-		if err.Error() != "ssh: cannot decode encrypted private keys" {
+		if _, ok := err.(*ssh.PassphraseMissingError); !ok {
 			return nil, noopCloseFunc, fmt.Errorf("unable to parse private key: %s", err.Error())
 		}
 
