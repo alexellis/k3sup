@@ -71,9 +71,19 @@ func (et ExecTask) Execute() (ExecResult, error) {
 	cmd.Dir = et.Cwd
 
 	if len(et.Env) > 0 {
-		cmd.Env = os.Environ()
+		overrides := map[string]bool{}
 		for _, env := range et.Env {
+			key := strings.Split(env, "=")[0]
+			overrides[key] = true
 			cmd.Env = append(cmd.Env, env)
+		}
+
+		for _, env := range os.Environ() {
+			key := strings.Split(env, "=")[0]
+
+			if _, ok := overrides[key]; !ok {
+				cmd.Env = append(cmd.Env, env)
+			}
 		}
 	}
 
