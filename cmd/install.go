@@ -21,7 +21,9 @@ import (
 	"golang.org/x/crypto/ssh/terminal"
 )
 
-var kubeconfig []byte
+var (
+	kubeconfig []byte
+)
 
 func MakeInstall() *cobra.Command {
 	var command = &cobra.Command{
@@ -52,6 +54,13 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 	command.Flags().Bool("local", false, "Perform a local install without using ssh")
 	command.Flags().Bool("cluster", false, "Form a dqlite cluster")
 
+	command.Flags().StringP("datastore", "d", "", "Use an external MySQL or PostgreSQL datastore for HA (valid values are 'sql' and 'postgresql')")
+	command.Flags().String("db-username", "", "Username of external database server")
+	command.Flags().String("db-passwd", "", "Password of external database user")
+	command.Flags().String("db-hostname", "", "Hostname of external database server")
+	command.Flags().String("db-port", "", "Port of external database server")
+	command.Flags().String("db-name", "", "Database to use for k3s (default: 'kubernetes')")
+
 	command.RunE = func(command *cobra.Command, args []string) error {
 
 		fmt.Printf("Running: k3sup install\n")
@@ -68,6 +77,7 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 
 		k3sVersion, _ := command.Flags().GetString("k3s-version")
 		k3sExtraArgs, _ := command.Flags().GetString("k3s-extra-args")
+		ds, _ := command.Flags().GetString("datastore")
 		k3sNoExtras, _ := command.Flags().GetBool("no-extras")
 
 		flannelIPSec, _ := command.Flags().GetBool("ipsec")
@@ -78,7 +88,9 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 
 		cluster, _ := command.Flags().GetBool("cluster")
 
+		datastoreStr := ""
 		clusterStr := ""
+
 		if cluster {
 			clusterStr = "--cluster-init"
 		}
@@ -90,8 +102,67 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 			k3sExtraArgs += `--no-deploy servicelb --no-deploy traefik`
 		}
 
-		installk3sExec := fmt.Sprintf("INSTALL_K3S_EXEC='server %s --tls-san %s %s'", clusterStr, ip, strings.TrimSpace(k3sExtraArgs))
+		installk3sExec := ""
+		if ds != "" {
+			databaseUser, _ := command.Flags().GetString("db-username")
+			databasePassword, _ := command.Flags().GetString("db-passwd")
+			databaseHostname, _ := command.Flags().GetString("db-hostname")
+			databasePort, _ := command.Flags().GetString("db-port")
+			databaseName, _ := command.Flags().GetString("db-name")
 
+			if ds == "sql" {
+				if databaseUser == "" {
+					databaseUser = "root"
+				}
+
+				if databasePassword == "" {
+					return fmt.Errorf("provide password for mysql user")
+				}
+
+				if databaseHostname == "" {
+					databaseHostname = "/var/run/mysqld/mysqld.sock"
+				}
+
+				if databasePort == "" {
+					databasePort = "3306"
+				}
+
+				if databaseName == "" {
+					databaseName = "kubernetes"
+				}
+
+				datastoreStr = fmt.Sprintf("mysql://%s:%s@tcp(%s:%s)/%s", databaseUser, databasePassword, databaseHostname, databasePort, databaseName)
+
+			} else if ds == "postgresql" {
+				if databaseUser == "" {
+					databaseUser = "postgres"
+				}
+
+				if databasePassword == "" {
+					return fmt.Errorf("provide password for postgresql user")
+				}
+
+				if databaseHostname == "" {
+					databaseHostname = "localhost"
+				}
+
+				if databasePort == "" {
+					databasePort = "5432"
+				}
+
+				if databaseName == "" {
+					databaseName = "kubernetes"
+				}
+
+				datastoreStr = fmt.Sprintf("postgres://%s:%s@%s:%s/%s", databaseUser, databasePassword, databaseHostname, databasePort, databaseName)
+
+			} else {
+				return fmt.Errorf("use either 'sql' or 'postgresql' as values for --datastore")
+			}
+			installk3sExec = fmt.Sprintf("INSTALL_K3S_EXEC='server %s --datastore-endpoint=%s --tls-san %s %s'", clusterStr, datastoreStr, ip, strings.TrimSpace(k3sExtraArgs))
+		} else {
+			installk3sExec = fmt.Sprintf("INSTALL_K3S_EXEC='server %s --tls-san %s %s'", clusterStr, ip, strings.TrimSpace(k3sExtraArgs))
+		}
 		installK3scommand := fmt.Sprintf("curl -sLS https://get.k3s.io | %s INSTALL_K3S_VERSION='%s' sh -\n", installk3sExec, k3sVersion)
 		getConfigcommand := fmt.Sprintf(sudoPrefix + "cat /etc/rancher/k3s/k3s.yaml\n")
 		merge, _ := command.Flags().GetBool("merge")

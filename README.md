@@ -101,6 +101,13 @@ Other options for `install`:
 * `--k3s-extra-args` - Optional extra arguments to pass to k3s installer, wrapped in quotes, i.e. `--k3s-extra-args '--no-deploy traefik'` or `--k3s-extra-args '--docker'`. For multiple args combine then within single quotes `--k3s-extra-args '--no-deploy traefik --docker'`.
 * `--k3s-version` - set the specific version of k3s, i.e. `v0.9.1`
 - `--ipsec` - Enforces the optional extra argument for k3s: `--flannel-backend` option: `ipsec`
+* `-d=sql, --datastore=sql` - Use an external MySQL datastore for HA
+* `-d=postgresql, --datastore=postgresql` - Use an external PostgreSQL database for HA
+* `--db-hostname` - Hostname of external database server (Used with `--datastore` or `-d` flag)
+* `--db-port` - Port where the external database server is listening on (Used with `--datastore` or `-d` flag)
+* `--db-username` - Username of external database server (Used with `--datastore` or `-d` flag)
+* `--db-passwd` - Password of external database user (Used with `--datastore` or `-d` flag)
+* `--db-name` - Database to use for k3s (Used with `--datastore` or `-d` flag)
 * See even more install options by running `k3sup install --help`.
 
 * Now try the access:
@@ -238,6 +245,32 @@ If you want to join some nodes, run `export IP=""` for each additional RPi, foll
 Now where next? I would recommend my detailed tutorial where I spend time looking at how to flash the SD card, deploy k3s, deploy OpenFaaS (for some useful microservices), and then get incoming HTTP traffic.
 
 Try it now: [Will it cluster? K3s on Raspbian](https://blog.alexellis.io/test-drive-k3s-on-raspberry-pi/)
+
+## Fetch your kubeconfig file from a k3s server
+
+```sh
+k3sup install --ip $IP --user user --skip-install
+```
+Running the above command will get your `kubeconfig` without the need for a complete reinstallation and configuration of your k3s cluster in case you accidentally lose it.
+
+## Install and run k3s with HA using MySQL or PostgreSQL as external datasource
+
+If you want to have high availability of your k3s server you can use MySQL or PostgreSQL as the external datasource by pointing to your database instance with a few flags
+
+For MySQL as external data-store:
+```sh
+k3sup install --ip $IP -d sql --db-hostname $DBHOSTNAME --db-port $DBPORT --db-username $DBUSER --db-passwd $DBPASSWD --db-name $DBNAME
+```
+
+For PostgreSQL as external data-store:
+```sh
+k3sup install --ip $IP -d postgresql --db-hostname $DBHOSTNAME --db-port $DBPORT --db-username $DBUSER --db-passwd $DBPASSWD --db-name $DBNAME
+```
+
+Once the master is ready, join worker nodes without any changes to the usual join command:
+```sh
+k3sup join --ip $IP --server-ip $SERVER_IP --user $USER
+```
 
 ## Caveats on security
 
