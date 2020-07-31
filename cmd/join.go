@@ -34,6 +34,7 @@ func MakeJoin() *cobra.Command {
 	command.Flags().Bool("sudo", true, "Use sudo for installation. e.g. set to false when using the root user and no sudo is available.")
 	command.Flags().String("k3s-extra-args", "", "Optional extra arguments to pass to k3s installer, wrapped in quotes (e.g. --k3s-extra-args '--node-taint key=value:NoExecute')")
 	command.Flags().String("k3s-version", config.K3sVersion, "Optional version to install, pinned at a default")
+	command.Flags().String("k3s-channel", "", "Optional channel to install from")
 
 	command.Flags().Bool("server", false, "Join the cluster as a server rather than as an agent")
 
@@ -67,6 +68,15 @@ func MakeJoin() *cobra.Command {
 
 		k3sExtraArgs, _ := command.Flags().GetString("k3s-extra-args")
 		k3sVersion, _ := command.Flags().GetString("k3s-version")
+		k3sChannel, _ := command.Flags().GetString("k3s-channel")
+
+		var k3sVersionCmd string
+
+		if k3sChannel != "" {
+			k3sVersionCmd = fmt.Sprintf("INSTALL_K3S_CHANNEL='%s'", k3sChannel)
+		} else {
+			k3sVersionCmd = fmt.Sprintf("INSTALL_K3S_VERSION='%s'", k3sVersion)
+		}
 
 		useSudo, _ := command.Flags().GetBool("sudo")
 		sudoPrefix := ""
@@ -121,9 +131,9 @@ func MakeJoin() *cobra.Command {
 
 		var boostrapErr error
 		if server {
-			boostrapErr = setupAdditionalServer(serverIP, ip, port, user, sshKeyPath, joinToken, k3sExtraArgs, k3sVersion)
+			boostrapErr = setupAdditionalServer(serverIP, ip, port, user, sshKeyPath, joinToken, k3sExtraArgs, k3sVersionCmd)
 		} else {
-			boostrapErr = setupAgent(serverIP, ip, port, user, sshKeyPath, joinToken, k3sExtraArgs, k3sVersion)
+			boostrapErr = setupAgent(serverIP, ip, port, user, sshKeyPath, joinToken, k3sExtraArgs, k3sVersionCmd)
 		}
 
 		return boostrapErr
@@ -226,7 +236,7 @@ func setupAgent(serverIP, ip net.IP, port int, user, sshKeyPath, joinToken, k3sE
 
 	defer operator.Close()
 
-	getTokenCommand := fmt.Sprintf("curl -sfL https://get.k3s.io/ | K3S_URL='https://%s:6443' K3S_TOKEN='%s' INSTALL_K3S_VERSION='%s' sh -s - %s",
+	getTokenCommand := fmt.Sprintf("curl -sfL https://get.k3s.io/ | K3S_URL='https://%s:6443' K3S_TOKEN='%s' %s sh -s - %s",
 		serverIP.String(),
 		strings.TrimSpace(joinToken),
 		k3sVersion,

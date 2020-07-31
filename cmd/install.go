@@ -47,7 +47,8 @@ func MakeInstall() *cobra.Command {
 	command.Flags().Bool("ipsec", false, "Enforces and/or activates optional extra argument for k3s: flannel-backend option: ipsec")
 	command.Flags().Bool("merge", false, `Merge the config with existing kubeconfig if it already exists.
 Provide the --local-path flag with --merge if a kubeconfig already exists in some other directory`)
-	command.Flags().String("k3s-version", config.K3sVersion, "Optional version to install, pinned at a default")
+	command.Flags().String("k3s-version", config.K3sVersion, "Optional version to install")
+	command.Flags().String("k3s-channel", "", "Optional channel to install from")
 
 	command.Flags().Bool("local", false, "Perform a local install without using ssh")
 	command.Flags().Bool("cluster", false, "Form a dqlite cluster")
@@ -67,6 +68,7 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 		}
 
 		k3sVersion, _ := command.Flags().GetString("k3s-version")
+		k3sChannel, _ := command.Flags().GetString("k3s-channel")
 		k3sExtraArgs, _ := command.Flags().GetString("k3s-extra-args")
 		k3sNoExtras, _ := command.Flags().GetBool("no-extras")
 
@@ -90,9 +92,17 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 			k3sExtraArgs += `--no-deploy servicelb --no-deploy traefik`
 		}
 
+		var k3sVersionCmd string
+
+		if k3sChannel != "" {
+			k3sVersionCmd = fmt.Sprintf("INSTALL_K3S_CHANNEL='%s'", k3sChannel)
+		} else {
+			k3sVersionCmd = fmt.Sprintf("INSTALL_K3S_VERSION='%s'", k3sVersion)
+		}
+
 		installk3sExec := fmt.Sprintf("INSTALL_K3S_EXEC='server %s --tls-san %s %s'", clusterStr, ip, strings.TrimSpace(k3sExtraArgs))
 
-		installK3scommand := fmt.Sprintf("curl -sLS https://get.k3s.io | %s INSTALL_K3S_VERSION='%s' sh -\n", installk3sExec, k3sVersion)
+		installK3scommand := fmt.Sprintf("curl -sLS https://get.k3s.io | %s %s sh -\n", installk3sExec, k3sVersionCmd)
 		getConfigcommand := fmt.Sprintf(sudoPrefix + "cat /etc/rancher/k3s/k3s.yaml\n")
 		merge, _ := command.Flags().GetBool("merge")
 		context, _ := command.Flags().GetString("context")
