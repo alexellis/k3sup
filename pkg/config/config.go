@@ -7,7 +7,7 @@ import (
 )
 
 // K3sVersion default version
-const K3sVersion = "v1.17.7+k3s1"
+const K3sVersion = "v1.18.6+k3s1"
 
 func InitUserDir() (string, error) {
 	home := os.Getenv("HOME")
