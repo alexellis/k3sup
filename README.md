@@ -354,6 +354,12 @@ MIT
 
 * [Deploying a highly-available K3s with k3sup](https://ma.ttias.be/deploying-highly-available-k3s-k3sup/) by Dmitriy Akulov
 
+* [Multi-master HA Kubernetes using K3Sup on Windows10/Server 2019](https://github.com/TechGuyTN/K3Sup-Windows10/blob/d7ad4f642ae6ebf441b8137bd71111c9c2890add/README.md) by Aaron Holt
+
+* [Ansible Role: k3sup](https://github.com/vandot/ansible-role-k3sup) by Ivan Vandot
+
+* [HashiCorp Vault on K3s on RPi4](https://github.com/colin-mccarthy/k3s-pi-vault/tree/d5e616de9048da8b990dc7b99a6d2d96bd9e9cc5) by Colin McCarthy
+
 Checkout the [Announcement tweet](https://twitter.com/alexellisuk/status/1162272786250735618?s=20)
 
 ## Similar tools & glossary
