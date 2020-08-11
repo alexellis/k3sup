@@ -1,6 +1,9 @@
 # k3sup 🚀 (said 'ketchup')
 
+<img src="docs/assets/k3sup.png" width="20%" alt="k3sup logo">
+
 k3sup is a light-weight utility to get from zero to KUBECONFIG with [k3s](https://k3s.io/) on any local or remote VM. All you need is `ssh` access and the `k3sup` binary to get `kubectl` access immediately.
+
 
 The tool is written in Go and is cross-compiled for Linux, Windows, MacOS and even on Raspberry Pi.
 
@@ -64,9 +67,10 @@ Watch the demo:
 
 `k3sup` is Open Source Software (OSS) and was created by [Alex Ellis](https://www.alexellis.io/) - the founder of [OpenFaaS &reg;](https://www.openfaas.com/) & [inlets](https://inlets.dev/). Alex is also an active part of the Docker & Kubernetes community as a [CNCF Ambassador](https://www.cncf.io/people/ambassadors/).
 
-If you've benefitted from his open source projects or blog posts in some way, then and join dozens of other developers today by buying an Insiders Subscription 🏆
+If you've benefitted from his open source projects or blog posts in some way, then and join dozens of other developers today by buying an Insiders Subscription 🏆 or get your own limited-edition SWAG 👕:
 
-* Buy an Insiders Subscription via [GitHub](https://github.com/users/alexellis/sponsorship) today
+* [Buy an Insiders Subscription on GitHub](https://github.com/users/alexellis/sponsorship)
+* [Buy a k3sup hoodie, t-shirt or mug in the OpenFaaS Ltd Store](https://store.openfaas.com/collections/the-k3sup-collection)
 
 ## Usage ✅
 
