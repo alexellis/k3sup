@@ -360,6 +360,14 @@ MIT
 
 * [HashiCorp Vault on K3s on RPi4](https://github.com/colin-mccarthy/k3s-pi-vault/tree/d5e616de9048da8b990dc7b99a6d2d96bd9e9cc5) by Colin McCarthy
 
+* [Raspberry Pi Cluster Part 2: ToDo API running on Kubernetes with k3s](https://www.dinofizzotti.com/blog/2020-05-09-raspberry-pi-cluster-part-2-todo-api-running-on-kubernetes-with-k3s/) by Dino Fizzotti
+
+* [Cloud Native Tools for Developers Webinar Recap](https://www.openfaas.com/blog/cloud-native-tools-webinar/) by Alex Ellis & Alistair Hey
+
+* [Unobtrusive local development with kubernetes, k3s, traefik2](https://www.codementor.io/@slavko/unobtrusive-local-development-with-kubernetes-k3s-traefik2-15uq596oja) by Vyacheslav
+
+* [Cómo desplegar un clúster de Kubernetes en 60 segundos con k3sup](https://www.cduser.com/como-desplegar-un-cluster-de-kubernetes-en-60-segundos-con-k3sup/) by Ignacio Van Droogenbroeck
+
 Checkout the [Announcement tweet](https://twitter.com/alexellisuk/status/1162272786250735618?s=20)
 
 ## Similar tools & glossary
