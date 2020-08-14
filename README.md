@@ -370,6 +370,12 @@ MIT
 
 * [Cómo desplegar un clúster de Kubernetes en 60 segundos con k3sup](https://www.cduser.com/como-desplegar-un-cluster-de-kubernetes-en-60-segundos-con-k3sup/) by Ignacio Van Droogenbroeck
 
+* [Raspberry Kubernetes cluster for my homlab with k3sup](https://hybridhacker.com/homelab-raspberry-kubernetes-cluster-with-k3sup.html) by Nicola Ballotta
+
+* [k3sup On MacOS Catalina](https://gizmo.codes/k3sup-on-macos-catalina/) by John Doyle
+
+* [K3s: Edge Kubernetes](https://redmonk.com/jgovernor/2020/01/31/k3s-edge-kubernetes/) by James Governor
+
 Checkout the [Announcement tweet](https://twitter.com/alexellisuk/status/1162272786250735618?s=20)
 
 ## Similar tools & glossary
