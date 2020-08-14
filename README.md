@@ -70,6 +70,11 @@ Watch the demo:
 If you've benefitted from his open source projects or blog posts in some way, then and join dozens of other developers today by buying an Insiders Subscription 🏆 or get your own limited-edition SWAG 👕:
 
 * [Buy an Insiders Subscription on GitHub](https://github.com/users/alexellis/sponsorship)
+
+For a limited time, there's also a full range of SWAG for k3sup fans
+
+[![SWAG collection](./docs/swag.png)](https://store.openfaas.com/collections/the-k3sup-collection)
+
 * [Buy a k3sup hoodie, t-shirt or mug in the OpenFaaS Ltd Store](https://store.openfaas.com/collections/the-k3sup-collection)
 
 ## Usage ✅
