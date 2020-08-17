@@ -52,6 +52,8 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 	command.Flags().Bool("local", false, "Perform a local install without using ssh")
 	command.Flags().Bool("cluster", false, "Form a dqlite cluster")
 
+	command.Flags().Bool("print-command", false, "Print a command that you can use with SSH to manually recover from an error")
+
 	command.RunE = func(command *cobra.Command, args []string) error {
 
 		fmt.Printf("Running: k3sup install\n")
@@ -77,6 +79,7 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 		ip, _ := command.Flags().GetIP("ip")
 
 		cluster, _ := command.Flags().GetBool("cluster")
+		printCommand, _ := command.Flags().GetBool("print-command")
 
 		clusterStr := ""
 		if cluster {
@@ -130,7 +133,6 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 		sshKey, _ := command.Flags().GetString("ssh-key")
 
 		sshKeyPath := expandPath(sshKey)
-		fmt.Printf("ssh -i %s -p %d %s@%s\n", sshKeyPath, port, user, ip.String())
 
 		authMethod, closeSSHAgent, err := loadPublickey(sshKeyPath)
 		if err != nil {
@@ -158,7 +160,10 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 
 		if !skipInstall {
 
-			fmt.Printf("ssh: %s\n", installK3scommand)
+			if printCommand {
+				fmt.Printf("ssh: %s\n", installK3scommand)
+			}
+
 			res, err := operator.Execute(installK3scommand)
 
 			if err != nil {
@@ -168,7 +173,9 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 			fmt.Printf("Result: %s %s\n", string(res.StdOut), string(res.StdErr))
 		}
 
-		fmt.Printf("ssh: %s\n", getConfigcommand)
+		if printCommand {
+			fmt.Printf("ssh: %s\n", getConfigcommand)
+		}
 
 		err = obtainKubeconfig(operator, getConfigcommand, ip.String(), context, localKubeconfig, merge)
 		if err != nil {
