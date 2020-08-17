@@ -110,7 +110,9 @@ Other options for `install`:
 * `--k3s-extra-args` - Optional extra arguments to pass to k3s installer, wrapped in quotes, i.e. `--k3s-extra-args '--no-deploy traefik'` or `--k3s-extra-args '--docker'`. For multiple args combine then within single quotes `--k3s-extra-args '--no-deploy traefik --docker'`.
 * `--k3s-version` - set the specific version of k3s, i.e. `v0.9.1`
 - `--ipsec` - Enforces the optional extra argument for k3s: `--flannel-backend` option: `ipsec`
-* See even more install options by running `k3sup install --help`.
+* `--print-command` - Prints out the command, sent over SSH to the remote computer
+
+See even more install options by running `k3sup install --help`.
 
 * Now try the access:
 
