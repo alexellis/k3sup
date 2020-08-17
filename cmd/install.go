@@ -53,6 +53,7 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 	command.Flags().Bool("cluster", false, "Form a dqlite cluster")
 
 	command.Flags().Bool("print-command", false, "Print a command that you can use with SSH to manually recover from an error")
+	command.Flags().String("datastore", "", "Optional: connection-string for the k3s datastore to enable HA, i.e. \"mysql://username:password@tcp(hostname:3306)/database-name\"")
 
 	command.RunE = func(command *cobra.Command, args []string) error {
 
@@ -79,11 +80,23 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 		ip, _ := command.Flags().GetIP("ip")
 
 		cluster, _ := command.Flags().GetBool("cluster")
+		datastore, _ := command.Flags().GetString("datastore")
 		printCommand, _ := command.Flags().GetBool("print-command")
 
 		clusterStr := ""
 		if cluster {
 			clusterStr = "--cluster-init"
+		}
+
+		if len(datastore) > 0 {
+			if strings.Index(datastore, "ssl-mode=REQUIRED") > -1 {
+				return fmt.Errorf("remove ssl-mode=REQUIRED from your datastore string, it is not supported by the k3s syntax")
+			}
+			if strings.Index(datastore, "mysql") > -1 && strings.Index(datastore, "tcp") == -1 {
+				return fmt.Errorf("you must specify the mysql host as tcp(host:port) or tcp(ip:port), see the k3s docs for more: https://rancher.com/docs/k3s/latest/en/installation/ha")
+			}
+
+			k3sExtraArgs += "--datastore-endpoint " + datastore
 		}
 
 		if flannelIPSec {

@@ -166,7 +166,142 @@ k3sup join --ip $AGENT_IP --server-ip $SERVER_IP --user $USER
 
 That's all, so with the above command you can have a two-node cluster up and running, whether that's using VMs on-premises, using Raspberry Pis, 64-bit ARM or even cloud VMs on EC2.
 
-### Create a multi-master (HA) setup
+### Create a multi-master (HA) setup with external SQL
+
+The easiest way to test out k3s' multi-master (HA) mode with external storage, is to set up a Mysql server using DigitalOcean's managed service.
+
+* Get the connection string from your DigitalOcean dashboard, and adapt it
+
+Before:
+```
+mysql://doadmin:80624d3936dfc8d2e80593@db-mysql-lon1-90578-do-user-6456202-0.a.db.ondigitalocean.com:25060/defaultdb?ssl-mode=REQUIRED
+
+```
+
+After:
+```
+mysql://doadmin:80624d3936dfc8d2e80593@tcp(db-mysql-lon1-90578-do-user-6456202-0.a.db.ondigitalocean.com:25060)/defaultdb
+```
+
+Note that we've removed `?ssl-mode=REQUIRED` and wrapped the host/port in `tcp()`.
+
+```bash
+export DATASTORE="mysql://doadmin:80624d3936dfc8d2e80593@tcp(db-mysql-lon1-90578-do-user-6456202-0.a.db.ondigitalocean.com:25060)/defaultdb
+```
+
+You can prefix this command with `  ` two spaces, to prevent it being cached in your bash history.
+
+* Create three VMs
+
+Imagine we have the following three VMs, two will be servers, and one will be an agent.
+
+```bash
+export SERVER1=104.248.135.109
+export SERVER2=104.248.25.221
+export AGENT1=104.248.137.25
+```
+
+* Install the first server
+
+```bash
+k3sup install --user root --ip $SERVER1 --datastore="${DATASTORE}"
+```
+
+* Install the second server
+
+```bash
+k3sup install --user root --ip $SERVER2 --datastore="${DATASTORE}"
+```
+
+* Join the first agent
+
+You can join the agent to either server, the datastore is not required for this step.
+
+```bash
+k3sup join --user root --server-ip $SERVER1 --ip $AGENT1
+```
+
+* Additional steps
+
+If you run `kubectl get node`, you'll now see two masters/servers and one agent, however, we joined the agent to the first server. If the first server goes down, the agent will effectively also go offline.
+
+```bash
+kubectl get node
+
+NAME              STATUS                        ROLES    AGE     VERSION
+k3sup-1           Ready                         master   73s     v1.18.6+k3s1
+k3sup-2           Ready                         master   2m31s   v1.18.6+k3s1
+k3sup-3           Ready                         <none>   14s     v1.18.6+k3s1
+```
+
+There are two ways to prevent a dependency on the IP address of any one host. The first is to create a TCP load-balancer in the cloud of your choice, the second is for you to create a DNS round-robbin record, which contains all of the IPs of your servers.
+
+In your DigitalOcean dashboard, go to the Networking menu and click "Load Balancer", create one in the same region as your Droplets and SQL server. Select your two Droplets, i.e. `104.248.34.61` and `142.93.175.203`, and use `TCP` with port `6443`.
+
+If you want to run `k3sup join` against the IP of the LB, then you should also add `TCP` port `22`
+
+Make sure that the health-check setting is also set to `TCP` and port `6443`. Wait to get your IP, mine was: `174.138.101.83`
+
+Save the LB into an environment variable:
+
+```bash
+export LB=174.138.101.83
+```
+
+Now use `ssh` to log into both of your servers, and edit their config files at `/etc/systemd/system/k3s.service`, update the lines `--tls-san` and the following address, to that of your LB:
+
+```
+ExecStart=/usr/local/bin/k3s \
+    server \
+        '--tls-san' \
+        '104.248.135.109' \
+```
+
+Becomes:
+
+```
+ExecStart=/usr/local/bin/k3s \
+    server \
+        '--tls-san' \
+        '174.138.101.83' \
+```
+
+Now run:
+
+```bash
+sudo systemctl daemon-reload && \
+  sudo systemctl restart k3s-agent
+```
+
+And repeat these steps on the other server.
+
+You can update the agent manually, via ssh and edit `/etc/systemd/system/k3s-agent.service.env` on the host, or use `k3sup join` again, but only if you added port `22` to your LB:
+
+```bash
+k3sup join --user root --server-ip $LB --ip $AGENT1
+```
+
+Finally, regenerate your KUBECONFIG file with the LB's IP, instead of one of the servers:
+
+```bash
+k3sup install --skip-install --ip $LB
+```
+
+Log into the first server, and stop k3s `sudo systemctl stop k3s`, then check that kubectl still functions as expected:
+
+```bash
+export KUBECONFIG=`pwd`/kubeconfig
+kubectl get node -o wide
+
+NAME              STATUS                        ROLES    AGE   VERSION
+k3sup-1           NotReady                      master   23m   v1.18.6+k3s1
+k3sup-2           Ready                         master   25m   v1.18.6+k3s1
+k3sup-3           Ready                         <none>   22m   v1.18.6+k3s1
+```
+
+You've just simulated a failure of one of your masters/servers, and you can still access kubectl. Congratulations on building a resilient k3s cluster.
+
+### Create a multi-master (HA) setup with dqlite
 
 As of k3s 1.0 a HA multi-master configuration is available through dqlite. A quorum of masters will be required, which means having at least three nodes.
 
