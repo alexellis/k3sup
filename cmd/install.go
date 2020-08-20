@@ -103,7 +103,7 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 			k3sExtraArgs += `--flannel-backend ipsec`
 		}
 		if k3sNoExtras {
-			k3sExtraArgs += `--no-deploy servicelb --no-deploy traefik`
+			k3sExtraArgs += ` --no-deploy servicelb --no-deploy traefik`
 		}
 
 		installk3sExec := fmt.Sprintf("INSTALL_K3S_EXEC='server %s --tls-san %s %s'", clusterStr, ip, strings.TrimSpace(k3sExtraArgs))
