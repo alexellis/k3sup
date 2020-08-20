@@ -100,7 +100,7 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 		}
 
 		if flannelIPSec {
-			k3sExtraArgs += ` '--flannel-backend ipsec'`
+			k3sExtraArgs += `--flannel-backend ipsec`
 		}
 		if k3sNoExtras {
 			k3sExtraArgs += `--no-deploy servicelb --no-deploy traefik`
