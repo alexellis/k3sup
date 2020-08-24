@@ -99,11 +99,11 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 				return fmt.Errorf("you must specify the mysql host as tcp(host:port) or tcp(ip:port), see the k3s docs for more: https://rancher.com/docs/k3s/latest/en/installation/ha")
 			}
 
-			k3sExtraArgsSlice = append(k3sExtraArgsSlice, "--datastore-endpoint" + datastore)
+			k3sExtraArgsSlice = append(k3sExtraArgsSlice, "--datastore-endpoint"+datastore)
 		}
 
 		if flannelIPSec {
-			k3sExtraArgsSlice = append(k3sExtraArgsSlice,`--flannel-backend ipsec`)
+			k3sExtraArgsSlice = append(k3sExtraArgsSlice, `--flannel-backend ipsec`)
 		}
 		if k3sNoExtras {
 			k3sExtraArgsSlice = append(k3sExtraArgsSlice, `--no-deploy servicelb --no-deploy traefik`)
