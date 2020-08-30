@@ -10,6 +10,7 @@ import (
 func main() {
 
 	cmdInstall := cmd.MakeInstall()
+	cmdRemove := cmd.MakeRemove()
 	cmdVersion := cmd.MakeVersion()
 	cmdJoin := cmd.MakeJoin()
 	cmdApps := cmd.MakeApps()
@@ -26,6 +27,7 @@ func main() {
 	}
 
 	rootCmd.AddCommand(cmdInstall)
+	rootCmd.AddCommand(cmdRemove)
 	rootCmd.AddCommand(cmdVersion)
 	rootCmd.AddCommand(cmdJoin)
 	rootCmd.AddCommand(cmdApps)
