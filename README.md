@@ -111,6 +111,7 @@ Other options for `install`:
 * `--k3s-version` - set the specific version of k3s, i.e. `v0.9.1`
 - `--ipsec` - Enforces the optional extra argument for k3s: `--flannel-backend` option: `ipsec`
 * `--print-command` - Prints out the command, sent over SSH to the remote computer
+* `--datastore` - used to pass a SQL connection-string to the `--datastore-endpoint` flag of k3s. You must use [the format required by k3s in the Rancher docs](https://rancher.com/docs/k3s/latest/en/installation/ha/).
 
 See even more install options by running `k3sup install --help`.
 
@@ -301,9 +302,14 @@ k3sup-3           Ready                         <none>   22m   v1.18.6+k3s1
 
 You've just simulated a failure of one of your masters/servers, and you can still access kubectl. Congratulations on building a resilient k3s cluster.
 
-### Create a multi-master (HA) setup with dqlite
+### Create a multi-master (HA) setup with embedded etcd
 
-As of k3s 1.0 a HA multi-master configuration is available through dqlite. A quorum of masters will be required, which means having at least three nodes.
+As of k3s `v1.19.1+k3s1` a HA multi-master (multi-server in k3s terminology) configuration is available through embedded etcd. A quorum of servers will be required, which means having at least three nodes.
+
+This approach is still considered experimental by Rancher, see the SQL-backed instructions for production-ready clusters.
+
+> Note that with older versions of k3s, these instructions will create a dqlite cluster. Dqlite was subsequently removed from k3s.
+
 
 * Initialize the cluster with the first server
 
@@ -316,7 +322,8 @@ export USER=root
 k3sup install \
   --ip $SERVER_IP \
   --user $USER \
-  --cluster
+  --cluster \
+  --k3s-version v1.19.1+k3s1
 ```
 
 * Join each additional server
@@ -333,7 +340,8 @@ k3sup join \
   --user $USER \
   --server-user $USER \
   --server-ip $SERVER_IP \
-  --server
+  --server \
+  --k3s-version v1.19.1+k3s1
 ```
 
 Now check `kubectl get node`:
@@ -341,8 +349,8 @@ Now check `kubectl get node`:
 ```sh
 kubectl get node
 NAME              STATUS   ROLES    AGE     VERSION
-paprika-gregory   Ready    master   8m27s   v1.16.3-k3s.2
-cave-sensor       Ready    master   27m     v1.16.3-k3s.2
+paprika-gregory   Ready    master   8m27s   v1.19.2-k3s
+cave-sensor       Ready    master   27m     v1.19.2-k3s
 ```
 
 ### 👨‍💻 Micro-tutorial for Raspberry Pi (2, 3, or 4) 🥧
