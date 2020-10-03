@@ -9,7 +9,7 @@ features:
  - pr_description_required
  - release_notes
  - hacktoberfest
- - no_newbies
+# - no_newbies
 
 custom_messages:
   - name: k3s
