@@ -10,7 +10,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	config "github.com/alexellis/k3sup/pkg/config"
 	operator "github.com/alexellis/k3sup/pkg/operator"
 
 	homedir "github.com/mitchellh/go-homedir"
@@ -41,19 +40,20 @@ func MakeInstall() *cobra.Command {
 	command.Flags().Bool("skip-install", false, "Skip the k3s installer")
 	command.Flags().String("local-path", "kubeconfig", "Local path to save the kubeconfig file")
 	command.Flags().String("context", "default", "Set the name of the kubeconfig context.")
-	command.Flags().String("k3s-extra-args", "", "Optional extra arguments to pass to k3s installer, wrapped in quotes (e.g. --k3s-extra-args '--no-deploy servicelb')")
 	command.Flags().Bool("no-extras", false, `Disable "servicelb" and "traefik"`)
 
 	command.Flags().Bool("ipsec", false, "Enforces and/or activates optional extra argument for k3s: flannel-backend option: ipsec")
 	command.Flags().Bool("merge", false, `Merge the config with existing kubeconfig if it already exists.
 Provide the --local-path flag with --merge if a kubeconfig already exists in some other directory`)
-	command.Flags().String("k3s-version", config.K3sVersion, "Optional version to install, pinned at a default")
-
 	command.Flags().Bool("local", false, "Perform a local install without using ssh")
 	command.Flags().Bool("cluster", false, "Form a dqlite cluster")
 
 	command.Flags().Bool("print-command", false, "Print a command that you can use with SSH to manually recover from an error")
 	command.Flags().String("datastore", "", "Optional: connection-string for the k3s datastore to enable HA, i.e. \"mysql://username:password@tcp(hostname:3306)/database-name\"")
+
+	command.Flags().String("k3s-version", "", "Optional: set a version to install, overrides k3s-channel")
+	command.Flags().String("k3s-extra-args", "", "Optional extra arguments to pass to k3s installer, wrapped in quotes (e.g. --k3s-extra-args '--no-deploy servicelb')")
+	command.Flags().String("k3s-channel", "v1.18", "Optional release channel: stable, latest, or i.e. v1.18")
 
 	command.RunE = func(command *cobra.Command, args []string) error {
 
@@ -69,9 +69,22 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 			sudoPrefix = "sudo "
 		}
 
-		k3sVersion, _ := command.Flags().GetString("k3s-version")
-		k3sExtraArgs, _ := command.Flags().GetString("k3s-extra-args")
-		k3sNoExtras, _ := command.Flags().GetBool("no-extras")
+		k3sVersion, err := command.Flags().GetString("k3s-version")
+		if err != nil {
+			return err
+		}
+		k3sExtraArgs, err := command.Flags().GetString("k3s-extra-args")
+		if err != nil {
+			return err
+		}
+		k3sChannel, err := command.Flags().GetString("k3s-channel")
+		if err != nil {
+			return err
+		}
+		k3sNoExtras, err := command.Flags().GetBool("no-extras")
+		if err != nil {
+			return err
+		}
 
 		flannelIPSec, _ := command.Flags().GetBool("ipsec")
 
@@ -82,6 +95,15 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 		cluster, _ := command.Flags().GetBool("cluster")
 		datastore, _ := command.Flags().GetString("datastore")
 		printCommand, _ := command.Flags().GetBool("print-command")
+
+		merge, err := command.Flags().GetBool("merge")
+		if err != nil {
+			return err
+		}
+		context, err := command.Flags().GetString("context")
+		if err != nil {
+			return err
+		}
 
 		clusterStr := ""
 		if cluster {
@@ -102,16 +124,22 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 		if flannelIPSec {
 			k3sExtraArgs += ` '--flannel-backend ipsec'`
 		}
+
 		if k3sNoExtras {
 			k3sExtraArgs += `--no-deploy servicelb --no-deploy traefik`
 		}
 
 		installk3sExec := fmt.Sprintf("INSTALL_K3S_EXEC='server %s --tls-san %s %s'", clusterStr, ip, strings.TrimSpace(k3sExtraArgs))
 
-		installK3scommand := fmt.Sprintf("curl -sLS https://get.k3s.io | %s INSTALL_K3S_VERSION='%s' sh -\n", installk3sExec, k3sVersion)
+		if len(k3sVersion) == 0 && len(k3sChannel) == 0 {
+			return fmt.Errorf("give a value for --k3s-version or --k3s-channel")
+		}
+
+		installStr := createVersionStr(k3sVersion, k3sChannel)
+
+		installK3scommand := fmt.Sprintf("curl -sLS https://get.k3s.io | %s %s sh -\n", installk3sExec, installStr)
+
 		getConfigcommand := fmt.Sprintf(sudoPrefix + "cat /etc/rancher/k3s/k3s.yaml\n")
-		merge, _ := command.Flags().GetBool("merge")
-		context, _ := command.Flags().GetString("context")
 
 		if local {
 			operator := operator.ExecOperator{}
