@@ -426,7 +426,7 @@ func makeInstallExec(cluster bool, ip net.IP, tlsSAN string, options k3sExecOpti
 		extraArgs = append(extraArgs, fmt.Sprintf("--datastore-endpoint %s", options.Datastore))
 	}
 	if options.FlannelIPSec {
-		extraArgs = append(extraArgs, fmt.Sprintf("'--flannel-backend %s'", "ipsec"))
+		extraArgs = append(extraArgs, "--flannel-backend ipsec")
 	}
 
 	if options.NoExtras {

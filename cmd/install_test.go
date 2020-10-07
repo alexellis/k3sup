@@ -205,6 +205,27 @@ func Test_makeInstallExec_SAN(t *testing.T) {
 	}
 }
 
+func Test_makeInstallExec_IPSec(t *testing.T) {
+	cluster := false
+	datastore := ""
+	flannelIPSec := true
+	k3sNoExtras := false
+	k3sExtraArgs := ""
+	ip := net.ParseIP("127.0.0.1")
+	tlsSAN := ""
+	got := makeInstallExec(cluster, ip, tlsSAN,
+		k3sExecOptions{
+			Datastore:    datastore,
+			FlannelIPSec: flannelIPSec,
+			NoExtras:     k3sNoExtras,
+			ExtraArgs:    k3sExtraArgs,
+		})
+	want := "INSTALL_K3S_EXEC='server --tls-san 127.0.0.1 --flannel-backend ipsec'"
+	if got != want {
+		t.Errorf("want: %q, got: %q", want, got)
+	}
+}
+
 func Test_makeInstallExec_Datastore(t *testing.T) {
 	cluster := false
 	datastore := "mysql://doadmin:show-password@tcp(db-mysql-lon1-40939-do-user-2197152-0.b.db.ondigitalocean.com:25060)/defaultdb"
