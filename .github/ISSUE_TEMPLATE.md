@@ -42,7 +42,7 @@ uname -a
 cat /etc/os-release
 ```
 
-# "Be part of the solution"
+## "Be part of the solution"
 
 Subject to approval, are you willing to work on a Pull Request for this issue or feature request?
 
