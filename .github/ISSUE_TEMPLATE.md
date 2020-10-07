@@ -26,7 +26,7 @@
 
 ## Your Environment
 
-* What Kubernetes distribution are you using (for `k3sup app`)?
+* What Kubernetes distribution are you using?
 
 ```
 kubectl version
@@ -41,3 +41,9 @@ uname -a
 
 cat /etc/os-release
 ```
+
+# "Be part of the solution"
+
+Subject to approval, are you willing to work on a Pull Request for this issue or feature request?
+
+Yes/No
