@@ -84,9 +84,15 @@ func MakeJoin() *cobra.Command {
 			return fmt.Errorf("give a value for --k3s-version or --k3s-channel")
 		}
 
-		printCommand, _ := command.Flags().GetBool("print-command")
+		printCommand, err := command.Flags().GetBool("print-command")
+		if err != nil {
+			return err
+		}
 
-		useSudo, _ := command.Flags().GetBool("sudo")
+		useSudo, err := command.Flags().GetBool("sudo")
+		if err != nil {
+			return err
+		}
 		sudoPrefix := ""
 		if useSudo {
 			sudoPrefix = "sudo "

@@ -22,6 +22,13 @@ import (
 
 var kubeconfig []byte
 
+type k3sExecOptions struct {
+	Datastore    string
+	ExtraArgs    string
+	FlannelIPSec bool
+	NoExtras     bool
+}
+
 func MakeInstall() *cobra.Command {
 	var command = &cobra.Command{
 		Use:          "install",
@@ -55,15 +62,25 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 	command.Flags().String("k3s-extra-args", "", "Optional extra arguments to pass to k3s installer, wrapped in quotes (e.g. --k3s-extra-args '--no-deploy servicelb')")
 	command.Flags().String("k3s-channel", "v1.18", "Optional release channel: stable, latest, or i.e. v1.18")
 
+	command.Flags().String("tls-san", "", "Optional: defaults to server IP, unless provided")
+
 	command.RunE = func(command *cobra.Command, args []string) error {
 
 		fmt.Printf("Running: k3sup install\n")
 
 		localKubeconfig, _ := command.Flags().GetString("local-path")
 
-		skipInstall, _ := command.Flags().GetBool("skip-install")
+		skipInstall, err := command.Flags().GetBool("skip-install")
+		if err != nil {
+			return err
+		}
+		tlsSAN, _ := command.Flags().GetString("tls-san")
 
-		useSudo, _ := command.Flags().GetBool("sudo")
+		useSudo, err := command.Flags().GetBool("sudo")
+		if err != nil {
+			return err
+		}
+
 		sudoPrefix := ""
 		if useSudo {
 			sudoPrefix = "sudo "
@@ -94,7 +111,10 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 
 		cluster, _ := command.Flags().GetBool("cluster")
 		datastore, _ := command.Flags().GetString("datastore")
-		printCommand, _ := command.Flags().GetBool("print-command")
+		printCommand, err := command.Flags().GetBool("print-command")
+		if err != nil {
+			return err
+		}
 
 		merge, err := command.Flags().GetBool("merge")
 		if err != nil {
@@ -105,11 +125,6 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 			return err
 		}
 
-		clusterStr := ""
-		if cluster {
-			clusterStr = "--cluster-init"
-		}
-
 		if len(datastore) > 0 {
 			if strings.Index(datastore, "ssl-mode=REQUIRED") > -1 {
 				return fmt.Errorf("remove ssl-mode=REQUIRED from your datastore string, it is not supported by the k3s syntax")
@@ -117,19 +132,15 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 			if strings.Index(datastore, "mysql") > -1 && strings.Index(datastore, "tcp") == -1 {
 				return fmt.Errorf("you must specify the mysql host as tcp(host:port) or tcp(ip:port), see the k3s docs for more: https://rancher.com/docs/k3s/latest/en/installation/ha")
 			}
-
-			k3sExtraArgs += "--datastore-endpoint " + datastore
 		}
 
-		if flannelIPSec {
-			k3sExtraArgs += ` '--flannel-backend ipsec'`
-		}
-
-		if k3sNoExtras {
-			k3sExtraArgs += `--no-deploy servicelb --no-deploy traefik`
-		}
-
-		installk3sExec := fmt.Sprintf("INSTALL_K3S_EXEC='server %s --tls-san %s %s'", clusterStr, ip, strings.TrimSpace(k3sExtraArgs))
+		installk3sExec := makeInstallExec(cluster, ip, tlsSAN,
+			k3sExecOptions{
+				Datastore:    datastore,
+				FlannelIPSec: flannelIPSec,
+				NoExtras:     k3sNoExtras,
+				ExtraArgs:    k3sExtraArgs,
+			})
 
 		if len(k3sVersion) == 0 && len(k3sChannel) == 0 {
 			return fmt.Errorf("give a value for --k3s-version or --k3s-channel")
@@ -407,4 +418,43 @@ func rewriteKubeconfig(kubeconfig string, ip string, context string) []byte {
 	)
 
 	return []byte(kubeconfigReplacer.Replace(kubeconfig))
+}
+
+func makeInstallExec(cluster bool, ip net.IP, tlsSAN string, options k3sExecOptions) string {
+	extraArgs := []string{}
+	if len(options.Datastore) > 0 {
+		extraArgs = append(extraArgs, fmt.Sprintf("--datastore-endpoint %s", options.Datastore))
+	}
+	if options.FlannelIPSec {
+		extraArgs = append(extraArgs, fmt.Sprintf("'--flannel-backend %s'", "ipsec"))
+	}
+
+	if options.NoExtras {
+		extraArgs = append(extraArgs, "--no-deploy servicelb")
+		extraArgs = append(extraArgs, "--no-deploy traefik")
+	}
+
+	extraArgs = append(extraArgs, options.ExtraArgs)
+	extraArgsCmdline := ""
+	for _, a := range extraArgs {
+		extraArgsCmdline += a + " "
+	}
+
+	installExec := "INSTALL_K3S_EXEC='server"
+	if cluster {
+		installExec += " --cluster-init"
+	}
+	san := ip.String()
+	if len(tlsSAN) > 0 {
+		san = tlsSAN
+	}
+	installExec += fmt.Sprintf(" --tls-san %s", san)
+
+	if trimmed := strings.TrimSpace(extraArgsCmdline); len(trimmed) > 0 {
+		installExec += fmt.Sprintf(" %s", trimmed)
+	}
+
+	installExec += "'"
+
+	return installExec
 }
