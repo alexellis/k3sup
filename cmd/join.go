@@ -202,7 +202,7 @@ func setupAdditionalServer(serverIP, ip net.IP, port int, user, sshKeyPath, join
 	installStr := createVersionStr(k3sVersion, k3sChannel)
 
 	defer operator.Close()
-	getTokenCommand := fmt.Sprintf("curl -sfL https://get.k3s.io/ | K3S_URL='https://%s:6443' INSTALL_K3S_EXEC='server --server https://%s:6443' K3S_TOKEN='%s' %s sh -s - %s",
+	installAgentServerCommand := fmt.Sprintf("curl -sfL https://get.k3s.io/ | K3S_URL='https://%s:6443' INSTALL_K3S_EXEC='server --server https://%s:6443' K3S_TOKEN='%s' %s sh -s - %s",
 		serverIP.String(),
 		serverIP.String(),
 		strings.TrimSpace(joinToken),
@@ -210,10 +210,10 @@ func setupAdditionalServer(serverIP, ip net.IP, port int, user, sshKeyPath, join
 		k3sExtraArgs)
 
 	if printCommand {
-		fmt.Printf("ssh: %s\n", getTokenCommand)
+		fmt.Printf("ssh: %s\n", installAgentServerCommand)
 	}
 
-	res, err := operator.Execute(getTokenCommand)
+	res, err := operator.Execute(installAgentServerCommand)
 
 	if err != nil {
 		return errors.Wrap(err, "unable to setup agent")
@@ -256,17 +256,17 @@ func setupAgent(serverIP, ip net.IP, port int, user, sshKeyPath, joinToken, k3sE
 	defer operator.Close()
 
 	installStr := createVersionStr(k3sVersion, k3sChannel)
-	getTokenCommand := fmt.Sprintf("curl -sfL https://get.k3s.io/ | K3S_URL='https://%s:6443' K3S_TOKEN='%s' %s sh -s - %s",
+	installAgentCommand := fmt.Sprintf("curl -sfL https://get.k3s.io/ | K3S_URL='https://%s:6443' K3S_TOKEN='%s' %s sh -s - %s",
 		serverIP.String(),
 		strings.TrimSpace(joinToken),
 		installStr,
 		k3sExtraArgs)
 
 	if printCommand {
-		fmt.Printf("ssh: %s\n", getTokenCommand)
+		fmt.Printf("ssh: %s\n", installAgentCommand)
 	}
 
-	res, err := operator.Execute(getTokenCommand)
+	res, err := operator.Execute(installAgentCommand)
 
 	if err != nil {
 		return errors.Wrap(err, "unable to setup agent")
