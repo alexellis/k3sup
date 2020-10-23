@@ -524,6 +524,8 @@ MIT
 
 * [k3sup On MacOS Catalina](https://gizmo.codes/k3sup-on-macos-catalina/) by John Doyle
 
+* [Provision k3s on Google Cloud with Terraform and k3sup — Nimble](https://medium.com/nimble/provision-k3s-on-google-cloud-with-terraform-and-k3sup-nimble-38fa3167b4c3) by Carlos Herrera
+
 * [K3s: Edge Kubernetes](https://redmonk.com/jgovernor/2020/01/31/k3s-edge-kubernetes/) by James Governor
 
 Checkout the [Announcement tweet](https://twitter.com/alexellisuk/status/1162272786250735618?s=20)
