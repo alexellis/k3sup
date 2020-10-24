@@ -98,6 +98,8 @@ func MakeJoin() *cobra.Command {
 			sudoPrefix = "sudo "
 		}
 
+		fmt.Println("sudo prefix", sudoPrefix)
+
 		sshKeyPath := expandPath(sshKey)
 
 		authMethod, closeSSHAgent, err := loadPublickey(sshKeyPath)
@@ -202,19 +204,16 @@ func setupAdditionalServer(serverIP, ip net.IP, port int, user, sshKeyPath, join
 	installStr := createVersionStr(k3sVersion, k3sChannel)
 
 	defer operator.Close()
-	installAgentServerCommand := fmt.Sprintf("curl -sfL https://get.k3s.io/ | K3S_URL='https://%s:6443' INSTALL_K3S_EXEC='server --server https://%s:6443' K3S_TOKEN='%s' %s sh -s - %s",
-		serverIP.String(),
-		serverIP.String(),
-		strings.TrimSpace(joinToken),
-		installStr,
-		k3sExtraArgs)
+
+	installk3sExec := makeJoinServerExec(serverIP.String(), strings.TrimSpace(joinToken), installStr, k3sExtraArgs)
+
+	installAgentServerCommand := fmt.Sprintf("curl -sfL https://get.k3s.io | %s", installk3sExec)
 
 	if printCommand {
 		fmt.Printf("ssh: %s\n", installAgentServerCommand)
 	}
 
 	res, err := operator.Execute(installAgentServerCommand)
-
 	if err != nil {
 		return errors.Wrap(err, "unable to setup agent")
 	}
@@ -290,4 +289,18 @@ func createVersionStr(k3sVersion, k3sChannel string) string {
 		installStr = fmt.Sprintf("INSTALL_K3S_CHANNEL='%s'", k3sChannel)
 	}
 	return installStr
+}
+
+func makeJoinServerExec(serverIP, joinToken, installStr, k3sExtraArgs string) string {
+	joinExec := fmt.Sprintf("K3S_URL='https://%[1]v:6443' INSTALL_K3S_EXEC='server --server https://%[1]v:6443' K3S_TOKEN='%s' %s sh -s -",
+		serverIP,
+		joinToken,
+		installStr,
+	)
+
+	if len(k3sExtraArgs) > 0 {
+		joinExec += fmt.Sprintf(" %s", k3sExtraArgs)
+	}
+
+	return joinExec
 }
