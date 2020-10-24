@@ -98,8 +98,6 @@ func MakeJoin() *cobra.Command {
 			sudoPrefix = "sudo "
 		}
 
-		fmt.Println("sudo prefix", sudoPrefix)
-
 		sshKeyPath := expandPath(sshKey)
 
 		authMethod, closeSSHAgent, err := loadPublickey(sshKeyPath)
@@ -202,12 +200,19 @@ func setupAdditionalServer(serverIP, ip net.IP, port int, user, sshKeyPath, join
 	}
 
 	installStr := createVersionStr(k3sVersion, k3sChannel)
+	serverAgent := true
 
 	defer operator.Close()
 
-	installk3sExec := makeJoinServerExec(serverIP.String(), strings.TrimSpace(joinToken), installStr, k3sExtraArgs)
+	installk3sExec := makeJoinExec(
+		serverIP.String(),
+		strings.TrimSpace(joinToken),
+		installStr,
+		k3sExtraArgs,
+		serverAgent,
+	)
 
-	installAgentServerCommand := fmt.Sprintf("curl -sfL https://get.k3s.io | %s", installk3sExec)
+	installAgentServerCommand := fmt.Sprintf("%s | %s", getScript, installk3sExec)
 
 	if printCommand {
 		fmt.Printf("ssh: %s\n", installAgentServerCommand)
@@ -255,11 +260,18 @@ func setupAgent(serverIP, ip net.IP, port int, user, sshKeyPath, joinToken, k3sE
 	defer operator.Close()
 
 	installStr := createVersionStr(k3sVersion, k3sChannel)
-	installAgentCommand := fmt.Sprintf("curl -sfL https://get.k3s.io/ | K3S_URL='https://%s:6443' K3S_TOKEN='%s' %s sh -s - %s",
+
+	serverAgent := false
+
+	installK3sExec := makeJoinExec(
 		serverIP.String(),
 		strings.TrimSpace(joinToken),
 		installStr,
-		k3sExtraArgs)
+		k3sExtraArgs,
+		serverAgent,
+	)
+
+	installAgentCommand := fmt.Sprintf("%s | %s", getScript, installK3sExec)
 
 	if printCommand {
 		fmt.Printf("ssh: %s\n", installAgentCommand)
@@ -291,14 +303,22 @@ func createVersionStr(k3sVersion, k3sChannel string) string {
 	return installStr
 }
 
-func makeJoinServerExec(serverIP, joinToken, installStr, k3sExtraArgs string) string {
-	joinExec := fmt.Sprintf("K3S_URL='https://%[1]v:6443' INSTALL_K3S_EXEC='server --server https://%[1]v:6443' K3S_TOKEN='%s' %s sh -s -",
-		serverIP,
-		joinToken,
-		installStr,
-	)
+func makeJoinExec(serverIP, joinToken, installStr, k3sExtraArgs string, serverAgent bool) string {
+
+	installEnvVar := []string{}
+	installEnvVar = append(installEnvVar, fmt.Sprintf("K3S_URL='https://%s:6443'", serverIP))
+	installEnvVar = append(installEnvVar, fmt.Sprintf("K3S_TOKEN='%s'", joinToken))
+	installEnvVar = append(installEnvVar, installStr)
+
+	if serverAgent {
+		installEnvVar = append(installEnvVar, fmt.Sprintf("INSTALL_K3S_EXEC='server --server https://%s:6443'", serverIP))
+	}
+
+	joinExec := strings.Join(installEnvVar, " ")
+	joinExec += " sh -s -"
 
 	if len(k3sExtraArgs) > 0 {
+		installEnvVar = append(installEnvVar, k3sExtraArgs)
 		joinExec += fmt.Sprintf(" %s", k3sExtraArgs)
 	}
 

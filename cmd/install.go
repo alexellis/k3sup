@@ -148,7 +148,7 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 
 		installStr := createVersionStr(k3sVersion, k3sChannel)
 
-		installK3scommand := fmt.Sprintf("curl -sLS https://get.k3s.io | %s %s sh -\n", installk3sExec, installStr)
+		installK3scommand := fmt.Sprintf("%s | %s %s sh -\n", getScript, installk3sExec, installStr)
 
 		getConfigcommand := fmt.Sprintf(sudoPrefix + "cat /etc/rancher/k3s/k3s.yaml\n")
 

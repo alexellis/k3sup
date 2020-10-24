@@ -6,6 +6,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+const getScript = "curl -sfL https://get.k3s.io"
+
 func MakeApps() *cobra.Command {
 	var command = &cobra.Command{
 		Use:   "app",
