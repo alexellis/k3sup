@@ -19,4 +19,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
         with:
-          asset_paths: '["./bin/*"]'
+          asset_paths: '["./bin/k3sup*"]'
