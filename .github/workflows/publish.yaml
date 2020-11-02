@@ -1,0 +1,22 @@
+name: publish
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+        with:
+          fetch-depth: 1
+      - name: Make all
+        run: make all
+      - name: Upload release binaries
+        uses: alexellis/upload-assets@0.1.21
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          asset_paths: '["./bin/*"]'
