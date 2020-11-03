@@ -8,7 +8,7 @@ features:
  - comments
  - pr_description_required
  - release_notes
- - hacktoberfest
+# - hacktoberfest
 # - no_newbies
 
 custom_messages:
