@@ -528,6 +528,8 @@ MIT
 
 * [K3s: Edge Kubernetes](https://redmonk.com/jgovernor/2020/01/31/k3s-edge-kubernetes/) by James Governor
 
+* [OpenStack sur LXD avec Juju et k3sup dans phoenixNAP](https://deep75.medium.com/openstack-sur-lxd-avec-juju-et-k3sup-dans-phoenixnap-e5867a487497)
+
 Checkout the [Announcement tweet](https://twitter.com/alexellisuk/status/1162272786250735618?s=20)
 
 ## Similar tools & glossary
