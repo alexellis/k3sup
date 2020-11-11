@@ -1,4 +1,4 @@
-name: ci-only
+name: build
 
 on:
   push:
