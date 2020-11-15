@@ -11,9 +11,40 @@ How do you say it? Ketchup, as in tomato.
 
 [![Build
 Status](https://travis-ci.com/alexellis/k3sup.svg?branch=master)](https://travis-ci.com/alexellis/k3sup)
-[![Go Report Card](https://goreportcard.com/badge/github.com/alexellis/k3sup)](https://goreportcard.com/report/github.com/alexellis/k3sup) 
+[![Go Report Card](https://goreportcard.com/badge/github.com/alexellis/k3sup)](https://goreportcard.com/report/github.com/alexellis/k3sup)
 [![GoDoc](https://godoc.org/github.com/alexellis/k3sup?status.svg)](https://godoc.org/github.com/alexellis/k3sup) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 ![GitHub All Releases](https://img.shields.io/github/downloads/alexellis/k3sup/total)
+
+## Contents:
+- [k3sup 🚀 (said 'ketchup')](#k3sup--said-ketchup)
+  - [What's this for? 💻](#whats-this-for-)
+    - [Uses](#uses)
+    - [Bootstrapping Kubernetes](#bootstrapping-kubernetes)
+  - [Download `k3sup` (tl;dr)](#download-k3sup-tldr)
+    - [A note for Windows users](#a-note-for-windows-users)
+  - [Demo 📼](#demo-)
+  - [Who is the author? 👏](#who-is-the-author-)
+  - [Usage ✅](#usage-)
+    - [👑 Setup a Kubernetes *server* with `k3sup`](#-setup-a-kubernetes-server-with-k3sup)
+    - [Advanced KUBECONFIG options](#advanced-kubeconfig-options)
+    - [😸 Join some agents to your Kubernetes server](#-join-some-agents-to-your-kubernetes-server)
+    - [Create a multi-master (HA) setup with external SQL](#create-a-multi-master-ha-setup-with-external-sql)
+    - [Create a multi-master (HA) setup with embedded etcd](#create-a-multi-master-ha-setup-with-embedded-etcd)
+    - [👨‍💻 Micro-tutorial for Raspberry Pi (2, 3, or 4) 🥧](#-micro-tutorial-for-raspberry-pi-2-3-or-4-)
+  - [Caveats on security](#caveats-on-security)
+  - [If your ssh-key is password-protected](#if-your-ssh-key-is-password-protected)
+  - [Contributing](#contributing)
+    - [Insiders Subscription ☕️ 👏](#insiders-subscription-️-)
+    - [Blog posts & tweets](#blog-posts--tweets)
+    - [Contributing via GitHub](#contributing-via-github)
+    - [License](#license)
+  - [📢 What are people saying about `k3sup`?](#-what-are-people-saying-about-k3sup)
+  - [Similar tools & glossary](#similar-tools--glossary)
+  - [Appendix](#appendix)
+    - [`sudo` required for kubectl](#sudo-required-for-kubectl)
+    - [`iptables`](#iptables)
+    - [Go modules](#go-modules)
+    - [Troubleshooting](#troubleshooting)
 
 ## What's this for? 💻
 
