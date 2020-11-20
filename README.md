@@ -73,7 +73,7 @@ k3sup was developed to automate what can be a very manual and confusing process 
 
 ```sh
 curl -sLS https://get.k3sup.dev | sh
-sudo install k3sup /usr/local/bin/
+sudo mv k3sup /usr/local/bin/
 
 k3sup --help
 ```
