@@ -3,7 +3,6 @@ package cmd
 import (
 	"errors"
 	"io/ioutil"
-	"net"
 	"os"
 	"regexp"
 	"strings"
@@ -148,7 +147,7 @@ func Test_makeInstallExec(t *testing.T) {
 	flannelIPSec := false
 	k3sNoExtras := false
 	k3sExtraArgs := ""
-	ip := net.ParseIP("127.0.0.1")
+	ip := "raspberrypi.local"
 	tlsSAN := ""
 	got := makeInstallExec(cluster, ip, tlsSAN,
 		k3sExecOptions{
@@ -157,7 +156,7 @@ func Test_makeInstallExec(t *testing.T) {
 			NoExtras:     k3sNoExtras,
 			ExtraArgs:    k3sExtraArgs,
 		})
-	want := "INSTALL_K3S_EXEC='server --tls-san 127.0.0.1'"
+	want := "INSTALL_K3S_EXEC='server --tls-san raspberrypi.local'"
 	if got != want {
 		t.Errorf("want: %q, got: %q", want, got)
 	}
@@ -169,7 +168,7 @@ func Test_makeInstallExec_Cluster(t *testing.T) {
 	flannelIPSec := false
 	k3sNoExtras := false
 	k3sExtraArgs := ""
-	ip := net.ParseIP("127.0.0.1")
+	ip := "127.0.0.1"
 	tlsSAN := ""
 	got := makeInstallExec(cluster, ip, tlsSAN,
 		k3sExecOptions{
@@ -190,7 +189,7 @@ func Test_makeInstallExec_SAN(t *testing.T) {
 	flannelIPSec := false
 	k3sNoExtras := false
 	k3sExtraArgs := ""
-	ip := net.ParseIP("127.0.0.1")
+	ip := "127.0.0.1"
 	tlsSAN := "192.168.0.1"
 	got := makeInstallExec(cluster, ip, tlsSAN,
 		k3sExecOptions{
@@ -211,7 +210,7 @@ func Test_makeInstallExec_IPSec(t *testing.T) {
 	flannelIPSec := true
 	k3sNoExtras := false
 	k3sExtraArgs := ""
-	ip := net.ParseIP("127.0.0.1")
+	ip := "127.0.0.1"
 	tlsSAN := ""
 	got := makeInstallExec(cluster, ip, tlsSAN,
 		k3sExecOptions{
@@ -232,7 +231,7 @@ func Test_makeInstallExec_Datastore(t *testing.T) {
 	flannelIPSec := false
 	k3sNoExtras := false
 	k3sExtraArgs := ""
-	ip := net.ParseIP("127.0.0.1")
+	ip := "127.0.0.1"
 	tlsSAN := "192.168.0.1"
 	got := makeInstallExec(cluster, ip, tlsSAN,
 		k3sExecOptions{
@@ -253,7 +252,7 @@ func Test_makeInstallExec_Datastore_NoExtras(t *testing.T) {
 	flannelIPSec := false
 	k3sNoExtras := true
 	k3sExtraArgs := ""
-	ip := net.ParseIP("127.0.0.1")
+	ip := "raspberrypi.local"
 	tlsSAN := "192.168.0.1"
 	got := makeInstallExec(cluster, ip, tlsSAN,
 		k3sExecOptions{
