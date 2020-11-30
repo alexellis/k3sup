@@ -13,10 +13,13 @@ import (
 
 func MakeJoin() *cobra.Command {
 	var command = &cobra.Command{
-		Use:          "join",
-		Short:        "Install the k3s agent on a remote host and join it to an existing server",
-		Long:         `Install the k3s agent on a remote host and join it to an existing server`,
-		Example:      `  k3sup join --user root --server-ip 192.168.0.100 --ip 192.168.0.101`,
+		Use:   "join",
+		Short: "Install the k3s agent on a remote host and join it to an existing server",
+		Long:  `Install the k3s agent on a remote host and join it to an existing server`,
+		Example: `  k3sup join --user root --server-ip 192.168.0.100 --ip 192.168.0.101
+  k3sup join --user pi --server-host server-pi1.local \
+	--host agent-pi1.local \
+	--k3s-channel latest`,
 		SilenceUsage: true,
 	}
 

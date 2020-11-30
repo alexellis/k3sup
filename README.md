@@ -127,6 +127,11 @@ Imagine the IP was `192.168.0.1` and the username was `ubuntu`, then you would r
 ```sh
 export IP=192.168.0.1
 k3sup install --ip $IP --user ubuntu
+
+# Or use a hostname and SSH key for EC2
+export HOST="ec2-3-250-131-77.eu-west-1.compute.amazonaws.com"
+k3sup install --host $HOST --user ubuntu \
+  --ssh-key $HOME/ec2-key.pem
 ```
 
 Other options for `install`:
