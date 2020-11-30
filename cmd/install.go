@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net"
 	"os"
 	"os/exec"
@@ -29,6 +30,11 @@ type k3sExecOptions struct {
 	NoExtras     bool
 }
 
+// PinnedK3sChannel is a predictable K8s version for use
+// with the examples in the README. You can override this via
+// a flag, or give a specific version, see the command help message.
+const PinnedK3sChannel = "v1.19"
+
 func MakeInstall() *cobra.Command {
 	var command = &cobra.Command{
 		Use:          "install",
@@ -40,6 +46,9 @@ func MakeInstall() *cobra.Command {
 
 	command.Flags().IP("ip", net.ParseIP("127.0.0.1"), "Public IP of node")
 	command.Flags().String("user", "root", "Username for SSH login")
+
+	command.Flags().String("host", "", "Public hostname of node on which to install agent")
+	command.Flags().String("host-ip", "", "Public hostname of an existing k3s server")
 
 	command.Flags().String("ssh-key", "~/.ssh/id_rsa", "The ssh key to use for remote login")
 	command.Flags().Int("ssh-port", 22, "The port on which to connect for ssh")
@@ -60,9 +69,21 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 
 	command.Flags().String("k3s-version", "", "Optional: set a version to install, overrides k3s-channel")
 	command.Flags().String("k3s-extra-args", "", "Optional extra arguments to pass to k3s installer, wrapped in quotes (e.g. --k3s-extra-args '--no-deploy servicelb')")
-	command.Flags().String("k3s-channel", "v1.18", "Optional release channel: stable, latest, or i.e. v1.18")
+	command.Flags().String("k3s-channel", PinnedK3sChannel, "Optional release channel: stable, latest, or i.e. v1.19")
 
 	command.Flags().String("tls-san", "", "Optional: defaults to server IP, unless provided")
+
+	command.PreRunE = func(command *cobra.Command, args []string) error {
+		_, err := command.Flags().GetIP("ip")
+		if err != nil {
+			return err
+		}
+		_, err = command.Flags().GetIP("host")
+		if err != nil {
+			return err
+		}
+		return nil
+	}
 
 	command.RunE = func(command *cobra.Command, args []string) error {
 
@@ -107,7 +128,18 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 
 		local, _ := command.Flags().GetBool("local")
 
-		ip, _ := command.Flags().GetIP("ip")
+		ip, err := command.Flags().GetIP("ip")
+		if err != nil {
+			return err
+		}
+		host, err := command.Flags().GetString("host")
+		if err != nil {
+			return err
+		}
+		if len(host) == 0 {
+			host = ip.String()
+		}
+		log.Println(host)
 
 		cluster, _ := command.Flags().GetBool("cluster")
 		datastore, _ := command.Flags().GetString("datastore")
@@ -134,7 +166,7 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 			}
 		}
 
-		installk3sExec := makeInstallExec(cluster, ip, tlsSAN,
+		installk3sExec := makeInstallExec(cluster, host, tlsSAN,
 			k3sExecOptions{
 				Datastore:    datastore,
 				FlannelIPSec: flannelIPSec,
@@ -179,7 +211,7 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 
 		port, _ := command.Flags().GetInt("ssh-port")
 
-		fmt.Println("Public IP: " + ip.String())
+		fmt.Println("Public IP: " + host)
 
 		user, _ := command.Flags().GetString("user")
 		sshKey, _ := command.Flags().GetString("ssh-key")
@@ -201,7 +233,7 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 			HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 		}
 
-		address := fmt.Sprintf("%s:%d", ip.String(), port)
+		address := fmt.Sprintf("%s:%d", host, port)
 		operator, err := operator.NewSSHOperator(address, config)
 
 		if err != nil {
@@ -229,7 +261,7 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 			fmt.Printf("ssh: %s\n", getConfigcommand)
 		}
 
-		err = obtainKubeconfig(operator, getConfigcommand, ip.String(), context, localKubeconfig, merge)
+		err = obtainKubeconfig(operator, getConfigcommand, host, context, localKubeconfig, merge)
 		if err != nil {
 			return err
 		}
@@ -252,7 +284,7 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 	return command
 }
 
-func obtainKubeconfig(operator operator.CommandOperator, getConfigcommand, ip, context, localKubeconfig string, merge bool) error {
+func obtainKubeconfig(operator operator.CommandOperator, getConfigcommand, host, context, localKubeconfig string, merge bool) error {
 
 	res, err := operator.Execute(getConfigcommand)
 
@@ -264,7 +296,7 @@ func obtainKubeconfig(operator operator.CommandOperator, getConfigcommand, ip, c
 
 	absPath, _ := filepath.Abs(localKubeconfig)
 
-	kubeconfig := rewriteKubeconfig(string(res.StdOut), ip, context)
+	kubeconfig := rewriteKubeconfig(string(res.StdOut), host, context)
 
 	if merge {
 		// Create a merged kubeconfig
@@ -406,21 +438,21 @@ func loadPublickey(path string) (ssh.AuthMethod, func() error, error) {
 	return ssh.PublicKeys(signer), noopCloseFunc, nil
 }
 
-func rewriteKubeconfig(kubeconfig string, ip string, context string) []byte {
+func rewriteKubeconfig(kubeconfig string, host string, context string) []byte {
 	if context == "" {
 		context = "default"
 	}
 
 	kubeconfigReplacer := strings.NewReplacer(
-		"127.0.0.1", ip,
-		"localhost", ip,
+		"127.0.0.1", host,
+		"localhost", host,
 		"default", context,
 	)
 
 	return []byte(kubeconfigReplacer.Replace(kubeconfig))
 }
 
-func makeInstallExec(cluster bool, ip net.IP, tlsSAN string, options k3sExecOptions) string {
+func makeInstallExec(cluster bool, host, tlsSAN string, options k3sExecOptions) string {
 	extraArgs := []string{}
 	if len(options.Datastore) > 0 {
 		extraArgs = append(extraArgs, fmt.Sprintf("--datastore-endpoint %s", options.Datastore))
@@ -444,7 +476,8 @@ func makeInstallExec(cluster bool, ip net.IP, tlsSAN string, options k3sExecOpti
 	if cluster {
 		installExec += " --cluster-init"
 	}
-	san := ip.String()
+
+	san := host
 	if len(tlsSAN) > 0 {
 		san = tlsSAN
 	}
