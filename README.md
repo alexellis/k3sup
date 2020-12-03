@@ -67,6 +67,12 @@ k3sup was developed to automate what can be a very manual and confusing process 
 ![Conceptual architecture](./docs/k3sup-cloud.png)
 *Conceptual architecture, showing `k3sup` running locally against any VM such as AWS EC2 or a VPS such as DigitalOcean.*
 
+## Value and usefulness
+
+If you think this project is useful and has value to your workflow, then please become a GitHub Sponsor and find a tier that works for your budget.
+
+* [Sponsor on GitHub](https://github.com/sponsors/alexellis/)
+
 ## Download `k3sup` (tl;dr)
 
 `k3sup` is distributed as a static Go binary. You can use the installer on MacOS and Linux, or visit the [Releases page](https://github.com/alexellis/k3sup/releases) to download the executable for Windows.
@@ -77,7 +83,6 @@ sudo install k3sup /usr/local/bin/
 
 k3sup --help
 ```
-`k3sup` is made available free-of-charge, but you can support its ongoing development through [GitHub Sponsors](https://insiders.openfaas.io/) 💪
 
 ### A note for Windows users
 
@@ -457,9 +462,9 @@ k3sup --ip $IP --user user
 
 ## Contributing
 
-### Insiders Subscription ☕️ 👏
+### Sponsor on GitHub ☕️ 👏
 
-Buy an Insiders Subscription today via [GitHub](https://github.com/users/alexellis/sponsorship).
+Sponsor this project on [GitHub](https://github.com/users/alexellis/sponsorship).
 
 ### Blog posts & tweets
 
