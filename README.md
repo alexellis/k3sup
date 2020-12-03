@@ -67,11 +67,11 @@ k3sup was developed to automate what can be a very manual and confusing process 
 ![Conceptual architecture](./docs/k3sup-cloud.png)
 *Conceptual architecture, showing `k3sup` running locally against any VM such as AWS EC2 or a VPS such as DigitalOcean.*
 
-## The value to your workflow
+## Built for developers by developers
 
-If you're a user or find value in this project for your workflow, then support its ongoing development and support on GitHub.
-
-* [Sponsor on GitHub](https://github.com/sponsors/alexellis/)
+<a href="https://github.com/sponsors/alexellis/">
+<img alt="Sponsor this project" src="https://github.com/alexellis/alexellis/blob/master/sponsor-today.png" width="65%" height="65%">
+</a>
 
 ## Download `k3sup` (tl;dr)
 
