@@ -69,7 +69,7 @@ k3sup was developed to automate what can be a very manual and confusing process 
 
 ## Built for developers by developers
 
-<a href="https://github.com/sponsors/inlets/">
+<a href="https://github.com/sponsors/alexellis/">
 <img alt="Sponsor this project" src="https://github.com/alexellis/alexellis/blob/master/sponsor-today.png" width="90%">
 </a>
 
