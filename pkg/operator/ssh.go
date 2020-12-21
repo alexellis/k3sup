@@ -30,8 +30,7 @@ func NewSSHOperator(address string, config *ssh.ClientConfig) (*SSHOperator, err
 
 	return &operator, nil
 }
-
-func (s SSHOperator) Execute(command string) (CommandRes, error) {
+func (s SSHOperator) ExecuteStdio(command string, stream bool) (CommandRes, error) {
 
 	sess, err := s.conn.NewSession()
 	if err != nil {
@@ -46,22 +45,34 @@ func (s SSHOperator) Execute(command string) (CommandRes, error) {
 	}
 
 	output := bytes.Buffer{}
-
 	wg := sync.WaitGroup{}
 
-	stdOutWriter := io.MultiWriter(os.Stdout, &output)
+	var stdOutWriter io.Writer
+	if stream {
+		stdOutWriter = io.MultiWriter(os.Stdout, &output)
+	} else {
+		stdOutWriter = &output
+	}
+
 	wg.Add(1)
 	go func() {
 		io.Copy(stdOutWriter, sessStdOut)
 		wg.Done()
 	}()
+
 	sessStderr, err := sess.StderrPipe()
 	if err != nil {
 		return CommandRes{}, err
 	}
 
 	errorOutput := bytes.Buffer{}
-	stdErrWriter := io.MultiWriter(os.Stderr, &errorOutput)
+	var stdErrWriter io.Writer
+	if stream {
+		stdErrWriter = io.MultiWriter(os.Stderr, &errorOutput)
+	} else {
+		stdErrWriter = &errorOutput
+	}
+
 	wg.Add(1)
 	go func() {
 		io.Copy(stdErrWriter, sessStderr)
@@ -69,17 +80,20 @@ func (s SSHOperator) Execute(command string) (CommandRes, error) {
 	}()
 
 	err = sess.Run(command)
-
-	wg.Wait()
-
 	if err != nil {
 		return CommandRes{}, err
 	}
+
+	wg.Wait()
 
 	return CommandRes{
 		StdErr: errorOutput.Bytes(),
 		StdOut: output.Bytes(),
 	}, nil
+}
+
+func (s SSHOperator) Execute(command string) (CommandRes, error) {
+	return s.ExecuteStdio(command, true)
 }
 
 type CommandRes struct {

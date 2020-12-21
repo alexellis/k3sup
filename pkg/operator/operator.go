@@ -6,17 +6,17 @@ import (
 
 type CommandOperator interface {
 	Execute(command string) (CommandRes, error)
+	ExecuteStdio(command string, stream bool) (CommandRes, error)
 }
 
 type ExecOperator struct {
 }
 
-func (ex ExecOperator) Execute(command string) (CommandRes, error) {
-
+func (ex ExecOperator) ExecuteStdio(command string, stream bool) (CommandRes, error) {
 	task := goexecute.ExecTask{
 		Command:     command,
 		Shell:       true,
-		StreamStdio: true,
+		StreamStdio: stream,
 	}
 
 	res, err := task.Execute()
@@ -28,5 +28,8 @@ func (ex ExecOperator) Execute(command string) (CommandRes, error) {
 		StdErr: []byte(res.Stderr),
 		StdOut: []byte(res.Stdout),
 	}, nil
+}
 
+func (ex ExecOperator) Execute(command string) (CommandRes, error) {
+	return ex.ExecuteStdio(command, true)
 }

@@ -57,6 +57,8 @@ func MakeInstall() *cobra.Command {
 	command.Flags().Int("ssh-port", 22, "The port on which to connect for ssh")
 	command.Flags().Bool("sudo", true, "Use sudo for installation. e.g. set to false when using the root user and no sudo is available.")
 	command.Flags().Bool("skip-install", false, "Skip the k3s installer")
+	command.Flags().Bool("print-config", false, "Print the kubeconfig obtained from the server after installation")
+
 	command.Flags().String("local-path", "kubeconfig", "Local path to save the kubeconfig file")
 	command.Flags().String("context", "default", "Set the name of the kubeconfig context.")
 	command.Flags().Bool("no-extras", false, `Disable "servicelb" and "traefik"`)
@@ -65,16 +67,16 @@ func MakeInstall() *cobra.Command {
 	command.Flags().Bool("merge", false, `Merge the config with existing kubeconfig if it already exists.
 Provide the --local-path flag with --merge if a kubeconfig already exists in some other directory`)
 	command.Flags().Bool("local", false, "Perform a local install without using ssh")
-	command.Flags().Bool("cluster", false, "HA cluster using embedded etcd")
+	command.Flags().Bool("cluster", false, "Form a cluster using embedded etcd (requires K8s >= 1.19)")
 
 	command.Flags().Bool("print-command", false, "Print a command that you can use with SSH to manually recover from an error")
-	command.Flags().String("datastore", "", "Optional: connection-string for the k3s datastore to enable HA, i.e. \"mysql://username:password@tcp(hostname:3306)/database-name\"")
+	command.Flags().String("datastore", "", "connection-string for the k3s datastore to enable HA - i.e. \"mysql://username:password@tcp(hostname:3306)/database-name\"")
 
-	command.Flags().String("k3s-version", "", "Optional: set a version to install, overrides k3s-channel")
-	command.Flags().String("k3s-extra-args", "", "Optional extra arguments to pass to k3s installer, wrapped in quotes (e.g. --k3s-extra-args '--no-deploy servicelb')")
-	command.Flags().String("k3s-channel", PinnedK3sChannel, "Optional release channel: stable, latest, or i.e. v1.19")
+	command.Flags().String("k3s-version", "", "Set a version to install, overrides k3s-channel")
+	command.Flags().String("k3s-extra-args", "", "Additional arguments to pass to k3s installer, wrapped in quotes (e.g. --k3s-extra-args '--no-deploy servicelb')")
+	command.Flags().String("k3s-channel", PinnedK3sChannel, "Release channel: stable, latest, or i.e. v1.19")
 
-	command.Flags().String("tls-san", "", "Optional: defaults to server IP, unless provided")
+	command.Flags().String("tls-san", "", "Create a certificate for an additional IP or hostname")
 
 	command.PreRunE = func(command *cobra.Command, args []string) error {
 		_, err := command.Flags().GetIP("ip")
@@ -98,9 +100,15 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 		if err != nil {
 			return err
 		}
+
 		tlsSAN, _ := command.Flags().GetString("tls-san")
 
 		useSudo, err := command.Flags().GetBool("sudo")
+		if err != nil {
+			return err
+		}
+
+		printConfig, err := command.Flags().GetBool("print-config")
 		if err != nil {
 			return err
 		}
@@ -204,8 +212,7 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 				fmt.Printf("stdout: %q", res.StdOut)
 			}
 
-			err = obtainKubeconfig(operator, getConfigcommand, ip.String(), context, localKubeconfig, merge)
-			if err != nil {
+			if err = obtainKubeconfig(operator, getConfigcommand, ip.String(), context, localKubeconfig, merge, printConfig); err != nil {
 				return err
 			}
 
@@ -263,9 +270,7 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 		if printCommand {
 			fmt.Printf("ssh: %s\n", getConfigcommand)
 		}
-
-		err = obtainKubeconfig(operator, getConfigcommand, host, context, localKubeconfig, merge)
-		if err != nil {
+		if err = obtainKubeconfig(operator, getConfigcommand, ip.String(), context, localKubeconfig, merge, printConfig); err != nil {
 			return err
 		}
 
@@ -287,15 +292,15 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 	return command
 }
 
-func obtainKubeconfig(operator operator.CommandOperator, getConfigcommand, host, context, localKubeconfig string, merge bool) error {
-
-	res, err := operator.Execute(getConfigcommand)
-
+func obtainKubeconfig(operator operator.CommandOperator, getConfigcommand, host, context, localKubeconfig string, merge, printConfig bool) error {
+	res, err := operator.ExecuteStdio(getConfigcommand, false)
 	if err != nil {
 		return fmt.Errorf("error received processing command: %s", err)
 	}
 
-	fmt.Printf("Result: %s %s\n", string(res.StdOut), string(res.StdErr))
+	if printConfig {
+		fmt.Printf("Result: %s %s\n", string(res.StdOut), string(res.StdErr))
+	}
 
 	absPath, _ := filepath.Abs(localKubeconfig)
 
@@ -303,34 +308,44 @@ func obtainKubeconfig(operator operator.CommandOperator, getConfigcommand, host,
 
 	if merge {
 		// Create a merged kubeconfig
-		kubeconfig, err = mergeConfigs(absPath, []byte(kubeconfig))
+		kubeconfig, err = mergeConfigs(absPath, context, []byte(kubeconfig))
 		if err != nil {
 			return err
 		}
 	}
 
 	// Create a new kubeconfig
-	if writeErr := writeConfig(absPath, []byte(kubeconfig), false); writeErr != nil {
+	if writeErr := writeConfig(absPath, []byte(kubeconfig), context, false); writeErr != nil {
 		return writeErr
 	}
+
 	return nil
 }
 
 // Generates config files give the path to file: string and the data: []byte
-func writeConfig(path string, data []byte, suppressMessage bool) error {
+func writeConfig(path string, data []byte, context string, suppressMessage bool) error {
 	absPath, _ := filepath.Abs(path)
 	if !suppressMessage {
-		fmt.Printf("Saving file to: %s\n", absPath)
-		fmt.Printf("\n# Test your cluster with:\nexport KUBECONFIG=%s\nkubectl get node -o wide\n", absPath)
+		fmt.Printf(`Saving file to: %s
+
+# Test your cluster with:
+export KUBECONFIG=%s
+kubectl config set-context %s
+kubectl get node -o wide
+`,
+			absPath,
+			absPath,
+			context)
 	}
-	writeErr := ioutil.WriteFile(absPath, []byte(data), 0600)
-	if writeErr != nil {
-		return writeErr
+
+	if err := ioutil.WriteFile(absPath, []byte(data), 0600); err != nil {
+		return err
 	}
+
 	return nil
 }
 
-func mergeConfigs(localKubeconfigPath string, k3sconfig []byte) ([]byte, error) {
+func mergeConfigs(localKubeconfigPath, context string, k3sconfig []byte) ([]byte, error) {
 	// Create a temporary kubeconfig to store the config of the newly create k3s cluster
 	file, err := ioutil.TempFile(os.TempDir(), "k3s-temp-*")
 	if err != nil {
@@ -338,7 +353,7 @@ func mergeConfigs(localKubeconfigPath string, k3sconfig []byte) ([]byte, error) 
 	}
 	defer file.Close()
 
-	if writeErr := writeConfig(file.Name(), []byte(k3sconfig), true); writeErr != nil {
+	if writeErr := writeConfig(file.Name(), []byte(k3sconfig), context, true); writeErr != nil {
 		return nil, writeErr
 	}
 

@@ -38,12 +38,12 @@ func MakeJoin() *cobra.Command {
 	command.Flags().Bool("skip-install", false, "Skip the k3s installer")
 	command.Flags().Bool("sudo", true, "Use sudo for installation. e.g. set to false when using the root user and no sudo is available.")
 
-	command.Flags().Bool("server", false, "Join the cluster as a server rather than as an agent")
+	command.Flags().Bool("server", false, "Join the cluster as a server rather than as an agent for the embedded etcd mode")
 	command.Flags().Bool("print-command", false, "Print a command that you can use with SSH to manually recover from an error")
 
-	command.Flags().String("k3s-extra-args", "", "Optional extra arguments to pass to k3s installer, wrapped in quotes (e.g. --k3s-extra-args '--node-taint key=value:NoExecute')")
-	command.Flags().String("k3s-version", "", "Optional: set a version to install, overrides k3s-channel")
-	command.Flags().String("k3s-channel", PinnedK3sChannel, "Optional release channel: stable, latest, or i.e. v1.18")
+	command.Flags().String("k3s-extra-args", "", "Additional arguments to pass to k3s installer, wrapped in quotes (e.g. --k3s-extra-args '--node-taint key=value:NoExecute')")
+	command.Flags().String("k3s-version", "", "Set a version to install, overrides k3s-channel")
+	command.Flags().String("k3s-channel", PinnedK3sChannel, "Release channel: stable, latest, or i.e. v1.18")
 
 	command.RunE = func(command *cobra.Command, args []string) error {
 		fmt.Printf("Running: k3sup join\n")
