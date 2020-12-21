@@ -84,9 +84,9 @@ func MakeJoin() *cobra.Command {
 		}
 
 		sshKey, _ := command.Flags().GetString("ssh-key")
-		server, getServerErr := command.Flags().GetBool("server")
-		if getServerErr != nil {
-			return getServerErr
+		server, err := command.Flags().GetBool("server")
+		if err != nil {
+			return err
 		}
 
 		port, _ := command.Flags().GetInt("ssh-port")
