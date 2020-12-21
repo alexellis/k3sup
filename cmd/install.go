@@ -65,7 +65,7 @@ func MakeInstall() *cobra.Command {
 	command.Flags().Bool("merge", false, `Merge the config with existing kubeconfig if it already exists.
 Provide the --local-path flag with --merge if a kubeconfig already exists in some other directory`)
 	command.Flags().Bool("local", false, "Perform a local install without using ssh")
-	command.Flags().Bool("cluster", false, "Form a dqlite cluster")
+	command.Flags().Bool("cluster", false, "HA cluster using embedded etcd")
 
 	command.Flags().Bool("print-command", false, "Print a command that you can use with SSH to manually recover from an error")
 	command.Flags().String("datastore", "", "Optional: connection-string for the k3s datastore to enable HA, i.e. \"mysql://username:password@tcp(hostname:3306)/database-name\"")
