@@ -141,7 +141,7 @@ k3sup install --host $HOST --user ubuntu \
 
 Other options for `install`:
 
-* `--cluster` - start this server in clustering mode, for use with dqlite (embedded HA)
+* `--cluster` - start this server in clustering mode using embdeed etcd (embedded HA)
 * `--skip-install` - if you already have k3s installed, you can just run this command to get the `kubeconfig`
 * `--ssh-key` - specify a specific path for the SSH key for remote login
 * `--local-path` - default is `./kubeconfig` - set the file where you want to save your cluster's `kubeconfig`.  By default this file will be overwritten.
