@@ -278,15 +278,14 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 	}
 
 	command.PreRunE = func(command *cobra.Command, args []string) error {
-		_, ipErr := command.Flags().GetIP("ip")
-		if ipErr != nil {
-			return ipErr
+		if _, err := command.Flags().GetIP("ip"); err != nil {
+			return err
 		}
 
-		_, sshPortErr := command.Flags().GetInt("ssh-port")
-		if sshPortErr != nil {
-			return sshPortErr
+		if _, err := command.Flags().GetInt("ssh-port"); err != nil {
+			return err
 		}
+
 		return nil
 	}
 	return command
@@ -315,8 +314,8 @@ func obtainKubeconfig(operator operator.CommandOperator, getConfigcommand, host,
 	}
 
 	// Create a new kubeconfig
-	if writeErr := writeConfig(absPath, []byte(kubeconfig), context, false); writeErr != nil {
-		return writeErr
+	if err := writeConfig(absPath, []byte(kubeconfig), context, false); err != nil {
+		return err
 	}
 
 	return nil
@@ -353,8 +352,8 @@ func mergeConfigs(localKubeconfigPath, context string, k3sconfig []byte) ([]byte
 	}
 	defer file.Close()
 
-	if writeErr := writeConfig(file.Name(), []byte(k3sconfig), context, true); writeErr != nil {
-		return nil, writeErr
+	if err := writeConfig(file.Name(), []byte(k3sconfig), context, true); err != nil {
+		return nil, err
 	}
 
 	fmt.Printf("Merging with existing kubeconfig at %s\n", localKubeconfigPath)
