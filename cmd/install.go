@@ -212,7 +212,7 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 				fmt.Printf("stdout: %q", res.StdOut)
 			}
 
-			if err = obtainKubeconfig(operator, getConfigcommand, ip.String(), context, localKubeconfig, merge, printConfig); err != nil {
+			if err = obtainKubeconfig(operator, getConfigcommand, host, context, localKubeconfig, merge, printConfig); err != nil {
 				return err
 			}
 
@@ -270,7 +270,7 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 		if printCommand {
 			fmt.Printf("ssh: %s\n", getConfigcommand)
 		}
-		if err = obtainKubeconfig(operator, getConfigcommand, ip.String(), context, localKubeconfig, merge, printConfig); err != nil {
+		if err = obtainKubeconfig(operator, getConfigcommand, host, context, localKubeconfig, merge, printConfig); err != nil {
 			return err
 		}
 
