@@ -573,6 +573,8 @@ MIT
 
 * [Creating a k3s Cluster with k3sup & Multipass 💻☸️](https://dev.to/tomowatt/creating-a-k3s-cluster-with-k3sup-multipass-h26) by Tom Watt
 
+* [How I’ve set up my highly-available Kubernetes cluster](https://jmac.ph/2021/01/25/how-ive-set-up-my-highly-available-kubernetes-cluster/) by JJ Macalinao
+
 Checkout the [Announcement tweet](https://twitter.com/alexellisuk/status/1162272786250735618?s=20)
 
 ## Similar tools & glossary
