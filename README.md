@@ -438,7 +438,7 @@ Try it now: [Will it cluster? K3s on Raspbian](https://blog.alexellis.io/test-dr
 
 If you are using public cloud, then make sure you see the notes from the Rancher team on setting up a Firewall or Security Group.
 
-k3s docs: [k3s configuration / open ports](https://rancher.com/docs/k3s/latest/en/configuration/#open-ports-network-security)
+k3s docs: [k3s configuration / open ports](https://rancher.com/docs/k3s/latest/en/installation/installation-requirements/#networking)
 
 ## If your ssh-key is password-protected
 
