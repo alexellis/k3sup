@@ -571,6 +571,8 @@ MIT
 
 * [OpenStack sur LXD avec Juju et k3sup dans phoenixNAP](https://deep75.medium.com/openstack-sur-lxd-avec-juju-et-k3sup-dans-phoenixnap-e5867a487497)
 
+* [Creating a k3s Cluster with k3sup & Multipass 💻☸️](https://dev.to/tomowatt/creating-a-k3s-cluster-with-k3sup-multipass-h26) by Tom Watt
+
 Checkout the [Announcement tweet](https://twitter.com/alexellisuk/status/1162272786250735618?s=20)
 
 ## Similar tools & glossary
