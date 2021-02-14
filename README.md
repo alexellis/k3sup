@@ -411,6 +411,10 @@ In a few moments you will have Kubernetes up and running on your Raspberry Pi 2,
 
 * Find the RPi IP with `ping -c raspberrypi.local`, then set `export SERVER_IP=""` with the IP
 
+* Enable container features in the kernel, by editing `/boot/cmdline.txt`
+
+* Add the following to the end of the line: ` cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory`
+
 * Copy over your ssh key with: `ssh-copy-id pi@raspberrypi.local`
 
 * Run `k3sup install --ip $SERVER_IP --user pi`
