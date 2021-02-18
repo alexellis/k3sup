@@ -345,12 +345,7 @@ You've just simulated a failure of one of your masters/servers, and you can stil
 
 ### Create a multi-master (HA) setup with embedded etcd
 
-As of k3s `v1.19.1+k3s1` a HA multi-master (multi-server in k3s terminology) configuration is available through embedded etcd. A quorum of servers will be required, which means having at least three nodes.
-
-This approach is still considered experimental by Rancher, see the SQL-backed instructions for production-ready clusters.
-
-> Note that with older versions of k3s, these instructions will create a dqlite cluster. Dqlite was subsequently removed from k3s.
-
+In k3s `v1.19.5+k3s1` a HA multi-master (multi-server in k3s terminology) configuration is available called "embedded etcd". A quorum of servers will be required, which means having an odd number of nodes and least three. [See more](https://rancher.com/docs/k3s/latest/en/installation/ha-embedded/)
 
 * Initialize the cluster with the first server
 
