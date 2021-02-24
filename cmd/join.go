@@ -11,15 +11,27 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
+// SupportMsg is aimed to inform the many hundreds of users of k3sup
+// that they can do their part to support the project's development
+// and maintenance.
+const SupportMsg = `Give your support to k3sup via GitHub Sponsors:
+
+https://github.com/sponsors/alexellis`
+
+// MakeJoin creates the join command
 func MakeJoin() *cobra.Command {
 	var command = &cobra.Command{
 		Use:   "join",
 		Short: "Install the k3s agent on a remote host and join it to an existing server",
-		Long:  `Install the k3s agent on a remote host and join it to an existing server`,
-		Example: `  k3sup join --user root --server-ip 192.168.0.100 --ip 192.168.0.101
-  k3sup join --user pi --server-host server-pi1.local \
-	--host agent-pi1.local \
-	--k3s-channel latest`,
+		Long: `Install the k3s agent on a remote host and join it to an existing server
+
+` + SupportMsg,
+		Example: `  k3sup join --user root --server-ip IP --ip IP
+
+  k3sup join --user pi \
+    --server-host HOST \
+    --host HOST \
+    --k3s-channel latest`,
 		SilenceUsage: true,
 	}
 

@@ -174,5 +174,17 @@ getPackage() {
     fi
 }
 
+thanks() {
+    echo
+    echo "================================================================"
+    echo "  Thanks for choosing k3sup."
+    echo "  Support the project through GitHub Sponsors"
+    echo "" 
+    echo "  https://github.com/sponsors/alexellis" 
+    echo "================================================================"
+    echo
+}
+
 hasCli
 getPackage
+thanks

@@ -36,15 +36,24 @@ type k3sExecOptions struct {
 const PinnedK3sChannel = "v1.19"
 const getScript = "curl -sfL https://get.k3s.io"
 
+// MakeInstall creates the install command
 func MakeInstall() *cobra.Command {
 	var command = &cobra.Command{
 		Use:   "install",
 		Short: "Install k3s on a server via SSH",
-		Long:  `Install k3s on a server via SSH.`,
-		Example: `  k3sup install --ip 192.168.0.100 --user root
-  k3sup install --ip 192.168.0.100 --k3s-channel latest
-  k3sup install --host ec2-3-250-131-77.eu-west-1.compute.amazonaws.com \
-    --ssh-key ~/ec2-key.pem --user ubuntu`,
+		Long: `Install k3s on a server via SSH.
+
+` + SupportMsg,
+		Example: `  k3sup install --ip IP --user USER
+
+  k3sup install --local --k3s-version v1.19.7
+
+  k3sup install --ip IP --cluster
+
+  k3sup install --ip IP --k3s-channel latest
+
+  k3sup install --host HOST \
+    --ssh-key $HOME/ec2-key.pem --user ubuntu`,
 		SilenceUsage: true,
 	}
 

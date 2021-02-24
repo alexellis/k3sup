@@ -32,6 +32,9 @@ func MakeVersion() *cobra.Command {
 			fmt.Println("Version:", Version)
 		}
 		fmt.Println("Git Commit:", GitCommit)
+
+		fmt.Printf("\n%s\n", SupportMsg)
+
 	}
 	return command
 }

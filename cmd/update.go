@@ -8,8 +8,11 @@ import (
 
 func MakeUpdate() *cobra.Command {
 	var command = &cobra.Command{
-		Use:          "update",
-		Short:        "Print update instructions",
+		Use:   "update",
+		Short: "Print update instructions",
+		Long: `Print instructions for updating your version of k3sup.
+
+` + SupportMsg,
 		Example:      `  k3sup update`,
 		SilenceUsage: false,
 	}
