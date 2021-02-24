@@ -12,7 +12,6 @@ func main() {
 	cmdInstall := cmd.MakeInstall()
 	cmdVersion := cmd.MakeVersion()
 	cmdJoin := cmd.MakeJoin()
-	cmdApps := cmd.MakeApps()
 	cmdUpdate := cmd.MakeUpdate()
 
 	printk3supASCIIArt := cmd.PrintK3supASCIIArt
@@ -28,7 +27,6 @@ func main() {
 	rootCmd.AddCommand(cmdInstall)
 	rootCmd.AddCommand(cmdVersion)
 	rootCmd.AddCommand(cmdJoin)
-	rootCmd.AddCommand(cmdApps)
 	rootCmd.AddCommand(cmdUpdate)
 
 	if err := rootCmd.Execute(); err != nil {

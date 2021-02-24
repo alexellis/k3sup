@@ -34,6 +34,7 @@ type k3sExecOptions struct {
 // with the examples in the README. You can override this via
 // a flag, or give a specific version, see the command help message.
 const PinnedK3sChannel = "v1.19"
+const getScript = "curl -sfL https://get.k3s.io"
 
 func MakeInstall() *cobra.Command {
 	var command = &cobra.Command{
