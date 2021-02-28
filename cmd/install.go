@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 
 	operator "github.com/alexellis/k3sup/pkg/operator"
@@ -227,30 +228,49 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 		sshKey, _ := command.Flags().GetString("ssh-key")
 
 		sshKeyPath := expandPath(sshKey)
-
-		authMethod, closeSSHAgent, err := loadPublickey(sshKeyPath)
-		if err != nil {
-			return errors.Wrapf(err, "unable to load the ssh key with path %q", sshKeyPath)
-		}
-
-		defer closeSSHAgent()
-
-		config := &ssh.ClientConfig{
-			User: user,
-			Auth: []ssh.AuthMethod{
-				authMethod,
-			},
-			HostKeyCallback: ssh.InsecureIgnoreHostKey(),
-		}
-
 		address := fmt.Sprintf("%s:%d", host, port)
-		operator, err := operator.NewSSHOperator(address, config)
 
-		if err != nil {
-			return errors.Wrapf(err, "unable to connect to %s over ssh", address)
+		var sshOperator *operator.SSHOperator
+		var initialSSHErr error
+		if runtime.GOOS != "windows" {
+			// Try SSH agent without parsing key files, will succeed if the user
+			// has already added a key to the SSH Agent, or if using a configured
+			// smartcard
+			config := &ssh.ClientConfig{
+				User:            user,
+				Auth:            []ssh.AuthMethod{sshAgentOnly()},
+				HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+			}
+
+			sshOperator, initialSSHErr = operator.NewSSHOperator(address, config)
+		} else {
+			initialSSHErr = errors.New("ssh-agent unsupported on windows")
 		}
 
-		defer operator.Close()
+		// If the initial connection attempt fails fall through to the using
+		// the supplied/default private key file
+		if initialSSHErr != nil {
+			publicKeyFileAuth, closeSSHAgent, err := loadPublickey(sshKeyPath)
+			if err != nil {
+				return errors.Wrapf(err, "unable to load the ssh key with path %q", sshKeyPath)
+			}
+
+			defer closeSSHAgent()
+
+			config := &ssh.ClientConfig{
+				User:            user,
+				Auth:            []ssh.AuthMethod{publicKeyFileAuth},
+				HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+			}
+
+			sshOperator, err = operator.NewSSHOperator(address, config)
+
+			if err != nil {
+				return errors.Wrapf(err, "unable to connect to %s over ssh", address)
+			}
+		}
+
+		defer sshOperator.Close()
 
 		if !skipInstall {
 
@@ -258,7 +278,7 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 				fmt.Printf("ssh: %s\n", installK3scommand)
 			}
 
-			res, err := operator.Execute(installK3scommand)
+			res, err := sshOperator.Execute(installK3scommand)
 
 			if err != nil {
 				return fmt.Errorf("error received processing command: %s", err)
@@ -270,7 +290,7 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 		if printCommand {
 			fmt.Printf("ssh: %s\n", getConfigcommand)
 		}
-		if err = obtainKubeconfig(operator, getConfigcommand, host, context, localKubeconfig, merge, printConfig); err != nil {
+		if err = obtainKubeconfig(sshOperator, getConfigcommand, host, context, localKubeconfig, merge, printConfig); err != nil {
 			return err
 		}
 
@@ -289,6 +309,13 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 		return nil
 	}
 	return command
+}
+
+func sshAgentOnly() ssh.AuthMethod {
+	if sshAgent, err := net.Dial("unix", os.Getenv("SSH_AUTH_SOCK")); err == nil {
+		return ssh.PublicKeysCallback(agent.NewClient(sshAgent).Signers)
+	}
+	return nil
 }
 
 func obtainKubeconfig(operator operator.CommandOperator, getConfigcommand, host, context, localKubeconfig string, merge, printConfig bool) error {
