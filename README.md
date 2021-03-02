@@ -103,15 +103,9 @@ Watch the demo:
 
 `k3sup` is Open Source Software (OSS) and was created by [Alex Ellis](https://www.alexellis.io/) - the founder of [OpenFaaS &reg;](https://www.openfaas.com/) & [inlets](https://inlets.dev/). Alex is also an active part of the Docker & Kubernetes community as a [CNCF Ambassador](https://www.cncf.io/people/ambassadors/).
 
-If you've benefitted from his open source projects or blog posts in some way, then and join dozens of other developers today by buying an Insiders Subscription 🏆 or get your own limited-edition SWAG 👕:
+If you've benefitted from his open source projects or blog posts in some way, then and join dozens of other developers today by buying an Insiders Subscription 🏆 via GitHub Sponsors.
 
-* [Buy an Insiders Subscription on GitHub](https://github.com/users/alexellis/sponsorship)
-
-For a limited time, there's also a full range of SWAG for k3sup fans
-
-[![SWAG collection](./docs/swag.png)](https://store.openfaas.com/collections/the-k3sup-collection)
-
-* [Buy a k3sup hoodie, t-shirt or mug in the OpenFaaS Ltd Store](https://store.openfaas.com/collections/the-k3sup-collection)
+* [Sponsor on GitHub](https://github.com/users/alexellis/sponsorship)
 
 ## Usage ✅
 
