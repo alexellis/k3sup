@@ -369,7 +369,7 @@ func mergeConfigs(localKubeconfigPath, context string, k3sconfig []byte) ([]byte
 	fmt.Printf("Merging with existing kubeconfig at %s\n", localKubeconfigPath)
 
 	// Append KUBECONFIGS in ENV Vars
-	appendKubeConfigENV := fmt.Sprintf("KUBECONFIG=%s:%s", localKubeconfigPath, file.Name())
+	appendKubeConfigENV := fmt.Sprintf("KUBECONFIG=%s:%s", file.Name(), localKubeconfigPath)
 
 	// Merge the two kubeconfigs and read the output into 'data'
 	cmd := exec.Command("kubectl", "config", "view", "--merge", "--flatten")
