@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"net"
+	"runtime"
 	"strings"
 
 	operator "github.com/alexellis/k3sup/pkg/operator"
@@ -127,37 +128,61 @@ func MakeJoin() *cobra.Command {
 		}
 
 		sshKeyPath := expandPath(sshKey)
-
-		authMethod, closeSSHAgent, err := loadPublickey(sshKeyPath)
-		if err != nil {
-			return errors.Wrapf(err, "unable to load the ssh key with path %q", sshKeyPath)
-		}
-
-		defer closeSSHAgent()
-
-		config := &ssh.ClientConfig{
-			User: serverUser,
-			Auth: []ssh.AuthMethod{
-				authMethod,
-			},
-			HostKeyCallback: ssh.InsecureIgnoreHostKey(),
-		}
-
 		address := fmt.Sprintf("%s:%d", serverHost, serverPort)
-		operator, err := operator.NewSSHOperator(address, config)
 
-		if err != nil {
-			return errors.Wrapf(err, "unable to connect to (server) %s over ssh", address)
+		var sshOperator *operator.SSHOperator
+		var initialSSHErr error
+		if runtime.GOOS != "windows" {
+			// Try SSH agent without parsing key files, will succeed if the user
+			// has already added a key to the SSH Agent, or if using a configured
+			// smartcard
+			config := &ssh.ClientConfig{
+				User:            serverUser,
+				Auth:            []ssh.AuthMethod{sshAgentOnly()},
+				HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+			}
+
+			sshOperator, initialSSHErr = operator.NewSSHOperator(address, config)
+		} else {
+			initialSSHErr = errors.New("ssh-agent unsupported on windows")
 		}
 
-		defer operator.Close()
+		// If the initial connection attempt fails fall through to the using
+		// the supplied/default private key file
+		var publicKeyFileAuth ssh.AuthMethod
+		var closeSSHAgent func() error
+		if initialSSHErr != nil {
+			var err error
+			publicKeyFileAuth, closeSSHAgent, err = loadPublickey(sshKeyPath)
+			if err != nil {
+				return errors.Wrapf(err, "unable to load the ssh key with path %q", sshKeyPath)
+			}
+
+			defer closeSSHAgent()
+
+			config := &ssh.ClientConfig{
+				User: serverUser,
+				Auth: []ssh.AuthMethod{
+					publicKeyFileAuth,
+				},
+				HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+			}
+
+			sshOperator, err = operator.NewSSHOperator(address, config)
+
+			if err != nil {
+				return errors.Wrapf(err, "unable to connect to (server) %s over ssh", address)
+			}
+		}
+
+		defer sshOperator.Close()
 
 		getTokenCommand := fmt.Sprintf(sudoPrefix + "cat /var/lib/rancher/k3s/server/node-token\n")
 		if printCommand {
 			fmt.Printf("ssh: %s\n", getTokenCommand)
 		}
 
-		res, err := operator.Execute(getTokenCommand)
+		res, err := sshOperator.Execute(getTokenCommand)
 
 		if err != nil {
 			return errors.Wrap(err, "unable to get join-token from server")
@@ -167,8 +192,10 @@ func MakeJoin() *cobra.Command {
 			fmt.Printf("Logs: %s", res.StdErr)
 		}
 
-		closeSSHAgent()
-		operator.Close()
+		if closeSSHAgent != nil {
+			closeSSHAgent()
+		}
+		sshOperator.Close()
 
 		joinToken := string(res.StdOut)
 
@@ -210,33 +237,54 @@ func MakeJoin() *cobra.Command {
 }
 
 func setupAdditionalServer(serverHost, host string, port int, user, sshKeyPath, joinToken, k3sExtraArgs, k3sVersion, k3sChannel string, printCommand bool) error {
-
-	authMethod, closeSSHAgent, err := loadPublickey(sshKeyPath)
-	if err != nil {
-		return errors.Wrapf(err, "unable to load the ssh key with path %q", sshKeyPath)
-	}
-
-	defer closeSSHAgent()
-
-	config := &ssh.ClientConfig{
-		User: user,
-		Auth: []ssh.AuthMethod{
-			authMethod,
-		},
-		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
-	}
-
 	address := fmt.Sprintf("%s:%d", host, port)
-	operator, err := operator.NewSSHOperator(address, config)
 
-	if err != nil {
-		return errors.Wrapf(err, "unable to connect to %s over ssh as %s", address, user)
+	var sshOperator *operator.SSHOperator
+	var initialSSHErr error
+	if runtime.GOOS != "windows" {
+		// Try SSH agent without parsing key files, will succeed if the user
+		// has already added a key to the SSH Agent, or if using a configured
+		// smartcard
+		config := &ssh.ClientConfig{
+			User:            user,
+			Auth:            []ssh.AuthMethod{sshAgentOnly()},
+			HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+		}
+
+		sshOperator, initialSSHErr = operator.NewSSHOperator(address, config)
+	} else {
+		initialSSHErr = errors.New("ssh-agent unsupported on windows")
+	}
+
+	// If the initial connection attempt fails fall through to the using
+	// the supplied/default private key file
+	if initialSSHErr != nil {
+		publicKeyFileAuth, closeSSHAgent, err := loadPublickey(sshKeyPath)
+		if err != nil {
+			return errors.Wrapf(err, "unable to load the ssh key with path %q", sshKeyPath)
+		}
+
+		defer closeSSHAgent()
+
+		config := &ssh.ClientConfig{
+			User: user,
+			Auth: []ssh.AuthMethod{
+				publicKeyFileAuth,
+			},
+			HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+		}
+
+		sshOperator, err = operator.NewSSHOperator(address, config)
+
+		if err != nil {
+			return errors.Wrapf(err, "unable to connect to %s over ssh as %s", address, user)
+		}
 	}
 
 	installStr := createVersionStr(k3sVersion, k3sChannel)
 	serverAgent := true
 
-	defer operator.Close()
+	defer sshOperator.Close()
 
 	installk3sExec := makeJoinExec(
 		serverHost,
@@ -252,7 +300,7 @@ func setupAdditionalServer(serverHost, host string, port int, user, sshKeyPath, 
 		fmt.Printf("ssh: %s\n", installAgentServerCommand)
 	}
 
-	res, err := operator.Execute(installAgentServerCommand)
+	res, err := sshOperator.Execute(installAgentServerCommand)
 	if err != nil {
 		return errors.Wrap(err, "unable to setup agent")
 	}
@@ -269,29 +317,51 @@ func setupAdditionalServer(serverHost, host string, port int, user, sshKeyPath, 
 
 func setupAgent(serverHost, host string, port int, user, sshKeyPath, joinToken, k3sExtraArgs, k3sVersion, k3sChannel string, printCommand bool) error {
 
-	authMethod, closeSSHAgent, err := loadPublickey(sshKeyPath)
-	if err != nil {
-		return errors.Wrapf(err, "unable to load the ssh key with path %q", sshKeyPath)
-	}
-
-	defer closeSSHAgent()
-
-	config := &ssh.ClientConfig{
-		User: user,
-		Auth: []ssh.AuthMethod{
-			authMethod,
-		},
-		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
-	}
-
 	address := fmt.Sprintf("%s:%d", host, port)
-	operator, err := operator.NewSSHOperator(address, config)
 
-	if err != nil {
-		return errors.Wrapf(err, "unable to connect to %s over ssh", address)
+	var sshOperator *operator.SSHOperator
+	var initialSSHErr error
+	if runtime.GOOS != "windows" {
+		// Try SSH agent without parsing key files, will succeed if the user
+		// has already added a key to the SSH Agent, or if using a configured
+		// smartcard
+		config := &ssh.ClientConfig{
+			User:            user,
+			Auth:            []ssh.AuthMethod{sshAgentOnly()},
+			HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+		}
+
+		sshOperator, initialSSHErr = operator.NewSSHOperator(address, config)
+	} else {
+		initialSSHErr = errors.New("ssh-agent unsupported on windows")
 	}
 
-	defer operator.Close()
+	// If the initial connection attempt fails fall through to the using
+	// the supplied/default private key file
+	if initialSSHErr != nil {
+		publicKeyFileAuth, closeSSHAgent, err := loadPublickey(sshKeyPath)
+		if err != nil {
+			return errors.Wrapf(err, "unable to load the ssh key with path %q", sshKeyPath)
+		}
+
+		defer closeSSHAgent()
+
+		config := &ssh.ClientConfig{
+			User: user,
+			Auth: []ssh.AuthMethod{
+				publicKeyFileAuth,
+			},
+			HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+		}
+
+		sshOperator, err = operator.NewSSHOperator(address, config)
+
+		if err != nil {
+			return errors.Wrapf(err, "unable to connect to %s over ssh", address)
+		}
+	}
+
+	defer sshOperator.Close()
 
 	installStr := createVersionStr(k3sVersion, k3sChannel)
 
@@ -311,7 +381,7 @@ func setupAgent(serverHost, host string, port int, user, sshKeyPath, joinToken, 
 		fmt.Printf("ssh: %s\n", installAgentCommand)
 	}
 
-	res, err := operator.Execute(installAgentCommand)
+	res, err := sshOperator.Execute(installAgentCommand)
 
 	if err != nil {
 		return errors.Wrap(err, "unable to setup agent")
