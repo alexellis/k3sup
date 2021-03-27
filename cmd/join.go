@@ -133,16 +133,21 @@ func MakeJoin() *cobra.Command {
 		var sshOperator *operator.SSHOperator
 		var initialSSHErr error
 		if runtime.GOOS != "windows" {
-			// Try SSH agent without parsing key files, will succeed if the user
-			// has already added a key to the SSH Agent, or if using a configured
-			// smartcard
-			config := &ssh.ClientConfig{
-				User:            serverUser,
-				Auth:            []ssh.AuthMethod{sshAgentOnly()},
-				HostKeyCallback: ssh.InsecureIgnoreHostKey(),
-			}
 
-			sshOperator, initialSSHErr = operator.NewSSHOperator(address, config)
+			var sshAgentAuthMethod ssh.AuthMethod
+			sshAgentAuthMethod, initialSSHErr = sshAgentOnly()
+			if initialSSHErr == nil {
+				// Try SSH agent without parsing key files, will succeed if the user
+				// has already added a key to the SSH Agent, or if using a configured
+				// smartcard
+				config := &ssh.ClientConfig{
+					User:            serverUser,
+					Auth:            []ssh.AuthMethod{sshAgentAuthMethod},
+					HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+				}
+
+				sshOperator, initialSSHErr = operator.NewSSHOperator(address, config)
+			}
 		} else {
 			initialSSHErr = errors.New("ssh-agent unsupported on windows")
 		}
@@ -242,16 +247,21 @@ func setupAdditionalServer(serverHost, host string, port int, user, sshKeyPath, 
 	var sshOperator *operator.SSHOperator
 	var initialSSHErr error
 	if runtime.GOOS != "windows" {
-		// Try SSH agent without parsing key files, will succeed if the user
-		// has already added a key to the SSH Agent, or if using a configured
-		// smartcard
-		config := &ssh.ClientConfig{
-			User:            user,
-			Auth:            []ssh.AuthMethod{sshAgentOnly()},
-			HostKeyCallback: ssh.InsecureIgnoreHostKey(),
-		}
 
-		sshOperator, initialSSHErr = operator.NewSSHOperator(address, config)
+		var sshAgentAuthMethod ssh.AuthMethod
+		sshAgentAuthMethod, initialSSHErr = sshAgentOnly()
+		if initialSSHErr == nil {
+			// Try SSH agent without parsing key files, will succeed if the user
+			// has already added a key to the SSH Agent, or if using a configured
+			// smartcard
+			config := &ssh.ClientConfig{
+				User:            user,
+				Auth:            []ssh.AuthMethod{sshAgentAuthMethod},
+				HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+			}
+
+			sshOperator, initialSSHErr = operator.NewSSHOperator(address, config)
+		}
 	} else {
 		initialSSHErr = errors.New("ssh-agent unsupported on windows")
 	}
@@ -322,16 +332,21 @@ func setupAgent(serverHost, host string, port int, user, sshKeyPath, joinToken, 
 	var sshOperator *operator.SSHOperator
 	var initialSSHErr error
 	if runtime.GOOS != "windows" {
-		// Try SSH agent without parsing key files, will succeed if the user
-		// has already added a key to the SSH Agent, or if using a configured
-		// smartcard
-		config := &ssh.ClientConfig{
-			User:            user,
-			Auth:            []ssh.AuthMethod{sshAgentOnly()},
-			HostKeyCallback: ssh.InsecureIgnoreHostKey(),
-		}
 
-		sshOperator, initialSSHErr = operator.NewSSHOperator(address, config)
+		var sshAgentAuthMethod ssh.AuthMethod
+		sshAgentAuthMethod, initialSSHErr = sshAgentOnly()
+		if initialSSHErr == nil {
+			// Try SSH agent without parsing key files, will succeed if the user
+			// has already added a key to the SSH Agent, or if using a configured
+			// smartcard
+			config := &ssh.ClientConfig{
+				User:            user,
+				Auth:            []ssh.AuthMethod{sshAgentAuthMethod},
+				HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+			}
+
+			sshOperator, initialSSHErr = operator.NewSSHOperator(address, config)
+		}
 	} else {
 		initialSSHErr = errors.New("ssh-agent unsupported on windows")
 	}

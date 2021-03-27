@@ -233,16 +233,21 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 		var sshOperator *operator.SSHOperator
 		var initialSSHErr error
 		if runtime.GOOS != "windows" {
-			// Try SSH agent without parsing key files, will succeed if the user
-			// has already added a key to the SSH Agent, or if using a configured
-			// smartcard
-			config := &ssh.ClientConfig{
-				User:            user,
-				Auth:            []ssh.AuthMethod{sshAgentOnly()},
-				HostKeyCallback: ssh.InsecureIgnoreHostKey(),
-			}
 
-			sshOperator, initialSSHErr = operator.NewSSHOperator(address, config)
+			var sshAgentAuthMethod ssh.AuthMethod
+			sshAgentAuthMethod, initialSSHErr = sshAgentOnly()
+			if initialSSHErr == nil {
+				// Try SSH agent without parsing key files, will succeed if the user
+				// has already added a key to the SSH Agent, or if using a configured
+				// smartcard
+				config := &ssh.ClientConfig{
+					User:            user,
+					Auth:            []ssh.AuthMethod{sshAgentAuthMethod},
+					HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+				}
+
+				sshOperator, initialSSHErr = operator.NewSSHOperator(address, config)
+			}
 		} else {
 			initialSSHErr = errors.New("ssh-agent unsupported on windows")
 		}
@@ -311,11 +316,12 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 	return command
 }
 
-func sshAgentOnly() ssh.AuthMethod {
-	if sshAgent, err := net.Dial("unix", os.Getenv("SSH_AUTH_SOCK")); err == nil {
-		return ssh.PublicKeysCallback(agent.NewClient(sshAgent).Signers)
+func sshAgentOnly() (ssh.AuthMethod, error) {
+	sshAgent, err := net.Dial("unix", os.Getenv("SSH_AUTH_SOCK"))
+	if err != nil {
+		return nil, err
 	}
-	return nil
+	return ssh.PublicKeysCallback(agent.NewClient(sshAgent).Signers), nil
 }
 
 func obtainKubeconfig(operator operator.CommandOperator, getConfigcommand, host, context, localKubeconfig string, merge, printConfig bool) error {
