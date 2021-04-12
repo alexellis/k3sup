@@ -47,3 +47,7 @@ cat /etc/os-release
 Subject to approval, are you willing to work on a Pull Request for this issue or feature request?
 
 Yes/No
+
+## Are you a GitHub Sponsor (Yes/No?)
+
+https://github.com/sponsors/alexellis
