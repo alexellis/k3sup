@@ -40,11 +40,7 @@ Status](https://travis-ci.com/alexellis/k3sup.svg?branch=master)](https://travis
     - [License](#license)
   - [📢 What are people saying about `k3sup`?](#-what-are-people-saying-about-k3sup)
   - [Similar tools & glossary](#similar-tools--glossary)
-  - [Appendix](#appendix)
-    - [`sudo` required for kubectl](#sudo-required-for-kubectl)
-    - [`iptables`](#iptables)
-    - [Go modules](#go-modules)
-    - [Troubleshooting](#troubleshooting)
+  - [Troubleshooting](#troubleshooting)
 
 ## What's this for? 💻
 
@@ -588,28 +584,31 @@ Related tools:
 * [k3v](https://github.com/ibuildthecloud/k3v) - "virtual kubernetes" - a very early PoC from the author of k3s aiming to slice up a single cluster for multiple tenants
 * [k3sup-multipass](https://github.com/matti/k3sup-multipass) - a helper to launch single node k3s cluster with one command using a [multipass](https://multipass.run) VM and optionally proxy the ingress to localhost for easier development.
 
-## Appendix
+## Troubleshooting
 
-### `sudo` required for kubectl
+If you're having issues, it's likely that this is a problem with K3s, and not with K3sup. How do we know that? Mostly from past issues.
 
-It's recommended that you *do not* run kubectl on your node, or RPi cluster, but use the KUBECONFIG file from your controller/laptop.
+Rancher provides support for K3s [on their Slack](https://slack.rancher.io/) in the `#k3s` channel. This should be your first port of call. Your second port of call is to raise an issue with the K3s maintainers in the [K3s repo](https://github.com/k3s-io/k3s/issues)
 
-See also: [Set kubeconfig to world-readable](https://github.com/rancher/k3s/issues/389)
+Common issues:
 
-### `iptables`
+* Raspberry Pi - you haven't updated cmdline.txt to enable cgroups for CPU and memory
+* K3s server didn't start. Log in and run `sudo systemctl -u k3s`
+* The K3s agent didn't start. Log in and run `sudo systemctl -u k3s-agent`
+* You tried to remove and re-add a server in an etcd cluster and it failed. This is a known issue, see the [K3s issue tracker](https://github.com/k3s-io/k3s/issues).
+
+Finally, if everything points to an issue that you can clearly reproduce with k3sup, feel free to open an issue here. To make sure you get a response, fill out the whole template and answer all the questions.
+
+### Getting access to your KUBECONFIG
+
+You may have run into an issue where `sudo` access is required for `kubectl` access.
+
+You should not run kubectl on your server or agent nodes. k3sup is designed to rewrite and/or merge your cluster's config to your local KUBECONFIG file. You should run `kubectl` on your laptop / client machine.
+
+If you've lost your kubeconfig, you can use `k3sup install --skip-install`. See also the various flags for merging and setting a context name.
+
+### Misc note on `iptables`
 
 > Note added by Eduardo Minguez Perez
 
 Currently there is an issue in k3s involving `iptables >= 1.8` that can affect the network communication. See the [k3s issue](https://github.com/rancher/k3s/issues/703) and the corresponding [kubernetes one](https://github.com/kubernetes/kubernetes/issues/71305) for more information and workarounds. The issue has been observed in Debian Buster but it can affect other distributions as well.
-
-### Go modules
-
-* [Go modules wiki](https://github.com/golang/go/wiki/Modules)
-
-### Troubleshooting
-
-There was an odd edge case in one of the previous versions, If you are having error with helm throwing an
-error about tiller not being ready then you might want to remove the `~/.k3sup/` directory, which holds some
-info used by `k3sup`. Once you have removed this you should try again.
-
-If you are having any other issues or have questions please open an issue.
