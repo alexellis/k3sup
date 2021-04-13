@@ -208,18 +208,22 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 		if local {
 			operator := operator.ExecOperator{}
 
-			fmt.Printf("Executing: %s\n", installK3scommand)
+			if !skipInstall {
+				fmt.Printf("Executing: %s\n", installK3scommand)
 
-			res, err := operator.Execute(installK3scommand)
-			if err != nil {
-				return err
-			}
+				res, err := operator.Execute(installK3scommand)
+				if err != nil {
+					return err
+				}
 
-			if len(res.StdErr) > 0 {
-				fmt.Printf("stderr: %q", res.StdErr)
-			}
-			if len(res.StdOut) > 0 {
-				fmt.Printf("stdout: %q", res.StdOut)
+				if len(res.StdErr) > 0 {
+					fmt.Printf("stderr: %q", res.StdErr)
+				}
+				if len(res.StdOut) > 0 {
+					fmt.Printf("stdout: %q", res.StdOut)
+				}
+			} else {
+				fmt.Printf("Skipping local installation\n")
 			}
 
 			if err = obtainKubeconfig(operator, getConfigcommand, host, context, localKubeconfig, merge, printConfig); err != nil {
