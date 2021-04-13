@@ -41,6 +41,8 @@ Status](https://travis-ci.com/alexellis/k3sup.svg?branch=master)](https://travis
   - [📢 What are people saying about `k3sup`?](#-what-are-people-saying-about-k3sup)
   - [Similar tools & glossary](#similar-tools--glossary)
   - [Troubleshooting](#troubleshooting)
+    - [Getting access to your KUBECONFIG](#getting-access-to-your-kubeconfig)
+    - [Misc note on iptables](#misc-note-on-iptables)
 
 ## What's this for? 💻
 
@@ -63,11 +65,9 @@ k3sup was developed to automate what can be a very manual and confusing process 
 ![Conceptual architecture](./docs/k3sup-cloud.png)
 *Conceptual architecture, showing `k3sup` running locally against any VM such as AWS EC2 or a VPS such as DigitalOcean.*
 
-## Built for developers by developers
+## Do you love `k3sup`?
 
-<a href="https://github.com/sponsors/alexellis/">
-<img alt="Sponsor this project" src="https://github.com/alexellis/alexellis/blob/master/sponsor-today.png" width="90%">
-</a>
+k3sup is free and open source, but requires time and effort to support users and build and test new features. Support this project via [GitHub Sponsors](https://github.com/users/alexellis/sponsorship).
 
 ## Download `k3sup` (tl;dr)
 
@@ -453,7 +453,7 @@ k3sup --ip $IP --user user
 
 ### Sponsor on GitHub ☕️ 👏
 
-Sponsor this project on [GitHub](https://github.com/users/alexellis/sponsorship).
+k3sup is free and open source, but requires time and effort to support users and build and test new features. Support this project via [GitHub Sponsors](https://github.com/users/alexellis/sponsorship).
 
 ### Blog posts & tweets
 
