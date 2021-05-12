@@ -155,7 +155,7 @@ kubectl get node
 
 Note that you should always use `pwd/` so that a full path is set, and you can change directory if you wish.
 
-### Advanced KUBECONFIG options
+### Merging clusters into your KUBECONFIG
 
 You can also merge the remote config into your main KUBECONFIG file `$HOME/.kube/config`, then use `kubectl config get-contexts` or `kubectx` to manage it.
 
@@ -606,6 +606,12 @@ You may have run into an issue where `sudo` access is required for `kubectl` acc
 You should not run kubectl on your server or agent nodes. k3sup is designed to rewrite and/or merge your cluster's config to your local KUBECONFIG file. You should run `kubectl` on your laptop / client machine.
 
 If you've lost your kubeconfig, you can use `k3sup install --skip-install`. See also the various flags for merging and setting a context name.
+
+### Smart cards and 2FA
+
+> Warning: issues requesting support for smart cards / 2FA will be closed immediately. The feature has been proven to work, and is provided as-is. We do not have time to debug your system.
+
+You can use a smart card or 2FA security key such as a Yubikey. You must have your ssh-agent configured correctly, at that point k3sup will defer to the agent to make connections on MacOS and Linux. [Find out more](https://github.com/alexellis/k3sup/pull/312)
 
 ### Misc note on `iptables`
 
