@@ -26,7 +26,7 @@ Status](https://travis-ci.com/alexellis/k3sup.svg?branch=master)](https://travis
   - [Who is the author? 👏](#who-is-the-author-)
   - [Usage ✅](#usage-)
     - [👑 Setup a Kubernetes *server* with `k3sup`](#-setup-a-kubernetes-server-with-k3sup)
-    - [Advanced KUBECONFIG options](#advanced-kubeconfig-options)
+    - [Advanced KUBECONFIG options](#merging-clusters-into-your-kubeconfig)
     - [😸 Join some agents to your Kubernetes server](#-join-some-agents-to-your-kubernetes-server)
     - [Create a multi-master (HA) setup with external SQL](#create-a-multi-master-ha-setup-with-external-sql)
     - [Create a multi-master (HA) setup with embedded etcd](#create-a-multi-master-ha-setup-with-embedded-etcd)
@@ -42,6 +42,7 @@ Status](https://travis-ci.com/alexellis/k3sup.svg?branch=master)](https://travis
   - [Similar tools & glossary](#similar-tools--glossary)
   - [Troubleshooting](#troubleshooting)
     - [Getting access to your KUBECONFIG](#getting-access-to-your-kubeconfig)
+    - [Smart cards and 2FA](#smart-cards-and-2fa)
     - [Misc note on iptables](#misc-note-on-iptables)
 
 ## What's this for? 💻
