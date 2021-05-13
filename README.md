@@ -597,6 +597,7 @@ Common issues:
 * K3s server didn't start. Log in and run `sudo systemctl -u k3s`
 * The K3s agent didn't start. Log in and run `sudo systemctl -u k3s-agent`
 * You tried to remove and re-add a server in an etcd cluster and it failed. This is a known issue, see the [K3s issue tracker](https://github.com/k3s-io/k3s/issues).
+* You tried to use an unsupported version of a database for HA. See [this list from Rancher](https://rancher.com/docs/k3s/latest/en/installation/datastore/)
 
 Finally, if everything points to an issue that you can clearly reproduce with k3sup, feel free to open an issue here. To make sure you get a response, fill out the whole template and answer all the questions.
 
