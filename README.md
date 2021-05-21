@@ -140,7 +140,8 @@ Other options for `install`:
 * `--context` - default is `default` - set the name of the kubeconfig context.
 * `--ssh-port` - default is `22`, but you can specify an alternative port i.e. `2222`
 * `--k3s-extra-args` - Optional extra arguments to pass to k3s installer, wrapped in quotes, i.e. `--k3s-extra-args '--no-deploy traefik'` or `--k3s-extra-args '--docker'`. For multiple args combine then within single quotes `--k3s-extra-args '--no-deploy traefik --docker'`.
-* `--k3s-version` - set the specific version of k3s, i.e. `v0.9.1`
+* `--k3s-version` - set the specific version of k3s, i.e. `v0.9.1`, overrides `--k3s-channel`
+* `--k3s-channel` - set k3s Release channel: `stable`, `latest`, `testing`. Alternatively use the version notation: `v1.19`"
 - `--ipsec` - Enforces the optional extra argument for k3s: `--flannel-backend` option: `ipsec`
 * `--print-command` - Prints out the command, sent over SSH to the remote computer
 * `--datastore` - used to pass a SQL connection-string to the `--datastore-endpoint` flag of k3s. You must use [the format required by k3s in the Rancher docs](https://rancher.com/docs/k3s/latest/en/installation/ha/).
