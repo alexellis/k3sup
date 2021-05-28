@@ -620,3 +620,7 @@ You can use a smart card or 2FA security key such as a Yubikey. You must have yo
 > Note added by Eduardo Minguez Perez
 
 Currently there is an issue in k3s involving `iptables >= 1.8` that can affect the network communication. See the [k3s issue](https://github.com/rancher/k3s/issues/703) and the corresponding [kubernetes one](https://github.com/kubernetes/kubernetes/issues/71305) for more information and workarounds. The issue has been observed in Debian Buster but it can affect other distributions as well.
+
+### Running on Raspberry Pi 3 or older
+
+k3s has been recently updated and is now throwing errors with the [cgroup memory](https://github.com/k3s-io/k3s/issues/2067). Although fixed in the Raspberry Pi 4, this is still an issue on older models. To fix, add `cgroup_enable=cpuset cgroup_enable=memory cgroup_memory=1` to the end of the file `/boot/cmdline.txt`.
