@@ -8,11 +8,19 @@
 <!--- If describing a bug, tell us what happens instead of the expected behavior -->
 <!--- If suggesting a change/improvement, explain the difference from current behavior -->
 
+## Are you a GitHub Sponsor (Yes/No?)
+
+<!--- Check at https://github.com/sponsors/alexellis -->
+
+- [ ] Yes
+- [ ] No
+
 ## Possible Solution
 <!--- Not obligatory, but suggest a fix/reason for the bug, -->
 <!--- or ideas how to implement the addition or change -->
 
-## Steps to Reproduce (for bugs)
+
+## Steps to Reproduce
 <!--- Provide a link to a live example, or an unambiguous set of steps to -->
 <!--- reproduce this bug. Include code to reproduce, if relevant -->
 1.
@@ -46,8 +54,5 @@ cat /etc/os-release
 
 Subject to approval, are you willing to work on a Pull Request for this issue or feature request?
 
-Yes/No
-
-## Are you a GitHub Sponsor (Yes/No?)
-
-https://github.com/sponsors/alexellis
+- [ ] Yes
+- [ ] No
