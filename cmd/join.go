@@ -56,7 +56,7 @@ func MakeJoin() *cobra.Command {
 
 	command.Flags().String("k3s-extra-args", "", "Additional arguments to pass to k3s installer, wrapped in quotes (e.g. --k3s-extra-args '--node-taint key=value:NoExecute')")
 	command.Flags().String("k3s-version", "", "Set a version to install, overrides k3s-channel")
-	command.Flags().String("k3s-channel", PinnedK3sChannel, "Release channel: stable, latest, or i.e. v1.18")
+	command.Flags().String("k3s-channel", PinnedK3sChannel, "Release channel: stable, latest, or i.e. v1.19")
 
 	command.RunE = func(command *cobra.Command, args []string) error {
 		fmt.Printf("Running: k3sup join\n")

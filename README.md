@@ -262,9 +262,9 @@ If you run `kubectl get node`, you'll now see two masters/servers and one agent,
 kubectl get node
 
 NAME              STATUS                        ROLES    AGE     VERSION
-k3sup-1           Ready                         master   73s     v1.18.6+k3s1
-k3sup-2           Ready                         master   2m31s   v1.18.6+k3s1
-k3sup-3           Ready                         <none>   14s     v1.18.6+k3s1
+k3sup-1           Ready                         master   73s     v1.19.6+k3s1
+k3sup-2           Ready                         master   2m31s   v1.19.6+k3s1
+k3sup-3           Ready                         <none>   14s     v1.19.6+k3s1
 ```
 
 There are two ways to prevent a dependency on the IP address of any one host. The first is to create a TCP load-balancer in the cloud of your choice, the second is for you to create a DNS round-robbin record, which contains all of the IPs of your servers.
@@ -327,9 +327,9 @@ export KUBECONFIG=`pwd`/kubeconfig
 kubectl get node -o wide
 
 NAME              STATUS                        ROLES    AGE   VERSION
-k3sup-1           NotReady                      master   23m   v1.18.6+k3s1
-k3sup-2           Ready                         master   25m   v1.18.6+k3s1
-k3sup-3           Ready                         <none>   22m   v1.18.6+k3s1
+k3sup-1           NotReady                      master   23m   v1.19.6+k3s1
+k3sup-2           Ready                         master   25m   v1.19.6+k3s1
+k3sup-3           Ready                         <none>   22m   v1.19.6+k3s1
 ```
 
 You've just simulated a failure of one of your masters/servers, and you can still access kubectl. Congratulations on building a resilient k3s cluster.

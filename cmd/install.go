@@ -31,10 +31,13 @@ type k3sExecOptions struct {
 	NoExtras     bool
 }
 
-// PinnedK3sChannel is a predictable K8s version for use
-// with the examples in the README. You can override this via
-// a flag, or give a specific version, see the command help message.
-const PinnedK3sChannel = "v1.19"
+// PinnedK3sChannel will track the stable channel of the K3s API,
+// so for production use, you should pin to a specific version
+// such as v1.19
+// Channels API available at:
+// https://update.k3s.io/v1-release/channels
+const PinnedK3sChannel = "stable"
+
 const getScript = "curl -sfL https://get.k3s.io"
 
 // MakeInstall creates the install command
@@ -48,10 +51,11 @@ func MakeInstall() *cobra.Command {
 		Example: `  k3sup install --ip IP --user USER
 
   k3sup install --local --k3s-version v1.19.7
-
+  
   k3sup install --ip IP --cluster
-
+  
   k3sup install --ip IP --k3s-channel latest
+  k3sup install --host HOST --k3s-channel stable
 
   k3sup install --host HOST \
     --ssh-key $HOME/ec2-key.pem --user ubuntu`,
@@ -85,9 +89,9 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 
 	command.Flags().String("k3s-version", "", "Set a version to install, overrides k3s-channel")
 	command.Flags().String("k3s-extra-args", "", "Additional arguments to pass to k3s installer, wrapped in quotes (e.g. --k3s-extra-args '--no-deploy servicelb')")
-	command.Flags().String("k3s-channel", PinnedK3sChannel, "Release channel: stable, latest, or i.e. v1.19")
+	command.Flags().String("k3s-channel", PinnedK3sChannel, "Release channel: stable, latest, or pinned v1.19")
 
-	command.Flags().String("tls-san", "", "Create a certificate for an additional IP or hostname")
+	command.Flags().String("tls-san", "", "Use an additional IP or hostname for the API server")
 
 	command.PreRunE = func(command *cobra.Command, args []string) error {
 		_, err := command.Flags().GetIP("ip")
