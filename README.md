@@ -24,6 +24,7 @@ Status](https://travis-ci.com/alexellis/k3sup.svg?branch=master)](https://travis
   - [Demo 📼](#demo-)
   - [Who is the author? 👏](#who-is-the-author-)
   - [Usage ✅](#usage-)
+    - [Pre-requisites for k3sup agents and servers](#pre-requisites-for-k3sup-servers-and-agents)
     - [👑 Setup a Kubernetes *server* with `k3sup`](#-setup-a-kubernetes-server-with-k3sup)
     - [Advanced KUBECONFIG options](#merging-clusters-into-your-kubeconfig)
     - [😸 Join some agents to your Kubernetes server](#-join-some-agents-to-your-kubernetes-server)
@@ -120,6 +121,8 @@ alex ALL=(ALL) NOPASSWD: ALL
 ```
 
 In most circumstances, cloud images for Ubuntu and other distributions will not require this step.
+
+As an alternative, if you only need a single server you can log in interactively and run `k3sup install --local` instead of using SSH.
 
 ### 👑 Setup a Kubernetes *server* with `k3sup`
 
@@ -607,7 +610,8 @@ Rancher provides support for K3s [on their Slack](https://slack.rancher.io/) in 
 Common issues:
 
 * Raspberry Pi - you haven't updated cmdline.txt to enable cgroups for CPU and memory
-* `sudo: a terminal is required to read the password` - you must either configure your user to have access to sudo without a password, or use the pre-requisites at the top of this file.
+* `sudo: a terminal is required to read the password` - see the [Pre-requisites for k3sup agents and servers](#pre-requisites-for-k3sup-servers-and-agents)
+
 * K3s server didn't start. Log in and run `sudo systemctl -u k3s`
 * The K3s agent didn't start. Log in and run `sudo systemctl -u k3s-agent`
 * You tried to remove and re-add a server in an etcd cluster and it failed. This is a known issue, see the [K3s issue tracker](https://github.com/k3s-io/k3s/issues).
