@@ -4,7 +4,6 @@
 
 k3sup is a light-weight utility to get from zero to KUBECONFIG with [k3s](https://k3s.io/) on any local or remote VM. All you need is `ssh` access and the `k3sup` binary to get `kubectl` access immediately.
 
-
 The tool is written in Go and is cross-compiled for Linux, Windows, MacOS and even on Raspberry Pi.
 
 How do you say it? Ketchup, as in tomato.
@@ -107,6 +106,20 @@ If you've benefitted from his open source projects or blog posts in some way, th
 ## Usage ✅
 
 The `k3sup` tool is a client application which you can run on your own computer. It uses SSH to connect to remote servers and creates a local KUBECONFIG file on your disk. Binaries are provided for MacOS, Windows, and Linux (including ARM).
+
+## Pre-requisites for k3sup servers and agents
+
+Some Linux hosts are configured to allow `sudo` to run without having to repeat your password. For those which are not already configured that way, you'll nee to make the following changes if you wish to use `k3sup`:
+
+```bash
+# sudo visudo
+
+# Then add to the bottom of the file
+# replace "alex" with your username i.e. "ubuntu"
+alex ALL=(ALL) NOPASSWD: ALL
+```
+
+In most circumstances, cloud images for Ubuntu and other distributions will not require this step.
 
 ### 👑 Setup a Kubernetes *server* with `k3sup`
 
@@ -594,6 +607,7 @@ Rancher provides support for K3s [on their Slack](https://slack.rancher.io/) in 
 Common issues:
 
 * Raspberry Pi - you haven't updated cmdline.txt to enable cgroups for CPU and memory
+* `sudo: a terminal is required to read the password` - you must either configure your user to have access to sudo without a password, or use the pre-requisites at the top of this file.
 * K3s server didn't start. Log in and run `sudo systemctl -u k3s`
 * The K3s agent didn't start. Log in and run `sudo systemctl -u k3s-agent`
 * You tried to remove and re-add a server in an etcd cluster and it failed. This is a known issue, see the [K3s issue tracker](https://github.com/k3s-io/k3s/issues).
