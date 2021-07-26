@@ -583,6 +583,8 @@ MIT
 
 * [Creating a K3S Raspberry PI Cluster with K3Sup to fire up nightscout with MongoDB](https://h3rmanns.medium.com/creating-a-k3s-raspberry-pi-cluster-with-k3sup-to-fire-up-a-nightscout-backend-service-based-on-a-27c1f5727e5b)
 
+* [Kubernetes Cluster with Rancher on Windows using K3s](https://adyanth.site/posts/kubernetes-cluster-on-windows/) by Adyanth H
+
 Checkout the [Announcement tweet](https://twitter.com/alexellisuk/status/1162272786250735618?s=20)
 
 ## Similar tools & glossary
