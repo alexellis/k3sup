@@ -13,6 +13,7 @@ func main() {
 	cmdVersion := cmd.MakeVersion()
 	cmdJoin := cmd.MakeJoin()
 	cmdUpdate := cmd.MakeUpdate()
+	cmdUninstall := cmd.MakeUninstall()
 
 	printk3supASCIIArt := cmd.PrintK3supASCIIArt
 
@@ -28,6 +29,7 @@ func main() {
 	rootCmd.AddCommand(cmdVersion)
 	rootCmd.AddCommand(cmdJoin)
 	rootCmd.AddCommand(cmdUpdate)
+	rootCmd.AddCommand(cmdUninstall)
 
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
