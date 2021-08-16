@@ -40,6 +40,13 @@ const PinnedK3sChannel = "stable"
 
 const getScript = "curl -sfL https://get.k3s.io"
 
+const (
+	remoteSFTPDir                 = "/tmp"
+	k3sBinaryTargetPath           = "/usr/local/bin/k3s"
+	airgapImagesArchiveTargetPath = "/var/lib/rancher/k3s/agent/images"
+	registriesConfigTargetPath    = "/etc/rancher/k3s/registries.yaml"
+)
+
 // MakeInstall creates the install command
 func MakeInstall() *cobra.Command {
 	var command = &cobra.Command{
@@ -73,6 +80,13 @@ func MakeInstall() *cobra.Command {
 	command.Flags().Bool("sudo", true, "Use sudo for installation. e.g. set to false when using the root user and no sudo is available.")
 	command.Flags().Bool("skip-install", false, "Skip the k3s installer")
 	command.Flags().Bool("print-config", false, "Print the kubeconfig obtained from the server after installation")
+
+	command.Flags().Bool("airgap", false, "Perform an airgap install")
+	command.Flags().String("k3s-binary", "", "Path to the k3s binary")
+	command.Flags().String("install-script", "", "Path to the k3s install script")
+	command.Flags().String("airgap-images-archive", "", "Path to the k3s airgap images archive")
+
+	command.Flags().String("registries-config", "", "Path to the k3s registries configuration file")
 
 	command.Flags().String("local-path", "kubeconfig", "Local path to save the kubeconfig file")
 	command.Flags().String("context", "default", "Set the name of the kubeconfig context.")
@@ -131,6 +145,62 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 		sudoPrefix := ""
 		if useSudo {
 			sudoPrefix = "sudo "
+		}
+
+		airgap, err := command.Flags().GetBool("airgap")
+		if err != nil {
+			return err
+		}
+
+		k3sBinary, err := command.Flags().GetString("k3s-binary")
+		if err != nil {
+			return err
+		}
+		if k3sBinary != "" {
+			k3sBinary = expandPath(k3sBinary)
+			if _, err := os.Stat(k3sBinary); os.IsNotExist(err) {
+				return fmt.Errorf("k3s binary is not present at %s: %w", k3sBinary, err)
+			}
+		}
+
+		installScript, err := command.Flags().GetString("install-script")
+		if err != nil {
+			return err
+		}
+		if installScript != "" {
+			installScript = expandPath(installScript)
+			if _, err := os.Stat(installScript); os.IsNotExist(err) {
+				return fmt.Errorf("install script is not present at %s: %w", installScript, err)
+			}
+		}
+
+		airgapImagesArchive, err := command.Flags().GetString("airgap-images-archive")
+		if err != nil {
+			return err
+		}
+		if airgapImagesArchive != "" {
+			airgapImagesArchive = expandPath(airgapImagesArchive)
+			if _, err := os.Stat(airgapImagesArchive); os.IsNotExist(err) {
+				return fmt.Errorf("airgap images is not present at %s: %w", airgapImagesArchive, err)
+			}
+		}
+
+		registriesConfig, err := command.Flags().GetString("registries-config")
+		if err != nil {
+			return err
+		}
+		if registriesConfig != "" {
+			registriesConfig = expandPath(registriesConfig)
+			if _, err := os.Stat(registriesConfig); os.IsNotExist(err) {
+				return fmt.Errorf("private registries config is not present at %s: %w", registriesConfig, err)
+			}
+		}
+
+		if airgap {
+			err := validateAirgapConfig(k3sBinary, installScript, airgapImagesArchive, registriesConfig)
+			if err != nil {
+				return err
+			}
 		}
 
 		k3sVersion, err := command.Flags().GetString("k3s-version")
@@ -206,7 +276,7 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 
 		installStr := createVersionStr(k3sVersion, k3sChannel)
 
-		installK3scommand := fmt.Sprintf("%s | %s %s sh -\n", getScript, installk3sExec, installStr)
+		installK3scommand := createInstallK3sCommand(airgap, local, installk3sExec, installStr, installScript)
 
 		getConfigcommand := fmt.Sprintf(sudoPrefix + "cat /etc/rancher/k3s/k3s.yaml\n")
 
@@ -214,13 +284,25 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 			operator := operator.ExecOperator{}
 
 			if !skipInstall {
-				fmt.Printf("Executing: %s\n", installK3scommand)
+				if airgap {
+					err := prepareLocalAirgapEnvironment(operator, sudoPrefix, k3sBinary, installScript, airgapImagesArchive, printCommand)
+					if err != nil {
+						return fmt.Errorf("failed to prepare local airgap environment: %w", err)
+					}
+				}
 
+				if registriesConfig != "" {
+					err := enableRegistriesLocal(operator, sudoPrefix, registriesConfig, printCommand)
+					if err != nil {
+						return fmt.Errorf("failed to enable private registries: %w", err)
+					}
+				}
+
+				fmt.Printf("Executing: %s\n", installK3scommand)
 				res, err := operator.Execute(installK3scommand)
 				if err != nil {
 					return err
 				}
-
 				if len(res.StdErr) > 0 {
 					fmt.Printf("stderr: %q", res.StdErr)
 				}
@@ -296,13 +378,25 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 		defer sshOperator.Close()
 
 		if !skipInstall {
+			if airgap {
+				err := prepareRemoteAirgapEnvironment(sshOperator, sudoPrefix, k3sBinary, installScript, airgapImagesArchive, printCommand)
+				if err != nil {
+					return fmt.Errorf("failed to prepare remote airgap environmenmt: %w", err)
+				}
+			}
+
+			if registriesConfig != "" {
+				err := enableRegistriesRemote(sshOperator, sudoPrefix, registriesConfig, printCommand)
+				if err != nil {
+					return fmt.Errorf("failed to enable private registries: %w", err)
+				}
+			}
 
 			if printCommand {
 				fmt.Printf("ssh: %s\n", installK3scommand)
 			}
 
 			res, err := sshOperator.Execute(installK3scommand)
-
 			if err != nil {
 				return fmt.Errorf("error received processing command: %s", err)
 			}
@@ -558,4 +652,238 @@ func makeInstallExec(cluster bool, host, tlsSAN string, options k3sExecOptions) 
 	installExec += "'"
 
 	return installExec
+}
+
+func createInstallK3sCommand(airgap, local bool, installK3sExecStr, installVersionStr, installScript string) string {
+	if airgap {
+		installSkipDownloadStr := "INSTALL_K3S_SKIP_DOWNLOAD=true"
+		if local {
+			return fmt.Sprintf("%s %s sh %s\n", installK3sExecStr, installSkipDownloadStr, installScript)
+		} else {
+			return fmt.Sprintf("%s %s sh %s/install.sh\n", installK3sExecStr, installSkipDownloadStr, remoteSFTPDir)
+		}
+	} else {
+		return fmt.Sprintf("%s | %s %s sh -s -\n", getScript, installK3sExecStr, installVersionStr)
+	}
+}
+
+func createCopyK3sImagesCommand(sudoPrefix string, local bool, airgapImagesArchive string) string {
+	airgapImagesArchiveFileName := filepath.Base(airgapImagesArchive)
+	if local {
+		return fmt.Sprintf(sudoPrefix+"cp %s %s/%s\n", airgapImagesArchive, airgapImagesArchiveTargetPath, airgapImagesArchive)
+	} else {
+		return fmt.Sprintf(sudoPrefix+"cp %s/%s %s/%s\n", remoteSFTPDir, airgapImagesArchiveFileName, airgapImagesArchiveTargetPath, airgapImagesArchiveFileName)
+	}
+}
+
+func createCopyK3sBinaryCommand(sudoPrefix string, local bool, k3sBinary string) string {
+	if local {
+		return fmt.Sprintf(sudoPrefix+"cp %s %s", k3sBinary, k3sBinaryTargetPath)
+	} else {
+		return fmt.Sprintf(sudoPrefix+"cp %s %s", remoteSFTPDir+"/k3s", k3sBinaryTargetPath)
+	}
+}
+
+func createCopyRegistriesConfigCommand(sudoPrefix string, local bool, registriesConfig string) string {
+	if local {
+		return fmt.Sprintf(sudoPrefix+"cp %s %s", registriesConfig, registriesConfigTargetPath)
+	} else {
+		return fmt.Sprintf(sudoPrefix+"cp %s %s", remoteSFTPDir+"/registries.yaml", registriesConfigTargetPath)
+	}
+}
+
+func enableRegistriesRemote(sshOperator *operator.SSHOperator, sudoPrefix, registriesConfig string, printCommand bool) error {
+	local := false
+	copyRegistriesConfigCommand := createCopyRegistriesConfigCommand(sudoPrefix, local, registriesConfig)
+
+	err := sshOperator.UploadFile(registriesConfig, remoteSFTPDir+"/registries.yaml")
+	if err != nil {
+		return err
+	}
+
+	if printCommand {
+		fmt.Printf("Executing: %s\n", copyRegistriesConfigCommand)
+	}
+	res, err := sshOperator.Execute(copyRegistriesConfigCommand)
+	if err != nil {
+		return fmt.Errorf("error received processing command %s: %w", copyRegistriesConfigCommand, err)
+	}
+	fmt.Printf("Result: %s %s\n", string(res.StdOut), string(res.StdErr))
+
+	return nil
+}
+
+func enableRegistriesLocal(operator operator.ExecOperator, sudoPrefix, registriesConfig string, printCommand bool) error {
+	local := true
+	copyRegistriesConfigCommand := createCopyRegistriesConfigCommand(sudoPrefix, local, registriesConfig)
+
+	if printCommand {
+		fmt.Printf("Executing: %s\n", copyRegistriesConfigCommand)
+	}
+	res, err := operator.Execute(copyRegistriesConfigCommand)
+	if err != nil {
+		return fmt.Errorf("error received processing command %s: %w", copyRegistriesConfigCommand, err)
+	}
+	fmt.Printf("Result: %s %s\n", string(res.StdOut), string(res.StdErr))
+
+	return nil
+}
+
+func prepareLocalAirgapEnvironment(operator operator.ExecOperator, sudoPrefix, k3sBinary, installScript, airgapImagesArchive string, printCommand bool) error {
+	local := true
+
+	makeK3sBinaryExecutableCommand := fmt.Sprintf(sudoPrefix+"chmod +x %s", k3sBinary)
+	if printCommand {
+		fmt.Printf("Executing: %s\n", makeK3sBinaryExecutableCommand)
+	}
+	res, err := operator.Execute(makeK3sBinaryExecutableCommand)
+	if err != nil {
+		return err
+	}
+	if len(res.StdErr) > 0 {
+		fmt.Printf("stderr: %q", res.StdErr)
+	}
+	if len(res.StdOut) > 0 {
+		fmt.Printf("stdout: %q", res.StdOut)
+	}
+
+	makeInstallScriptExecutableCommand := fmt.Sprintf(sudoPrefix+"chmod +x %s", installScript)
+	if printCommand {
+		fmt.Printf("Executing: %s\n", makeInstallScriptExecutableCommand)
+	}
+	res, err = operator.Execute(makeInstallScriptExecutableCommand)
+	if err != nil {
+		return err
+	}
+	if len(res.StdErr) > 0 {
+		fmt.Printf("stderr: %q", res.StdErr)
+	}
+	if len(res.StdOut) > 0 {
+		fmt.Printf("stdout: %q", res.StdOut)
+	}
+
+	copyK3sBinaryCommand := createCopyK3sBinaryCommand(sudoPrefix, local, k3sBinary)
+	if printCommand {
+		fmt.Printf("Executing: %s\n", copyK3sBinaryCommand)
+	}
+	res, err = operator.Execute(copyK3sBinaryCommand)
+	if err != nil {
+		return err
+	}
+	if len(res.StdErr) > 0 {
+		fmt.Printf("stderr: %q", res.StdErr)
+	}
+	if len(res.StdOut) > 0 {
+		fmt.Printf("stdout: %q", res.StdOut)
+	}
+
+	makeK3sImagesDirCommand := fmt.Sprintf(sudoPrefix + "mkdir -p /var/lib/rancher/k3s/agent/images")
+	if printCommand {
+		fmt.Printf("Executing: %s\n", makeK3sImagesDirCommand)
+	}
+	res, err = operator.Execute(makeK3sImagesDirCommand)
+	if err != nil {
+		return err
+	}
+	if len(res.StdErr) > 0 {
+		fmt.Printf("stderr: %q", res.StdErr)
+	}
+	if len(res.StdOut) > 0 {
+		fmt.Printf("stdout: %q", res.StdOut)
+	}
+
+	copyK3sImagesCommand := createCopyK3sImagesCommand(sudoPrefix, local, airgapImagesArchive)
+	if printCommand {
+		fmt.Printf("Executing: %s\n", copyK3sImagesCommand)
+	}
+	res, err = operator.Execute(copyK3sImagesCommand)
+	if err != nil {
+		return err
+	}
+	if len(res.StdErr) > 0 {
+		fmt.Printf("stderr: %q", res.StdErr)
+	}
+	if len(res.StdOut) > 0 {
+		fmt.Printf("stdout: %q", res.StdOut)
+	}
+
+	return nil
+}
+
+func prepareRemoteAirgapEnvironment(sshOperator *operator.SSHOperator, sudoPrefix, k3sBinary, installScript, airgapImagesArchive string, printCommand bool) error {
+	local := false
+
+	err := sshOperator.UploadFile(k3sBinary, remoteSFTPDir+"/k3s")
+	if err != nil {
+		return err
+	}
+	err = sshOperator.Chmod(remoteSFTPDir+"/k3s", 0755)
+	fmt.Println("Made k3s executable")
+	if err != nil {
+		return err
+	}
+
+	err = sshOperator.UploadFile(installScript, remoteSFTPDir+"/install.sh")
+	if err != nil {
+		return err
+	}
+	err = sshOperator.Chmod(remoteSFTPDir+"/install.sh", 0755)
+	fmt.Println("Made install.sh executable")
+	if err != nil {
+		return err
+	}
+
+	airgapImagesArchiveFileName := filepath.Base(airgapImagesArchive)
+	err = sshOperator.UploadFile(airgapImagesArchive, remoteSFTPDir+"/"+airgapImagesArchiveFileName)
+	if err != nil {
+		return err
+	}
+
+	copyK3sBinaryCommand := createCopyK3sBinaryCommand(sudoPrefix, local, k3sBinary)
+	if printCommand {
+		fmt.Printf("Executing: %s\n", copyK3sBinaryCommand)
+	}
+	res, err := sshOperator.Execute(copyK3sBinaryCommand)
+	if err != nil {
+		return fmt.Errorf("error received processing command %s: %w", copyK3sBinaryCommand, err)
+	}
+	fmt.Printf("Result: %s %s\n", string(res.StdOut), string(res.StdErr))
+
+	makeK3sImagesDirCommand := fmt.Sprintf(sudoPrefix + "mkdir -p /var/lib/rancher/k3s/agent/images")
+	if printCommand {
+		fmt.Printf("ssh: %s\n", makeK3sImagesDirCommand)
+	}
+	res, err = sshOperator.Execute(makeK3sImagesDirCommand)
+	if err != nil {
+		return fmt.Errorf("error received processing command %s: %w", makeK3sImagesDirCommand, err)
+	}
+	fmt.Printf("Result: %s %s\n", string(res.StdOut), string(res.StdErr))
+
+	copyK3sImagesCommand := createCopyK3sImagesCommand(sudoPrefix, local, airgapImagesArchive)
+	if printCommand {
+		fmt.Printf("ssh: %s\n", copyK3sImagesCommand)
+	}
+	res, err = sshOperator.Execute(copyK3sImagesCommand)
+	if err != nil {
+		return fmt.Errorf("error received processing command %s: %w", copyK3sImagesCommand, err)
+	}
+	fmt.Printf("Result: %s %s\n", string(res.StdOut), string(res.StdErr))
+
+	return nil
+}
+
+func validateAirgapConfig(k3sBinary, installScript, airgapImagesArchive, registriesConfig string) error {
+	if k3sBinary == "" {
+		return fmt.Errorf("k3s binary path must be provided with --k3s-binary")
+	}
+
+	if installScript == "" {
+		return fmt.Errorf("k3s install script path must be provided with --install-script")
+	}
+
+	if airgapImagesArchive == "" && registriesConfig == "" {
+		return fmt.Errorf("k3s airgap images path must be provided with --airgap-images-archive or registries config must be provided with --registries-config")
+	}
+
+	return nil
 }

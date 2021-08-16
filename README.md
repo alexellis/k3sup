@@ -396,6 +396,52 @@ paprika-gregory   Ready    master   8m27s   v1.19.2-k3s
 cave-sensor       Ready    master   27m     v1.19.2-k3s
 ```
 
+### Air-Gap Install
+
+k3s supports installations to Air-Gap environments. For Air-Gap installs, the `INSTALL_K3S_SKIP_DOWNLOAD` flag is passed to the k3s installation script indicating that the k3s binary should not be downloaded. The k3s binary, k3s installation script, and either a private registries configuration file or a k3s images archive file must be supplied to `k3sup`. These files will be copied to the remote node we are targeting for k3s installation. If your Air-Gap environment does not have a private Docker registry that mirrors docker.io, then a k3s images archive file must be supplied. This archive contains all the necessary Docker images to bootstrap k3s. [See more](https://rancher.com/docs/k3s/latest/en/installation/airgap/)
+
+The k3s installation script can be obtained at `https://get.k3s.io/`. The k3s binary and k3s images archive can be obtained at the k3s release page: `https://github.com/k3s-io/k3s/releases`. To configure a private docker registries configuration file see `https://rancher.com/docs/k3s/latest/en/installation/private-registry/`. 
+
+#### Air-Gap Installation with a k3s Images Archive
+
+```sh
+export SERVER_IP=192.168.0.100
+export USER=root
+
+k3sup install --ip $SERVER_IP --user $USER --airgap --install-script /path/to/install/script --k3s-binary /path/to/k3s/binary --airgap-images-archive /path/to/airgap/images/archive
+```
+
+Next join one or more `agents` to the cluster:
+
+```sh
+export AGENT_IP=192.168.0.101
+
+export SERVER_IP=192.168.0.100
+export USER=root
+
+k3sup join --ip $AGENT_IP --server-ip $SERVER_IP --user $USER --airgap --install-script /path/to/install/script --k3s-binary /path/to/k3s/binary --airgap-images-archive /path/to/airgap/images/archive
+```
+
+#### Air-Gap Installation with Private Docker Registry
+
+```sh
+export SERVER_IP=192.168.0.100
+export USER=root
+
+k3sup install --ip $SERVER_IP --user $USER --airgap --install-script /path/to/install/script --k3s-binary /path/to/k3s/binary --registries-config /path/to/registries.yaml
+```
+
+Next join one or more `agents` to the cluster:
+
+```sh
+export AGENT_IP=192.168.0.101
+
+export SERVER_IP=192.168.0.100
+export USER=root
+
+k3sup join --ip $AGENT_IP --server-ip $SERVER_IP --user $USER --airgap --install-script /path/to/install/script --k3s-binary /path/to/k3s/binary --registries-config /path/to/registries.yaml
+```
+
 ### 👨‍💻 Micro-tutorial for Raspberry Pi (2, 3, or 4) 🥧
 
 In a few moments you will have Kubernetes up and running on your Raspberry Pi 2, 3 or 4. Stand by for the fastest possible install. At the end you will have a KUBECONFIG file on your local computer that you can use to access your cluster remotely.
