@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"net"
+	"os"
 	"runtime"
 	"strings"
 
@@ -53,6 +54,13 @@ func MakeJoin() *cobra.Command {
 
 	command.Flags().Bool("server", false, "Join the cluster as a server rather than as an agent for the embedded etcd mode")
 	command.Flags().Bool("print-command", false, "Print a command that you can use with SSH to manually recover from an error")
+
+	command.Flags().Bool("airgap", false, "Perform an airgap install")
+	command.Flags().String("k3s-binary", "", "Path to the k3s binary")
+	command.Flags().String("install-script", "", "Path to the k3s install script")
+	command.Flags().String("airgap-images-archive", "", "Path to the k3s airgap images archive")
+
+	command.Flags().String("registries-config", "", "Path to the k3s private registries configuration file")
 
 	command.Flags().String("k3s-extra-args", "", "Additional arguments to pass to k3s installer, wrapped in quotes (e.g. --k3s-extra-args '--node-taint key=value:NoExecute')")
 	command.Flags().String("k3s-version", "", "Set a version to install, overrides k3s-channel")
@@ -106,6 +114,62 @@ func MakeJoin() *cobra.Command {
 		serverPort := port
 		if command.Flags().Changed("server-ssh-port") {
 			serverPort, _ = command.Flags().GetInt("server-ssh-port")
+		}
+
+		airgap, err := command.Flags().GetBool("airgap")
+		if err != nil {
+			return err
+		}
+
+		k3sBinary, err := command.Flags().GetString("k3s-binary")
+		if err != nil {
+			return err
+		}
+		if k3sBinary != "" {
+			k3sBinary = expandPath(k3sBinary)
+			if _, err := os.Stat(k3sBinary); os.IsNotExist(err) {
+				return fmt.Errorf("k3s binary is not present at %s: %w", k3sBinary, err)
+			}
+		}
+
+		installScript, err := command.Flags().GetString("install-script")
+		if err != nil {
+			return err
+		}
+		if installScript != "" {
+			installScript = expandPath(installScript)
+			if _, err := os.Stat(installScript); os.IsNotExist(err) {
+				return fmt.Errorf("install script is not present at %s: %w", installScript, err)
+			}
+		}
+
+		airgapImagesArchive, err := command.Flags().GetString("airgap-images-archive")
+		if err != nil {
+			return err
+		}
+		if airgapImagesArchive != "" {
+			airgapImagesArchive = expandPath(airgapImagesArchive)
+			if _, err := os.Stat(airgapImagesArchive); os.IsNotExist(err) {
+				return fmt.Errorf("airgap images is not present at %s: %w", airgapImagesArchive, err)
+			}
+		}
+
+		registriesConfig, err := command.Flags().GetString("registries-config")
+		if err != nil {
+			return err
+		}
+		if registriesConfig != "" {
+			registriesConfig = expandPath(registriesConfig)
+			if _, err := os.Stat(registriesConfig); os.IsNotExist(err) {
+				return fmt.Errorf("private registries config is not present at %s: %w", registriesConfig, err)
+			}
+		}
+
+		if airgap {
+			err := validateAirgapConfig(k3sBinary, installScript, airgapImagesArchive, registriesConfig)
+			if err != nil {
+				return err
+			}
 		}
 
 		k3sVersion, err := command.Flags().GetString("k3s-version")
@@ -218,9 +282,9 @@ func MakeJoin() *cobra.Command {
 
 		var boostrapErr error
 		if server {
-			boostrapErr = setupAdditionalServer(serverHost, host, port, user, sshKeyPath, joinToken, k3sExtraArgs, k3sVersion, k3sChannel, printCommand)
+			boostrapErr = setupAdditionalServer(sudoPrefix, serverHost, host, port, user, sshKeyPath, joinToken, k3sExtraArgs, k3sVersion, k3sChannel, printCommand, airgap, k3sBinary, installScript, airgapImagesArchive, registriesConfig)
 		} else {
-			boostrapErr = setupAgent(serverHost, host, port, user, sshKeyPath, joinToken, k3sExtraArgs, k3sVersion, k3sChannel, printCommand)
+			boostrapErr = setupAgent(sudoPrefix, serverHost, host, port, user, sshKeyPath, joinToken, k3sExtraArgs, k3sVersion, k3sChannel, printCommand, airgap, k3sBinary, installScript, airgapImagesArchive, registriesConfig)
 		}
 
 		return boostrapErr
@@ -253,7 +317,7 @@ func MakeJoin() *cobra.Command {
 	return command
 }
 
-func setupAdditionalServer(serverHost, host string, port int, user, sshKeyPath, joinToken, k3sExtraArgs, k3sVersion, k3sChannel string, printCommand bool) error {
+func setupAdditionalServer(sudoPrefix, serverHost, host string, port int, user, sshKeyPath, joinToken, k3sExtraArgs, k3sVersion, k3sChannel string, printCommand, airgap bool, k3sBinary, installScript, airgapImagesArchive, registriesConfigPath string) error {
 	address := fmt.Sprintf("%s:%d", host, port)
 
 	var sshOperator *operator.SSHOperator
@@ -304,6 +368,21 @@ func setupAdditionalServer(serverHost, host string, port int, user, sshKeyPath, 
 	}
 
 	installStr := createVersionStr(k3sVersion, k3sChannel)
+
+	if airgap {
+		err := prepareRemoteAirgapEnvironment(sshOperator, sudoPrefix, k3sBinary, installScript, airgapImagesArchive, printCommand)
+		if err != nil {
+			return fmt.Errorf("failed to prepare remote airgap environmenmt: %w", err)
+		}
+	}
+
+	if registriesConfigPath != "" {
+		err := enableRegistriesRemote(sshOperator, sudoPrefix, registriesConfigPath, printCommand)
+		if err != nil {
+			return fmt.Errorf("failed to enable private registries: %w", err)
+		}
+	}
+
 	serverAgent := true
 
 	defer sshOperator.Close()
@@ -314,9 +393,10 @@ func setupAdditionalServer(serverHost, host string, port int, user, sshKeyPath, 
 		installStr,
 		k3sExtraArgs,
 		serverAgent,
+		airgap,
 	)
 
-	installAgentServerCommand := fmt.Sprintf("%s | %s", getScript, installk3sExec)
+	installAgentServerCommand := createInstallAgentServerCommand(airgap, getScript, installk3sExec)
 
 	if printCommand {
 		fmt.Printf("ssh: %s\n", installAgentServerCommand)
@@ -337,7 +417,7 @@ func setupAdditionalServer(serverHost, host string, port int, user, sshKeyPath, 
 	return nil
 }
 
-func setupAgent(serverHost, host string, port int, user, sshKeyPath, joinToken, k3sExtraArgs, k3sVersion, k3sChannel string, printCommand bool) error {
+func setupAgent(sudoPrefix, serverHost, host string, port int, user, sshKeyPath, joinToken, k3sExtraArgs, k3sVersion, k3sChannel string, printCommand, airgap bool, k3sBinary, installScript, airgapImagesArchive, registriesConfigPath string) error {
 
 	address := fmt.Sprintf("%s:%d", host, port)
 
@@ -392,6 +472,20 @@ func setupAgent(serverHost, host string, port int, user, sshKeyPath, joinToken, 
 
 	installStr := createVersionStr(k3sVersion, k3sChannel)
 
+	if airgap {
+		err := prepareRemoteAirgapEnvironment(sshOperator, sudoPrefix, k3sBinary, installScript, airgapImagesArchive, printCommand)
+		if err != nil {
+			return fmt.Errorf("failed to prepare remote airgap environmenmt: %w", err)
+		}
+	}
+
+	if registriesConfigPath != "" {
+		err := enableRegistriesRemote(sshOperator, sudoPrefix, registriesConfigPath, printCommand)
+		if err != nil {
+			return fmt.Errorf("failed to enable private registries: %w", err)
+		}
+	}
+
 	serverAgent := false
 
 	installK3sExec := makeJoinExec(
@@ -400,9 +494,10 @@ func setupAgent(serverHost, host string, port int, user, sshKeyPath, joinToken, 
 		installStr,
 		k3sExtraArgs,
 		serverAgent,
+		airgap,
 	)
 
-	installAgentCommand := fmt.Sprintf("%s | %s", getScript, installK3sExec)
+	installAgentCommand := createInstallAgentServerCommand(airgap, getScript, installK3sExec)
 
 	if printCommand {
 		fmt.Printf("ssh: %s\n", installAgentCommand)
@@ -434,24 +529,44 @@ func createVersionStr(k3sVersion, k3sChannel string) string {
 	return installStr
 }
 
-func makeJoinExec(serverIP, joinToken, installStr, k3sExtraArgs string, serverAgent bool) string {
-
+func makeJoinExec(serverIP, joinToken, installStr, k3sExtraArgs string, serverAgent, airgap bool) string {
 	installEnvVar := []string{}
 	installEnvVar = append(installEnvVar, fmt.Sprintf("K3S_URL='https://%s:6443'", serverIP))
 	installEnvVar = append(installEnvVar, fmt.Sprintf("K3S_TOKEN='%s'", joinToken))
-	installEnvVar = append(installEnvVar, installStr)
+	if airgap {
+		installEnvVar = append(installEnvVar, "INSTALL_K3S_SKIP_DOWNLOAD=true")
+	} else {
+		installEnvVar = append(installEnvVar, installStr)
+	}
 
+	extraArgs := []string{}
+	extraArgs = append(extraArgs, k3sExtraArgs)
+	extraArgsCmdline := ""
+	for _, a := range extraArgs {
+		extraArgsCmdline += a + " "
+	}
+
+	var installExec string
 	if serverAgent {
-		installEnvVar = append(installEnvVar, fmt.Sprintf("INSTALL_K3S_EXEC='server --server https://%s:6443'", serverIP))
+		installExec = fmt.Sprintf("INSTALL_K3S_EXEC='server --server https://%s:6443", serverIP)
+	} else {
+		installExec = "INSTALL_K3S_EXEC='agent"
 	}
 
-	joinExec := strings.Join(installEnvVar, " ")
-	joinExec += " sh -s -"
-
-	if len(k3sExtraArgs) > 0 {
-		installEnvVar = append(installEnvVar, k3sExtraArgs)
-		joinExec += fmt.Sprintf(" %s", k3sExtraArgs)
+	if trimmed := strings.TrimSpace(extraArgsCmdline); len(trimmed) > 0 {
+		installExec += fmt.Sprintf(" %s", trimmed)
 	}
 
-	return joinExec
+	installExec += "'"
+	installEnvVar = append(installEnvVar, installExec)
+
+	return strings.Join(installEnvVar, " ")
+}
+
+func createInstallAgentServerCommand(airgap bool, getScript, installK3sExec string) string {
+	if airgap {
+		return fmt.Sprintf("%s sh %s\n", installK3sExec, remoteSFTPDir+"/install.sh")
+	} else {
+		return fmt.Sprintf("%s | %s sh -s -", getScript, installK3sExec)
+	}
 }
