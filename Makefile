@@ -2,6 +2,7 @@ Version := $(shell git describe --tags --dirty)
 # Version := "dev"
 GitCommit := $(shell git rev-parse HEAD)
 LDFLAGS := "-s -w -X github.com/alexellis/k3sup/cmd.Version=$(Version) -X github.com/alexellis/k3sup/cmd.GitCommit=$(GitCommit)"
+ARCH := $(shell uname -m)
 export GO111MODULE=on
 SOURCE_DIRS = cmd pkg main.go
 
@@ -24,7 +25,9 @@ dist:
 	CGO_ENABLED=0 GOOS=darwin go build -mod=vendor -a -ldflags $(LDFLAGS) -installsuffix cgo -o bin/k3sup-darwin
 	GOARM=6 GOARCH=arm CGO_ENABLED=0 GOOS=linux go build -mod=vendor -a -ldflags $(LDFLAGS) -installsuffix cgo -o bin/k3sup-armhf
 	GOARCH=arm64 CGO_ENABLED=0 GOOS=linux go build -mod=vendor -a -ldflags $(LDFLAGS) -installsuffix cgo -o bin/k3sup-arm64
+ifeq ($(ARCH), x86_64)
 	GOOS=windows CGO_ENABLED=0 go build -mod=vendor -a -ldflags $(LDFLAGS) -installsuffix cgo -o bin/k3sup.exe
+endif
 
 .PHONY: hash
 hash:
