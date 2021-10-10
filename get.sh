@@ -15,8 +15,12 @@ export BINLOCATION="/usr/local/bin"
 ###############################
 # Content common across repos #
 ###############################
+if [ ! $VERSION ]  || [ $VERSION = "latest" ]; then 
+  version=$(curl -sI https://github.com/$OWNER/$REPO/releases/latest | grep -i "location:" | awk -F"/" '{ printf "%s", $NF }' | tr -d '\r')
+  else
+  version=$VERSION
+fi
 
-version=$(curl -sI https://github.com/$OWNER/$REPO/releases/latest | grep -i "location:" | awk -F"/" '{ printf "%s", $NF }' | tr -d '\r')
 if [ ! $version ]; then
     echo "Failed while attempting to install $REPO. Please manually install:"
     echo ""
