@@ -12,7 +12,7 @@ How do you say it? Ketchup, as in tomato.
 Status](https://travis-ci.com/alexellis/k3sup.svg?branch=master)](https://travis-ci.com/alexellis/k3sup)
 [![Go Report Card](https://goreportcard.com/badge/github.com/alexellis/k3sup)](https://goreportcard.com/report/github.com/alexellis/k3sup)
 [![GoDoc](https://godoc.org/github.com/alexellis/k3sup?status.svg)](https://godoc.org/github.com/alexellis/k3sup) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-![GitHub All Releases](https://img.shields.io/github/downloads/alexellis/k3sup/total)
+![Downloads](https://img.shields.io/github/downloads/alexellis/k3sup/total)
 
 ## Contents:
 - [k3sup 🚀 (said 'ketchup')](#k3sup--said-ketchup)
