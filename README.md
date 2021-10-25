@@ -240,6 +240,12 @@ export DATASTORE="mysql://doadmin:80624d3936dfc8d2e80593@tcp(db-mysql-lon1-90578
 
 You can prefix this command with `  ` two spaces, to prevent it being cached in your bash history.
 
+Generate a token used to encrypt data (If you already have a running node this can be retrieved by logging into a running node and looking in `/var/lib/rancher/k3s/server/token`)
+```bash 
+export TOKEN=$(tr -dc A-Za-z0-9 </dev/urandom | head -c 64)
+```
+
+
 * Create three VMs
 
 Imagine we have the following three VMs, two will be servers, and one will be an agent.
@@ -253,13 +259,13 @@ export AGENT1=104.248.137.25
 * Install the first server
 
 ```bash
-k3sup install --user root --ip $SERVER1 --datastore="${DATASTORE}"
+k3sup install --user root --ip $SERVER1 --datastore="${DATASTORE}" --token=${TOKEN}
 ```
 
 * Install the second server
 
 ```bash
-k3sup install --user root --ip $SERVER2 --datastore="${DATASTORE}"
+k3sup install --user root --ip $SERVER2 --datastore="${DATASTORE}" --token=${TOKEN}
 ```
 
 * Join the first agent
