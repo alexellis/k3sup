@@ -26,6 +26,7 @@ var kubeconfig []byte
 
 type k3sExecOptions struct {
 	Datastore    string
+	Token        string
 	ExtraArgs    string
 	FlannelIPSec bool
 	NoExtras     bool
@@ -86,6 +87,7 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 
 	command.Flags().Bool("print-command", false, "Print a command that you can use with SSH to manually recover from an error")
 	command.Flags().String("datastore", "", "connection-string for the k3s datastore to enable HA - i.e. \"mysql://username:password@tcp(hostname:3306)/database-name\"")
+	command.Flags().String("token", "", "the token used to encrypt the datastore, must be the same token for all nodes")
 
 	command.Flags().String("k3s-version", "", "Set a version to install, overrides k3s-channel")
 	command.Flags().String("k3s-extra-args", "", "Additional arguments to pass to k3s installer, wrapped in quotes (e.g. --k3s-extra-args '--no-deploy servicelb')")
@@ -183,6 +185,10 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 			return err
 		}
 
+		token, err := command.Flags().GetString("token")
+		if err != nil {
+			return err
+		}
 		if len(datastore) > 0 {
 			if strings.Index(datastore, "ssl-mode=REQUIRED") > -1 {
 				return fmt.Errorf("remove ssl-mode=REQUIRED from your datastore string, it is not supported by the k3s syntax")
@@ -190,11 +196,16 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 			if strings.Index(datastore, "mysql") > -1 && strings.Index(datastore, "tcp") == -1 {
 				return fmt.Errorf("you must specify the mysql host as tcp(host:port) or tcp(ip:port), see the k3s docs for more: https://rancher.com/docs/k3s/latest/en/installation/ha")
 			}
+
+			if token == "" {
+				return fmt.Errorf("you must provide the token when using an external datastore. Make sure to use the same token as other nodes")
+			}
 		}
 
 		installk3sExec := makeInstallExec(cluster, host, tlsSAN,
 			k3sExecOptions{
 				Datastore:    datastore,
+				Token:        token,
 				FlannelIPSec: flannelIPSec,
 				NoExtras:     k3sNoExtras,
 				ExtraArgs:    k3sExtraArgs,
@@ -524,6 +535,7 @@ func makeInstallExec(cluster bool, host, tlsSAN string, options k3sExecOptions) 
 	extraArgs := []string{}
 	if len(options.Datastore) > 0 {
 		extraArgs = append(extraArgs, fmt.Sprintf("--datastore-endpoint %s", options.Datastore))
+		extraArgs = append(extraArgs, fmt.Sprintf("--token %s", options.Token))
 	}
 	if options.FlannelIPSec {
 		extraArgs = append(extraArgs, "--flannel-backend ipsec")

@@ -231,16 +231,18 @@ func Test_makeInstallExec_Datastore(t *testing.T) {
 	flannelIPSec := false
 	k3sNoExtras := false
 	k3sExtraArgs := ""
+	token := "this-token"
 	ip := "127.0.0.1"
 	tlsSAN := "192.168.0.1"
 	got := makeInstallExec(cluster, ip, tlsSAN,
 		k3sExecOptions{
 			Datastore:    datastore,
+			Token:        token,
 			FlannelIPSec: flannelIPSec,
 			NoExtras:     k3sNoExtras,
 			ExtraArgs:    k3sExtraArgs,
 		})
-	want := "INSTALL_K3S_EXEC='server --tls-san 192.168.0.1 --datastore-endpoint mysql://doadmin:show-password@tcp(db-mysql-lon1-40939-do-user-2197152-0.b.db.ondigitalocean.com:25060)/defaultdb'"
+	want := "INSTALL_K3S_EXEC='server --tls-san 192.168.0.1 --datastore-endpoint mysql://doadmin:show-password@tcp(db-mysql-lon1-40939-do-user-2197152-0.b.db.ondigitalocean.com:25060)/defaultdb --token this-token'"
 	if got != want {
 		t.Errorf("want: %q, got: %q", want, got)
 	}
@@ -251,17 +253,19 @@ func Test_makeInstallExec_Datastore_NoExtras(t *testing.T) {
 	datastore := "mysql://doadmin:show-password@tcp(db-mysql-lon1-40939-do-user-2197152-0.b.db.ondigitalocean.com:25060)/defaultdb"
 	flannelIPSec := false
 	k3sNoExtras := true
+	token := "this-token"
 	k3sExtraArgs := ""
 	ip := "raspberrypi.local"
 	tlsSAN := "192.168.0.1"
 	got := makeInstallExec(cluster, ip, tlsSAN,
 		k3sExecOptions{
 			Datastore:    datastore,
+			Token:        token,
 			FlannelIPSec: flannelIPSec,
 			NoExtras:     k3sNoExtras,
 			ExtraArgs:    k3sExtraArgs,
 		})
-	want := "INSTALL_K3S_EXEC='server --tls-san 192.168.0.1 --datastore-endpoint mysql://doadmin:show-password@tcp(db-mysql-lon1-40939-do-user-2197152-0.b.db.ondigitalocean.com:25060)/defaultdb --no-deploy servicelb --no-deploy traefik'"
+	want := "INSTALL_K3S_EXEC='server --tls-san 192.168.0.1 --datastore-endpoint mysql://doadmin:show-password@tcp(db-mysql-lon1-40939-do-user-2197152-0.b.db.ondigitalocean.com:25060)/defaultdb --token this-token --no-deploy servicelb --no-deploy traefik'"
 	if got != want {
 		t.Errorf("want: %q, got: %q", want, got)
 	}
