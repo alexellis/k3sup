@@ -51,9 +51,9 @@ func MakeInstall() *cobra.Command {
 		Example: `  k3sup install --ip IP --user USER
 
   k3sup install --local --k3s-version v1.19.7
-  
+
   k3sup install --ip IP --cluster
-  
+
   k3sup install --ip IP --k3s-channel latest
   k3sup install --host HOST --k3s-channel stable
 
