@@ -52,9 +52,9 @@ func MakeInstall() *cobra.Command {
 		Example: `  k3sup install --ip IP --user USER
 
   k3sup install --local --k3s-version v1.19.7
-  
+
   k3sup install --ip IP --cluster
-  
+
   k3sup install --ip IP --k3s-channel latest
   k3sup install --host HOST --k3s-channel stable
 
@@ -363,7 +363,7 @@ func obtainKubeconfig(operator operator.CommandOperator, getConfigcommand, host,
 		fmt.Printf("Result: %s %s\n", string(res.StdOut), string(res.StdErr))
 	}
 
-	absPath, _ := filepath.Abs(localKubeconfig)
+	absPath, _ := filepath.Abs(expandPath(localKubeconfig))
 
 	kubeconfig := rewriteKubeconfig(string(res.StdOut), host, context)
 
@@ -410,31 +410,46 @@ func mergeConfigs(localKubeconfigPath, context string, k3sconfig []byte) ([]byte
 	// Create a temporary kubeconfig to store the config of the newly create k3s cluster
 	file, err := ioutil.TempFile(os.TempDir(), "k3s-temp-*")
 	if err != nil {
-		return nil, fmt.Errorf("Could not generate a temporary file to store the kuebeconfig: %s", err)
+		return nil, fmt.Errorf("could not generate a temporary file to store the kubeconfig: %w", err)
 	}
-	defer file.Close()
 
 	if err := writeConfig(file.Name(), []byte(k3sconfig), context, true); err != nil {
 		return nil, err
 	}
 
-	fmt.Printf("Merging with existing kubeconfig at %s\n", localKubeconfigPath)
+	fmt.Printf("Merging config into file: %s\n", localKubeconfigPath)
 
-	// Append KUBECONFIGS in ENV Vars
-	appendKubeConfigENV := fmt.Sprintf("KUBECONFIG=%s:%s", localKubeconfigPath, file.Name())
+	// Pick between ; or : for path concatenation
+	var joinChar string
+	if runtime.GOOS == "windows" {
+		joinChar = ";"
+	} else {
+		joinChar = ":"
+	}
+
+	appendKubeConfigENV := fmt.Sprintf("KUBECONFIG=%s%s%s",
+		localKubeconfigPath,
+		joinChar,
+		file.Name())
 
 	// Merge the two kubeconfigs and read the output into 'data'
 	cmd := exec.Command("kubectl", "config", "view", "--merge", "--flatten")
 	cmd.Env = append(os.Environ(), appendKubeConfigENV)
 	data, err := cmd.Output()
 	if err != nil {
-		return nil, fmt.Errorf("Could not merge kubeconfigs: %s", err)
+		return nil, fmt.Errorf("could not merge kubeconfig: %w", err)
+	}
+
+	if err := file.Close(); err != nil {
+		return nil, fmt.Errorf("could not close temporary kubeconfig file: %s %w",
+			file.Name(), err)
 	}
 
 	// Remove the temporarily generated file
 	err = os.Remove(file.Name())
 	if err != nil {
-		return nil, errors.Wrapf(err, "Could not remove temporary kubeconfig file: %s", file.Name())
+		return nil, fmt.Errorf("could not remove temporary kubeconfig file: %s %w",
+			file.Name(), err)
 	}
 
 	return data, nil
