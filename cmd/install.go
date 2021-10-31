@@ -401,7 +401,6 @@ func mergeConfigs(localKubeconfigPath, context string, k3sconfig []byte) ([]byte
 	if err != nil {
 		return nil, fmt.Errorf("Could not generate a temporary file to store the kuebeconfig: %s", err)
 	}
-	defer file.Close()
 
 	if err := writeConfig(file.Name(), []byte(k3sconfig), context, true); err != nil {
 		return nil, err
@@ -424,6 +423,11 @@ func mergeConfigs(localKubeconfigPath, context string, k3sconfig []byte) ([]byte
 	data, err := cmd.Output()
 	if err != nil {
 		return nil, fmt.Errorf("Could not merge kubeconfigs: %s", err)
+	}
+
+	err = file.Close()
+	if err != nil {
+		return nil, errors.Wrapf(err, "Could not close temporary kubeconfig file: %s", file.Name())
 	}
 
 	// Remove the temporarily generated file
