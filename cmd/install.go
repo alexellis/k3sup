@@ -352,7 +352,7 @@ func obtainKubeconfig(operator operator.CommandOperator, getConfigcommand, host,
 		fmt.Printf("Result: %s %s\n", string(res.StdOut), string(res.StdErr))
 	}
 
-	absPath, _ := filepath.Abs(localKubeconfig)
+	absPath, _ := filepath.Abs(expandPath(localKubeconfig))
 
 	kubeconfig := rewriteKubeconfig(string(res.StdOut), host, context)
 
