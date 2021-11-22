@@ -614,8 +614,8 @@ Common issues:
 * Raspberry Pi - you haven't updated cmdline.txt to enable cgroups for CPU and memory
 * `sudo: a terminal is required to read the password` - see the [Pre-requisites for k3sup agents and servers](#pre-requisites-for-k3sup-servers-and-agents)
 
-* K3s server didn't start. Log in and run `sudo systemctl -u k3s`
-* The K3s agent didn't start. Log in and run `sudo systemctl -u k3s-agent`
+* K3s server didn't start. Log in and run `sudo systemctl k3s` or `sudo journalctl -u k3s` to see the logs for the service.
+* The K3s agent didn't start. Log in and run `sudo systemctl k3s-agent`
 * You tried to remove and re-add a server in an etcd cluster and it failed. This is a known issue, see the [K3s issue tracker](https://github.com/k3s-io/k3s/issues).
 * You tried to use an unsupported version of a database for HA. See [this list from Rancher](https://rancher.com/docs/k3s/latest/en/installation/datastore/)
 
