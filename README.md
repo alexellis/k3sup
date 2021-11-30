@@ -213,6 +213,8 @@ export USER=root
 k3sup join --ip $AGENT_IP --server-ip $SERVER_IP --user $USER
 ```
 
+Please note that if you are using different usernames for SSH'ing to the agent and the server that you must provide the username for the server via the `--server-user` parameter.
+
 That's all, so with the above command you can have a two-node cluster up and running, whether that's using VMs on-premises, using Raspberry Pis, 64-bit ARM or even cloud VMs on EC2.
 
 ### Create a multi-master (HA) setup with external SQL
@@ -275,6 +277,8 @@ You can join the agent to either server, the datastore is not required for this 
 ```bash
 k3sup join --user root --server-ip $SERVER1 --ip $AGENT1
 ```
+
+Please note that if you are using different usernames for SSH'ing to the agent and the server that you must provide the username for the server via the `--server-user` parameter.
 
 * Additional steps
 
@@ -627,6 +631,10 @@ The most common problem is that you missed a step, fortunately it's relatively e
 * The K3s agent didn't start. Log in and run `sudo systemctl status k3s-agent`
 * You tried to remove and re-add a server in an etcd cluster and it failed. This is a known issue, see the [K3s issue tracker](https://github.com/k3s-io/k3s/issues).
 * You tried to use an unsupported version of a database for HA. See [this list from Rancher](https://rancher.com/docs/k3s/latest/en/installation/datastore/)
+* Your tried to join a node to the cluster and got an error "ssh: handshake failed". This is probably one of three possibilities:
+  - You did not run `ssh-copy-id`. Try to run it and check if you can log in to the server and the new node without a password prompt using regular `ssh`.
+  - You have an RSA public key. There is an [underlying issue in a Go library](https://github.com/golang/go/issues/39885) which is [referred here](https://github.com/alexellis/k3sup/issues/63). Please provide the additional parameter `--ssh-key ~/.ssh/id_rsa` (or wherever your private key lives) until the issue is resolved.
+  - You are using different usernames for SSH'ing to the server and the node to be added. In that case, playe provide the username for the server via the `--server-user` parameter.
 
 Finally, if everything points to an issue that you can clearly reproduce with k3sup, feel free to open an issue here. To make sure you get a response, fill out the whole template and answer all the questions.
 
