@@ -52,12 +52,12 @@ checkHash(){
     targetFileDir=${targetFile%/*}
 
     (cd $targetFileDir && curl -sSL $url.sha256|$sha_cmd -c >/dev/null)
-   
+
         if [ "$?" != "0" ]; then
             rm $targetFile
             echo "Binary checksum didn't match. Exiting"
             exit 1
-        fi   
+        fi
     fi
 }
 
@@ -68,7 +68,18 @@ getPackage() {
     suffix=""
     case $uname in
     "Darwin")
-    suffix="-darwin"
+        arch=$(uname -m)
+        echo $arch
+        case $arch in
+        "x86_64")
+        suffix="-darwin"
+        ;;
+        esac
+        case $arch in
+        "arm64")
+        suffix="-darwin-arm64"
+        ;;
+        esac
     ;;
     "MINGW"*)
     suffix=".exe"
@@ -93,7 +104,7 @@ getPackage() {
     esac
 
     targetFile="/tmp/$REPO$suffix"
-    
+
     if [ "$userid" != "0" ]; then
         targetFile="$(pwd)/$REPO$suffix"
     fi
@@ -116,7 +127,7 @@ getPackage() {
     chmod +x "$targetFile"
 
     echo "Download complete."
-       
+
     if [ ! -w "$BINLOCATION" ]; then
 
             echo
@@ -127,11 +138,11 @@ getPackage() {
             echo "============================================================"
             echo
             echo "  sudo cp $REPO$suffix $BINLOCATION/$REPO"
-            
+
             if [ -n "$ALIAS_NAME" ]; then
                 echo "  sudo ln -sf $BINLOCATION/$REPO $BINLOCATION/$ALIAS_NAME"
             fi
-            
+
             echo
 
         else
@@ -145,7 +156,7 @@ getPackage() {
             echo "================================================================"
             echo "  $BINLOCATION/$REPO already exists and is not writeable"
             echo "  by the current user.  Please adjust the binary ownership"
-            echo "  or run sh/bash with sudo." 
+            echo "  or run sh/bash with sudo."
             echo "================================================================"
             echo
             exit 1
@@ -153,7 +164,7 @@ getPackage() {
             fi
 
             mv $targetFile $BINLOCATION/$REPO
-        
+
             if [ "$?" = "0" ]; then
                 echo "New version of $REPO installed to $BINLOCATION"
             fi
@@ -179,8 +190,8 @@ thanks() {
     echo "================================================================"
     echo "  Thanks for choosing k3sup."
     echo "  Support the project through GitHub Sponsors"
-    echo "" 
-    echo "  https://github.com/sponsors/alexellis" 
+    echo ""
+    echo "  https://github.com/sponsors/alexellis"
     echo "================================================================"
     echo
 }
