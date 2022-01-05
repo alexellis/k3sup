@@ -156,7 +156,8 @@ Other options for `install`:
 * `--context` - default is `default` - set the name of the kubeconfig context.
 * `--ssh-port` - default is `22`, but you can specify an alternative port i.e. `2222`
 * `--k3s-extra-args` - Optional extra arguments to pass to k3s installer, wrapped in quotes, i.e. `--k3s-extra-args '--no-deploy traefik'` or `--k3s-extra-args '--docker'`. For multiple args combine then within single quotes `--k3s-extra-args '--no-deploy traefik --docker'`.
-* `--k3s-version` - set the specific version of k3s, i.e. `v0.9.1`
+* `--k3s-version` - set the specific version of k3s, i.e. `v1.21.1`
+* `--k3s-channel` - set a specific version of k3s based upon a channel i.e. `stable`
 - `--ipsec` - Enforces the optional extra argument for k3s: `--flannel-backend` option: `ipsec`
 * `--print-command` - Prints out the command, sent over SSH to the remote computer
 * `--datastore` - used to pass a SQL connection-string to the `--datastore-endpoint` flag of k3s. You must use [the format required by k3s in the Rancher docs](https://rancher.com/docs/k3s/latest/en/installation/ha/).
@@ -618,6 +619,8 @@ Related tools:
 If you're having issues, it's likely that this is a problem with K3s, and not with K3sup. How do we know that? Mostly from past issues.
 
 Rancher provides support for K3s [on their Slack](https://slack.rancher.io/) in the `#k3s` channel. This should be your first port of call. Your second port of call is to raise an issue with the K3s maintainers in the [K3s repo](https://github.com/k3s-io/k3s/issues)
+
+Do you want to install a specific version of K3s? See `k3sup install --help` and the `--k3s-version` and `--k3s-channel` flags.
 
 Common issues:
 
