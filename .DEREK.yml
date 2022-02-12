@@ -33,14 +33,6 @@ custom_messages:
            actually an error with k3sup, then please feel free to return and re-open the issue, or
            to comment again.
 
-  - name: slack
-    value: |
-           --
-           The k3sup uses the #general channel in the OpenFaaS Slack
-           community.
-           Join Slack to connect with the community
-           https://docs.openfaas.com/community
-
   - name: template
     value: |
            This project uses Issue and PR templates and requires that all
@@ -74,4 +66,4 @@ custom_messages:
 
            Thank you for your contribution.
 
-contributing_url: https://github.com/openfaas/faas/blob/master/CONTRIBUTING.md
+contributing_url: https://github.com/alexellis/arkade/blob/master/CONTRIBUTING.md
