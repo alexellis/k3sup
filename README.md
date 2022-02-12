@@ -489,7 +489,7 @@ Blogs posts, tutorials, and Tweets about k3sup (`#k3sup`) are appreciated. Pleas
 
 ### Contributing via GitHub
 
-Before contributing code, please see the [CONTRIBUTING guide](https://github.com/alexellis/inlets/blob/master/CONTRIBUTING.md). Note that k3sup uses the same guide as [inlets.dev](https://inlets.dev/).
+Before contributing code, please see the [CONTRIBUTING guide](https://github.com/alexellis/arkade/blob/master/CONTRIBUTING.md). Note that k3sup uses the same guide [arkade](https://arkade.dev)
 
 Both Issues and PRs have their own templates. Please fill out the whole template.
 
