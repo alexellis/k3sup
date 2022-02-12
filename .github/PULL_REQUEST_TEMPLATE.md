@@ -26,7 +26,7 @@
 - [ ] My code follows the code style of this project.
 - [ ] My change requires a change to the documentation.
 - [ ] I have updated the documentation accordingly.
-- [ ] I've read the [CONTRIBUTION](https://github.com/openfaas/faas/blob/master/CONTRIBUTING.md) guide
+- [ ] I've read the [CONTRIBUTION](https://github.com/alexellis/arkade/blob/master/CONTRIBUTING.md) guide
 - [ ] I have signed-off my commits with `git commit -s`
 - [ ] I have added tests to cover my changes.
 - [ ] All new and existing tests passed.
