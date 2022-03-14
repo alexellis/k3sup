@@ -70,6 +70,14 @@ k3sup was developed to automate what can be a very manual and confusing process 
 
 k3sup is free and open source, but requires time and effort to support users and build and test new features. Support this project via [GitHub Sponsors](https://github.com/users/alexellis/sponsorship).
 
+The project is funded through <a href="https://github.com/sponsors/alexellis/">GitHub Sponsors</a>, and you can join today.
+
+<a href="https://github.com/sponsors/alexellis/">
+<img alt="Sponsor this project" src="https://github.com/alexellis/alexellis/blob/master/sponsor-today.png" width="90%">
+</a>
+
+Which tier or option is right for you? [Find out now](https://github.com/sponsors/alexellis/)
+
 ## Download `k3sup` (tl;dr)
 
 `k3sup` is distributed as a static Go binary. You can use the installer on MacOS and Linux, or visit the [Releases page](https://github.com/alexellis/k3sup/releases) to download the executable for Windows.
