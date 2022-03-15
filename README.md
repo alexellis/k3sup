@@ -53,6 +53,18 @@ You may wonder why a tool like this needs to exist when you can do this sort of 
 
 k3sup was developed to automate what can be a very manual and confusing process for many developers, who are already short on time. Once you've provisioned a VM with your favourite tooling, `k3sup` means you are only 60 seconds away from running `kubectl get pods` on your own computer. If you are a local computer, you can bypass SSH with `k3sup install --local`
 
+## Do you love `k3sup`?
+
+k3sup is free and open source, but requires time and effort to support users and build and test new features. Support this project via [GitHub Sponsors](https://github.com/users/alexellis/sponsorship).
+
+The project is funded through <a href="https://github.com/sponsors/alexellis/">GitHub Sponsors</a>, and you can join today.
+
+<a href="https://github.com/sponsors/alexellis/">
+<img alt="Sponsor this project" src="https://github.com/alexellis/alexellis/blob/master/sponsor-today.png" width="90%">
+</a>
+
+Which tier or option is right for you? [Find out now](https://github.com/sponsors/alexellis/)
+
 ### Uses
 
 * Bootstrap Kubernetes with k3s onto any VM with `k3sup install` - either manually, during CI or through `cloud-init`
@@ -65,18 +77,6 @@ k3sup was developed to automate what can be a very manual and confusing process 
 
 ![Conceptual architecture](./docs/k3sup-cloud.png)
 *Conceptual architecture, showing `k3sup` running locally against any VM such as AWS EC2 or a VPS such as DigitalOcean.*
-
-## Do you love `k3sup`?
-
-k3sup is free and open source, but requires time and effort to support users and build and test new features. Support this project via [GitHub Sponsors](https://github.com/users/alexellis/sponsorship).
-
-The project is funded through <a href="https://github.com/sponsors/alexellis/">GitHub Sponsors</a>, and you can join today.
-
-<a href="https://github.com/sponsors/alexellis/">
-<img alt="Sponsor this project" src="https://github.com/alexellis/alexellis/blob/master/sponsor-today.png" width="90%">
-</a>
-
-Which tier or option is right for you? [Find out now](https://github.com/sponsors/alexellis/)
 
 ## Download `k3sup` (tl;dr)
 
