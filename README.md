@@ -630,6 +630,8 @@ Rancher provides support for K3s [on their Slack](https://slack.rancher.io/) in 
 
 Do you want to install a specific version of K3s? See `k3sup install --help` and the `--k3s-version` and `--k3s-channel` flags.
 
+Is your system ready to run Kubernetes? K3s requires certain Kernel modules to be available, run `k3s check-config` and check the output. As a rule Raspberry Pi OS and Ubuntu 20.04 are compatible.
+
 Common issues:
 
 The most common problem is that you missed a step, fortunately it's relatively easy to get the logs from the K3s service and it should tell you what's wrong.
