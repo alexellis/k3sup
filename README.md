@@ -252,8 +252,16 @@ export DATASTORE="mysql://doadmin:80624d3936dfc8d2e80593@tcp(db-mysql-lon1-90578
 You can prefix this command with `  ` two spaces, to prevent it being cached in your bash history.
 
 Generate a token used to encrypt data (If you already have a running node this can be retrieved by logging into a running node and looking in `/var/lib/rancher/k3s/server/token`)
-```bash 
+
+```bash
+# Best option for a token:
+export TOKEN=$(openssl rand -base64 64)
+
+# Fallback for no openssl, on a Linux host:
 export TOKEN=$(tr -dc A-Za-z0-9 </dev/urandom | head -c 64)
+
+# Failing that, then try:
+export TOKEN=$(head -c 64 /dev/urandom|shasum| cut -d - -f 1)
 ```
 
 
