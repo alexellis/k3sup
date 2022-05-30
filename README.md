@@ -612,6 +612,8 @@ MIT
 
 * [Kubernetes Cluster with Rancher on Windows using K3s](https://adyanth.site/posts/kubernetes-cluster-on-windows/) by Adyanth H
 
+* [k3s in LXC on Proxmox with k3sup by Todd Edwards](https://gist.github.com/triangletodd/02f595cd4c0dc9aac5f7763ca2264185)
+
 Checkout the [Announcement tweet](https://twitter.com/alexellisuk/status/1162272786250735618?s=20)
 
 ## Similar tools & glossary
