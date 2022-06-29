@@ -68,7 +68,18 @@ getPackage() {
     suffix=""
     case $uname in
     "Darwin")
-    suffix="-darwin"
+        arch=$(uname -m)
+        echo $arch
+        case $arch in
+        "x86_64")
+        suffix="-darwin"
+        ;;
+        esac
+        case $arch in
+        "arm64")
+        suffix="-darwin-arm64"
+        ;;
+        esac
     ;;
     "MINGW"*)
     suffix=".exe"
