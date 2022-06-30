@@ -34,7 +34,13 @@
 
 ## Your Environment
 
-* What Kubernetes distribution are you using?
+* k3sup version:
+
+```
+k3sup version
+```
+
+* What Kubernetes distribution, client and server version are you using?
 
 ```
 kubectl version
