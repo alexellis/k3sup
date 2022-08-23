@@ -4,3 +4,4 @@ kubeconfig
 .DS_Store
 .idea/
 mc
+/install.sh
