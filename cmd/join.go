@@ -23,8 +23,22 @@ func MakeJoin() *cobra.Command {
 
 ` + pkg.SupportMessageShort + `
 `,
-		Example: `  k3sup join --user root --server-ip IP --ip IP
+		Example: `  # Install K3s joining a cluster as an agent
+  k3sup join \
+    --user AGENT_USER \
+    --ip AGENT_IP \
+    --server-ip IP \
+    --server-user SERVER_USER
 
+  # Install K3s joining a cluster as another server
+  k3sup join \
+    --user AGENT_USER \
+    --ip AGENT_IP \
+    --server \
+    --server-ip IP \
+    --server-user SERVER_USER
+
+  # Join whilst specifying a channel for the k3sup version
   k3sup join --user pi \
     --server-host HOST \
     --host HOST \

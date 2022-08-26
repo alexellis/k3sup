@@ -51,17 +51,37 @@ func MakeInstall() *cobra.Command {
 
 ` + pkg.SupportMessageShort + `
 `,
-		Example: `  k3sup install --ip IP --user USER
+		Example: `  # Simple installation of stable version, outputting a
+  # kubeconfig to the working directory
+  k3sup install --ip IP --user USER
 
+  # Merge kubeconfig into local file under custom context
+  k3sup install \
+    --host HOST \
+    --merge \
+    --local-path $HOME/.kube/kubeconfig \
+    --context k3s-prod-eu-1
+
+  # Only download kubeconfig
+  k3sup install --ip IP \
+    --user USER \
+    --skip-install
+
+  # Install a specific version on local machine without using SSH
   k3sup install --local --k3s-version v1.19.7
 
-  k3sup install --ip IP --cluster
+  # Install, passing extra args to K3s
+  k3sup install --local --k3s-extra-args="--data-dir /mnt/ssd/k3s"
 
-  k3sup install --ip IP --k3s-channel latest
-  k3sup install --host HOST --k3s-channel stable
+  # Start a cluster with embedded etcd
+  k3sup install --host HOST --cluster
 
+  # Install from a specific channel
+  k3sup install --host HOST --k3s-channel [latest|stable]
+
+  # Use a custom path to your SSH key
   k3sup install --host HOST \
-    --ssh-key $HOME/ec2-key.pem --user ubuntu`,
+    --ssh-key $HOME/ec2-key.pem`,
 		SilenceUsage: true,
 	}
 

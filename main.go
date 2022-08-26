@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"github.com/alexellis/k3sup/cmd"
+	"github.com/alexellis/k3sup/pkg"
 	"github.com/spf13/cobra"
 )
 
@@ -22,6 +23,29 @@ func main() {
 			printk3supASCIIArt()
 			cmd.Help()
 		},
+		Example: `  # Install k3s on a server with embedded etcd
+  k3sup install \
+    --cluster \
+    --host $SERVER_1 \
+    --user $SERVER_1_USER \
+    --k3s-channel stable
+
+  # Join a second server
+  k3sup join \
+    --server \
+    --host $SERVER_2 \
+    --user $SERVER_2_USER \
+    --server-host $SERVER_1 \
+    --server-user $SERVER_1_USER \
+    --k3s-channel stable
+
+  # Join an agent to the cluster
+  k3sup join \
+    --host $SERVER_1 \
+    --user $SERVER_1_USER \
+    --k3s-channel stable
+  
+` + pkg.SupportMessageShort,
 	}
 
 	rootCmd.AddCommand(cmdInstall)
