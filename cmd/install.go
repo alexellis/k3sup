@@ -89,7 +89,6 @@ func MakeInstall() *cobra.Command {
 	command.Flags().String("user", "root", "Username for SSH login")
 
 	command.Flags().String("host", "", "Public hostname of node on which to install agent")
-	command.Flags().String("host-ip", "", "Public hostname of an existing k3s server")
 
 	command.Flags().String("ssh-key", "~/.ssh/id_rsa", "The ssh key to use for remote login")
 	command.Flags().Int("ssh-port", 22, "The port on which to connect for ssh")
@@ -124,12 +123,7 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 		}
 
 		if !local {
-			_, err := command.Flags().GetIP("ip")
-			if err != nil {
-				return err
-			}
-
-			_, err = command.Flags().GetIP("host")
+			_, err = command.Flags().GetString("host")
 			if err != nil {
 				return err
 			}
@@ -198,6 +192,7 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 		if err != nil {
 			return err
 		}
+
 		host, err := command.Flags().GetString("host")
 		if err != nil {
 			return err
@@ -205,6 +200,7 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 		if len(host) == 0 {
 			host = ip.String()
 		}
+
 		log.Println(host)
 
 		cluster, _ := command.Flags().GetBool("cluster")
