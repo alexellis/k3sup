@@ -1,23 +1,12 @@
 curators:
  - alexellis
- - Waterdrips
- - utsavanand2
+ - welteki
 
 features:
  - dco_check
  - comments
  - pr_description_required
  - release_notes
-# - hacktoberfest
-# - no_newbies
-
-required_in_issues:
-  - "## Are you a GitHub Sponsor (Yes/No?)"
-  - "## Expected Behaviour"
-  - "## Current Behaviour"
-  - "## Possible Solution"
-  - "## Steps to Reproduce"
-  - "## Your Environment"
 
 custom_messages:
   - name: k3s
