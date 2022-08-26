@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/alexellis/k3sup/pkg"
 	"github.com/morikuni/aec"
 	"github.com/spf13/cobra"
 )
@@ -14,14 +15,20 @@ var (
 
 func PrintK3supASCIIArt() {
 	k3supLogo := aec.RedF.Apply(k3supFigletStr)
+	support := aec.CyanF.Apply(pkg.SupportMessageShort)
+
 	fmt.Print(k3supLogo)
+
+	fmt.Printf("%s\n\n", support)
 }
 
 func MakeVersion() *cobra.Command {
 	var command = &cobra.Command{
-		Use:          "version",
-		Short:        "Print the version",
-		Example:      `  k3sup version`,
+		Use:   "version",
+		Short: "Print the version",
+		Example: `  k3sup version
+` + pkg.SupportMessageShort + `
+`,
 		SilenceUsage: false,
 	}
 	command.Run = func(cmd *cobra.Command, args []string) {
@@ -33,8 +40,6 @@ func MakeVersion() *cobra.Command {
 		}
 		fmt.Println("Git Commit:", GitCommit)
 
-		fmt.Printf("\n%s\n", SupportMsg)
-
 	}
 	return command
 }
@@ -45,4 +50,6 @@ const k3supFigletStr = ` _    _____
 |   < ___) \__ \ |_| | |_) |
 |_|\_\____/|___/\__,_| .__/ 
                      |_|    
+
+bootstrap K3s over SSH in < 60s 🚀
 `

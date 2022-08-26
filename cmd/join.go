@@ -6,18 +6,12 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/alexellis/k3sup/pkg"
 	operator "github.com/alexellis/k3sup/pkg/operator"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"golang.org/x/crypto/ssh"
 )
-
-// SupportMsg is aimed to inform the many hundreds of users of k3sup
-// that they can do their part to support the project's development
-// and maintenance.
-const SupportMsg = `Give your support to k3sup via GitHub Sponsors:
-
-https://github.com/sponsors/alexellis`
 
 // MakeJoin creates the join command
 func MakeJoin() *cobra.Command {
@@ -26,7 +20,8 @@ func MakeJoin() *cobra.Command {
 		Short: "Install the k3s agent on a remote host and join it to an existing server",
 		Long: `Install the k3s agent on a remote host and join it to an existing server
 
-` + SupportMsg,
+` + pkg.SupportMessageShort + `
+`,
 		Example: `  k3sup join --user root --server-ip IP --ip IP
 
   k3sup join --user pi \
@@ -221,6 +216,10 @@ func MakeJoin() *cobra.Command {
 			boostrapErr = setupAdditionalServer(serverHost, host, port, user, sshKeyPath, joinToken, k3sExtraArgs, k3sVersion, k3sChannel, printCommand)
 		} else {
 			boostrapErr = setupAgent(serverHost, host, port, user, sshKeyPath, joinToken, k3sExtraArgs, k3sVersion, k3sChannel, printCommand)
+		}
+
+		if boostrapErr == nil {
+			fmt.Printf("\n%s\n", pkg.SupportMessageShort)
 		}
 
 		return boostrapErr

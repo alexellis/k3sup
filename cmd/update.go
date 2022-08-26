@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/alexellis/k3sup/pkg"
 	"github.com/spf13/cobra"
 )
 
@@ -12,7 +13,8 @@ func MakeUpdate() *cobra.Command {
 		Short: "Print update instructions",
 		Long: `Print instructions for updating your version of k3sup.
 
-` + SupportMsg,
+` + pkg.SupportMessageShort + `
+`,
 		Example:      `  k3sup update`,
 		SilenceUsage: false,
 	}
@@ -23,6 +25,9 @@ func MakeUpdate() *cobra.Command {
 }
 
 const k3supUpdate = `You can update k3sup with the following:
+
+# Use arkade, for a quick installation:
+arkade get k3sup
 
 # Remove cached versions of tools
 rm -rf $HOME/.k3sup
@@ -35,4 +40,4 @@ curl -SLfs https://get.k3sup.dev | sh
 
 # Or download from GitHub: https://github.com/alexellis/k3sup/releases
 
-Thanks for using k3sup!`
+` + pkg.SupportMessageShort

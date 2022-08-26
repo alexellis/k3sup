@@ -10,6 +10,8 @@
 
 ## Are you a GitHub Sponsor (Yes/No?)
 
+Due to limited resources, we can only respond to requests from sponsors
+
 <!--- Check at https://github.com/sponsors/alexellis -->
 
 - [ ] Yes

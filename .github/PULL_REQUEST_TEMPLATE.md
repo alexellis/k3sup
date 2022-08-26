@@ -3,11 +3,20 @@
 ## Description
 <!--- Describe your changes in detail -->
 
-## Motivation and Context
+## Why do you need this?
 <!--- Why is this change required? What problem does it solve? -->
 <!--- If it fixes an open issue, please link to the issue here. -->
 - [ ] I have raised an issue to propose this change ([required](https://github.com/openfaas/faas/blob/master/CONTRIBUTING.md))
 
+If you have no approval from a maintainer, close this PR and raise an issue.
+
+## Are you a GitHub Sponsor (Yes/No?)
+
+Due to limited resources, we can only respond to requests from sponsors
+<!--- Check at https://github.com/sponsors/alexellis -->
+
+- [ ] Yes
+- [ ] No
 
 ## How Has This Been Tested?
 <!--- Please describe in detail how you tested your changes. -->

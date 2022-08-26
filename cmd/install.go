@@ -12,6 +12,7 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/alexellis/k3sup/pkg"
 	operator "github.com/alexellis/k3sup/pkg/operator"
 
 	homedir "github.com/mitchellh/go-homedir"
@@ -48,7 +49,8 @@ func MakeInstall() *cobra.Command {
 		Short: "Install k3s on a server via SSH",
 		Long: `Install k3s on a server via SSH.
 
-` + SupportMsg,
+` + pkg.SupportMessageShort + `
+`,
 		Example: `  k3sup install --ip IP --user USER
 
   k3sup install --local --k3s-version v1.19.7
@@ -100,10 +102,20 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 		if err != nil {
 			return err
 		}
+
 		_, err = command.Flags().GetIP("host")
 		if err != nil {
 			return err
 		}
+
+		if _, err := command.Flags().GetIP("ip"); err != nil {
+			return err
+		}
+
+		if _, err := command.Flags().GetInt("ssh-port"); err != nil {
+			return err
+		}
+
 		return nil
 	}
 
@@ -331,17 +343,6 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 		return nil
 	}
 
-	command.PreRunE = func(command *cobra.Command, args []string) error {
-		if _, err := command.Flags().GetIP("ip"); err != nil {
-			return err
-		}
-
-		if _, err := command.Flags().GetInt("ssh-port"); err != nil {
-			return err
-		}
-
-		return nil
-	}
 	return command
 }
 
@@ -393,10 +394,13 @@ func writeConfig(path string, data []byte, context string, suppressMessage bool)
 export KUBECONFIG=%s
 kubectl config set-context %s
 kubectl get node -o wide
+
+%s
 `,
 			absPath,
 			absPath,
-			context)
+			context,
+			pkg.SupportMessageShort)
 	}
 
 	if err := ioutil.WriteFile(absPath, []byte(data), 0600); err != nil {
