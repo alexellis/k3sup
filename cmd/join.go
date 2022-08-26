@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"net"
+	"path/filepath"
 	"runtime"
 	"strings"
 
@@ -53,6 +54,8 @@ func MakeJoin() *cobra.Command {
 	command.Flags().String("k3s-version", "", "Set a version to install, overrides k3s-channel")
 	command.Flags().String("k3s-channel", PinnedK3sChannel, "Release channel: stable, latest, or i.e. v1.19")
 
+	command.Flags().String("server-data-dir", "/var/lib/rancher/k3s/", "Override the path used to fetch the node-token from the server")
+
 	command.RunE = func(command *cobra.Command, args []string) error {
 		fmt.Printf("Running: k3sup join\n")
 
@@ -67,6 +70,18 @@ func MakeJoin() *cobra.Command {
 		}
 		if len(host) == 0 {
 			host = ip.String()
+		}
+
+		dataDir, err := command.Flags().GetString("server-data-dir")
+		if err != nil {
+			return err
+		}
+		if len(dataDir) == 0 {
+			return fmt.Errorf("--server-data-dir must be set")
+		}
+
+		if !strings.HasPrefix(dataDir, "/") {
+			return fmt.Errorf("--server-data-dir must begin with /")
 		}
 
 		serverIP, err := command.Flags().GetIP("server-ip")
@@ -189,7 +204,7 @@ func MakeJoin() *cobra.Command {
 
 		defer sshOperator.Close()
 
-		getTokenCommand := fmt.Sprintf(sudoPrefix + "cat /var/lib/rancher/k3s/server/node-token\n")
+		getTokenCommand := fmt.Sprintf("%scat %s\n", sudoPrefix, filepath.Join(dataDir, "/server/node-token"))
 		if printCommand {
 			fmt.Printf("ssh: %s\n", getTokenCommand)
 		}
@@ -226,26 +241,32 @@ func MakeJoin() *cobra.Command {
 	}
 
 	command.PreRunE = func(command *cobra.Command, args []string) error {
+
 		_, err := command.Flags().GetIP("ip")
 		if err != nil {
 			return err
 		}
+
 		_, err = command.Flags().GetIP("server-ip")
 		if err != nil {
 			return err
 		}
+
 		_, err = command.Flags().GetString("host")
 		if err != nil {
 			return err
 		}
+
 		_, err = command.Flags().GetString("server-host")
 		if err != nil {
 			return err
 		}
+
 		_, err = command.Flags().GetInt("ssh-port")
 		if err != nil {
 			return err
 		}
+
 		return nil
 	}
 
