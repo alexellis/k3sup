@@ -98,24 +98,30 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 	command.Flags().String("tls-san", "", "Use an additional IP or hostname for the API server")
 
 	command.PreRunE = func(command *cobra.Command, args []string) error {
-		_, err := command.Flags().GetIP("ip")
+		local, err := command.Flags().GetBool("local")
 		if err != nil {
 			return err
 		}
 
-		_, err = command.Flags().GetIP("host")
-		if err != nil {
-			return err
-		}
+		if !local {
+			_, err := command.Flags().GetIP("ip")
+			if err != nil {
+				return err
+			}
 
-		if _, err := command.Flags().GetIP("ip"); err != nil {
-			return err
-		}
+			_, err = command.Flags().GetIP("host")
+			if err != nil {
+				return err
+			}
 
-		if _, err := command.Flags().GetInt("ssh-port"); err != nil {
-			return err
-		}
+			if _, err := command.Flags().GetIP("ip"); err != nil {
+				return err
+			}
 
+			if _, err := command.Flags().GetInt("ssh-port"); err != nil {
+				return err
+			}
+		}
 		return nil
 	}
 
