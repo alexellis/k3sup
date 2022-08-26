@@ -1,35 +1,13 @@
 package ssh
 
-import (
-	goexecute "github.com/alexellis/go-execute/pkg/v1"
-)
-
+// CommandOperator executes a command on a machine to install k3sup
 type CommandOperator interface {
 	Execute(command string) (CommandRes, error)
 	ExecuteStdio(command string, stream bool) (CommandRes, error)
 }
 
-type ExecOperator struct {
-}
-
-func (ex ExecOperator) ExecuteStdio(command string, stream bool) (CommandRes, error) {
-	task := goexecute.ExecTask{
-		Command:     command,
-		Shell:       true,
-		StreamStdio: stream,
-	}
-
-	res, err := task.Execute()
-	if err != nil {
-		return CommandRes{}, err
-	}
-
-	return CommandRes{
-		StdErr: []byte(res.Stderr),
-		StdOut: []byte(res.Stdout),
-	}, nil
-}
-
-func (ex ExecOperator) Execute(command string) (CommandRes, error) {
-	return ex.ExecuteStdio(command, true)
+// CommandRes contains the STDIO output from running a command
+type CommandRes struct {
+	StdOut []byte
+	StdErr []byte
 }

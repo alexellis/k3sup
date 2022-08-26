@@ -9,13 +9,9 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
+// SSHOperator executes commands on a remote machine over an SSH session
 type SSHOperator struct {
 	conn *ssh.Client
-}
-
-func (s SSHOperator) Close() error {
-
-	return s.conn.Close()
 }
 
 func NewSSHOperator(address string, config *ssh.ClientConfig) (*SSHOperator, error) {
@@ -30,6 +26,7 @@ func NewSSHOperator(address string, config *ssh.ClientConfig) (*SSHOperator, err
 
 	return &operator, nil
 }
+
 func (s SSHOperator) ExecuteStdio(command string, stream bool) (CommandRes, error) {
 
 	sess, err := s.conn.NewSession()
@@ -96,12 +93,6 @@ func (s SSHOperator) Execute(command string) (CommandRes, error) {
 	return s.ExecuteStdio(command, true)
 }
 
-type CommandRes struct {
-	StdOut []byte
-	StdErr []byte
-}
-
-func executeCommand(cmd string) (CommandRes, error) {
-
-	return CommandRes{}, nil
+func (s SSHOperator) Close() error {
+	return s.conn.Close()
 }
