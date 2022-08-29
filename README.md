@@ -196,7 +196,7 @@ k3sup install \
   --context my-k3s
 ```
 
-Here we set a context of `my-k3s` and also merge into our main local `KUBECONFIG` file, so we could run `kubectl config set-context my-k3s` or `kubectx my-k3s`.
+Here we set a context of `my-k3s` and also merge into our main local `KUBECONFIG` file, so we could run `kubectl config use-context my-k3s` or `kubectx my-k3s`.
 
 ### 😸 Join some agents to your Kubernetes server
 

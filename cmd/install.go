@@ -414,7 +414,7 @@ func writeConfig(path string, data []byte, context string, suppressMessage bool)
 
 # Test your cluster with:
 export KUBECONFIG=%s
-kubectl config set-context %s
+kubectl config use-context %s
 kubectl get node -o wide
 
 %s
