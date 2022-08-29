@@ -16,34 +16,37 @@ How do you say it? Ketchup, as in tomato.
 
 ## Contents:
 - [k3sup 🚀 (said 'ketchup')](#k3sup--said-ketchup)
+  - [Contents:](#contents)
   - [What's this for? 💻](#whats-this-for-)
+  - [Do you love `k3sup`?](#do-you-love-k3sup)
     - [Uses](#uses)
     - [Bootstrapping Kubernetes](#bootstrapping-kubernetes)
   - [Download `k3sup` (tl;dr)](#download-k3sup-tldr)
     - [A note for Windows users](#a-note-for-windows-users)
   - [Demo 📼](#demo-)
-  - [Who is the author? 👏](#who-is-the-author-)
   - [Usage ✅](#usage-)
-    - [Pre-requisites for k3sup agents and servers](#pre-requisites-for-k3sup-servers-and-agents)
+  - [Pre-requisites for k3sup servers and agents](#pre-requisites-for-k3sup-servers-and-agents)
     - [👑 Setup a Kubernetes *server* with `k3sup`](#-setup-a-kubernetes-server-with-k3sup)
-    - [Advanced KUBECONFIG options](#merging-clusters-into-your-kubeconfig)
+    - [Merging clusters into your KUBECONFIG](#merging-clusters-into-your-kubeconfig)
     - [😸 Join some agents to your Kubernetes server](#-join-some-agents-to-your-kubernetes-server)
+    - [Use your hardware authentication / 2FA or SSH Agent](#use-your-hardware-authentication--2fa-or-ssh-agent)
     - [Create a multi-master (HA) setup with external SQL](#create-a-multi-master-ha-setup-with-external-sql)
     - [Create a multi-master (HA) setup with embedded etcd](#create-a-multi-master-ha-setup-with-embedded-etcd)
     - [👨‍💻 Micro-tutorial for Raspberry Pi (2, 3, or 4) 🥧](#-micro-tutorial-for-raspberry-pi-2-3-or-4-)
   - [Caveats on security](#caveats-on-security)
-  - [If your ssh-key is password-protected](#if-your-ssh-key-is-password-protected)
   - [Contributing](#contributing)
-    - [Insiders Subscription ☕️ 👏](#insiders-subscription-️-)
     - [Blog posts & tweets](#blog-posts--tweets)
     - [Contributing via GitHub](#contributing-via-github)
     - [License](#license)
   - [📢 What are people saying about `k3sup`?](#-what-are-people-saying-about-k3sup)
   - [Similar tools & glossary](#similar-tools--glossary)
-  - [Troubleshooting](#troubleshooting)
+  - [Troubleshooting and support](#troubleshooting-and-support)
+    - [Maybe the problem is with K3s?](#maybe-the-problem-is-with-k3s)
+    - [Common issues](#common-issues)
+    - [Support and k3sup for commercial use](#support-and-k3sup-for-commercial-use)
     - [Getting access to your KUBECONFIG](#getting-access-to-your-kubeconfig)
     - [Smart cards and 2FA](#smart-cards-and-2fa)
-    - [Misc note on iptables](#misc-note-on-iptables)
+    - [Misc note on `iptables`](#misc-note-on-iptables)
 
 ## What's this for? 💻
 
@@ -55,15 +58,17 @@ k3sup was developed to automate what can be a very manual and confusing process 
 
 ## Do you love `k3sup`?
 
-k3sup is free and open source, but requires time and effort to support users and build and test new features. Support this project via [GitHub Sponsors](https://github.com/users/alexellis/sponsorship).
-
-The project is funded by individual <a href="https://github.com/sponsors/alexellis/">GitHub Sponsors</a> like you.
-
 <a href="https://github.com/sponsors/alexellis/">
 <img alt="Sponsor this project" src="https://github.com/alexellis/alexellis/blob/master/sponsor-today.png" width="90%">
 </a>
 
-Which tier or option is right for you? [Find out now](https://github.com/sponsors/alexellis/)
+`k3sup` was created by [Alex Ellis](https://github.com/users/alexellis/sponsorship) - the founder of [OpenFaaS &reg;](https://www.openfaas.com/) & [inlets](https://inlets.dev/). Alex is also an active part of the Docker & Kubernetes community as a [CNCF Ambassador](https://www.cncf.io/people/ambassadors/).
+
+If you've benefitted from his open source projects or blog posts in some way, then and join dozens of other developers sponsoring him today.
+
+A monthly sponsorship is required to receive any form of support such as Issues or Pull Requests.
+
+[Sponsor alexellis on GitHub](https://github.com/users/alexellis/sponsorship)
 
 ### Uses
 
@@ -103,14 +108,6 @@ In the demo I install Kubernetes (`k3s`) onto two separate machines and get my `
 Watch the demo:
 
 [![asciicast](https://asciinema.org/a/262630.svg)](https://asciinema.org/a/262630)
-
-## Who is the author? 👏
-
-`k3sup` is Open Source Software (OSS) and was created by [Alex Ellis](https://www.alexellis.io/) - the founder of [OpenFaaS &reg;](https://www.openfaas.com/) & [inlets](https://inlets.dev/). Alex is also an active part of the Docker & Kubernetes community as a [CNCF Ambassador](https://www.cncf.io/people/ambassadors/).
-
-If you've benefitted from his open source projects or blog posts in some way, then and join dozens of other developers today by buying an Insiders Subscription 🏆 via GitHub Sponsors.
-
-* [Sponsor k3sup on GitHub](https://github.com/users/alexellis/sponsorship)
 
 ## Usage ✅
 
@@ -159,6 +156,7 @@ Other options for `install`:
 * `--cluster` - start this server in clustering mode using embedded etcd (embedded HA)
 * `--skip-install` - if you already have k3s installed, you can just run this command to get the `kubeconfig`
 * `--ssh-key` - specify a specific path for the SSH key for remote login
+* `--local` - Perform a local install without using ssh
 * `--local-path` - default is `./kubeconfig` - set the file where you want to save your cluster's `kubeconfig`.  By default this file will be overwritten.
 * `--merge` - Merge config into existing file instead of overwriting (e.g. to add config to the default kubectl config, use `--local-path ~/.kube/config --merge`).
 * `--context` - default is `default` - set the name of the kubeconfig context.
@@ -225,6 +223,26 @@ k3sup join --ip $AGENT_IP --server-ip $SERVER_IP --user $USER
 Please note that if you are using different usernames for SSH'ing to the agent and the server that you must provide the username for the server via the `--server-user` parameter.
 
 That's all, so with the above command you can have a two-node cluster up and running, whether that's using VMs on-premises, using Raspberry Pis, 64-bit ARM or even cloud VMs on EC2.
+
+### Use your hardware authentication / 2FA or SSH Agent
+
+You may wish to use the `ssh-agent` utility if:
+
+* Your SSH key is protected by a password, and you don't want to type it in for each k3sup command
+* You use a hardware authentication device key like a [Yubico YubiKey](https://amzn.to/3ApXR82) to authenticate SSH sessions
+
+Run the following to set `SSH_AUTH_SOCK`:
+
+```
+$ eval $(ssh-agent)
+Agent pid 2641757
+```
+
+Optionally, if your key is encrypted, run: `ssh-add ~/.ssh/id_rsa`
+
+Now run any `k3sup` command, and your SSH key will be requested from the ssh-agent instead of from the usual location.
+
+You can also specify an SSH key with `--ssh-key` if you want to use a specific key-pair.
 
 ### Create a multi-master (HA) setup with external SQL
 
@@ -473,31 +491,7 @@ If you are using public cloud, then make sure you see the notes from the Rancher
 
 k3s docs: [k3s configuration / open ports](https://rancher.com/docs/k3s/latest/en/installation/installation-requirements/#networking)
 
-## If your ssh-key is password-protected
-
-If the ssh-key is encrypted the first step is to try to connect to the ssh-agent. If this works, it will be used to connect to the server.
-If the ssh-agent is not running, the user will be prompted for the password of the ssh-key.
-
-On most Linux systems and MacOS, ssh-agent is automatically configured and executed at login. No additional actions are required to use it.
-
-To start the ssh-agent manually and add your key run the following commands:
-
-```bash
-eval `ssh-agent`
-ssh-add ~/.ssh/id_rsa
-```
-
-You can now just run k3sup as usual. No special parameters are necessary.
-
-```bash
-k3sup --ip $IP --user user
-```
-
 ## Contributing
-
-### Sponsor on GitHub ☕️ 👏
-
-k3sup is free and open source, but requires time and effort to support users and build and test new features. Support this project via [GitHub Sponsors](https://github.com/users/alexellis/sponsorship).
 
 ### Blog posts & tweets
 
@@ -632,15 +626,17 @@ Related tools:
 * [k3v](https://github.com/ibuildthecloud/k3v) - "virtual kubernetes" - a very early PoC from the author of k3s aiming to slice up a single cluster for multiple tenants
 * [k3sup-multipass](https://github.com/matti/k3sup-multipass) - a helper to launch single node k3s cluster with one command using a [multipass](https://multipass.run) VM and optionally proxy the ingress to localhost for easier development.
 
-## Troubleshooting
+## Troubleshooting and support
 
-If you're having issues, it's likely that this is a problem with K3s, and not with K3sup. How do we know that? Mostly from past issues.
+### Maybe the problem is with K3s?
+
+If you're having issues, it's likely that this is a problem with K3s, and not with k3sup. How do we know that? K3sup is a very mature project and has a few use-cases that it generally performs very well.
 
 Rancher provides support for K3s [on their Slack](https://slack.rancher.io/) in the `#k3s` channel. This should be your first port of call. Your second port of call is to raise an issue with the K3s maintainers in the [K3s repo](https://github.com/k3s-io/k3s/issues)
 
 Do you want to install a specific version of K3s? See `k3sup install --help` and the `--k3s-version` and `--k3s-channel` flags.
 
-Is your system ready to run Kubernetes? K3s requires certain Kernel modules to be available, run `k3s check-config` and check the output. As a rule Raspberry Pi OS and Ubuntu 20.04 are compatible.
+Is your system ready to run Kubernetes? K3s requires certain Kernel modules to be available, run `k3s check-config` and check the output. Alex tests K3sup with Raspberry Pi OS and Ubuntu LTS on a regular basis.
 
 ### Common issues
 
@@ -661,7 +657,7 @@ The most common problem is that you missed a step, fortunately it's relatively e
   - You are using different usernames for SSH'ing to the server and the node to be added. In that case, playe provide the username for the server via the `--server-user` parameter.
 * Your `.ssh/config` file isn't being used by K3sup. K3sup does not use the config file used by the `ssh` command-line, but instead uses CLI flags, run `k3sup install/join --help` to learn which are supported.
 
-### K3sup for commercial use
+### Support and k3sup for commercial use
 
 * K3sup doesn't use a declarative YAML file to setup all my hosts. This is by design, feel free to write a very short bash script instead, it will be equivalent, since `k3sup install/join` can be run multiple times without side-effects. 
 * You want to setup a cluster using an SSH bastion host. This is a premium feature and requires a license.
@@ -679,7 +675,7 @@ If you've lost your kubeconfig, you can use `k3sup install --skip-install`. See 
 
 ### Smart cards and 2FA
 
-> Warning: issues requesting support for smart cards / 2FA will be closed immediately. The feature has been proven to work, and is provided as-is. We do not have time to debug your system.
+> Warning: issues requesting support for smart cards / 2FA will be closed immediately. The feature has been proven to work, and is provided as-is.
 
 You can use a smart card or 2FA security key such as a Yubikey. You must have your ssh-agent configured correctly, at that point k3sup will defer to the agent to make connections on MacOS and Linux. [Find out more](https://github.com/alexellis/k3sup/pull/312)
 
