@@ -57,7 +57,7 @@ k3sup was developed to automate what can be a very manual and confusing process 
 
 k3sup is free and open source, but requires time and effort to support users and build and test new features. Support this project via [GitHub Sponsors](https://github.com/users/alexellis/sponsorship).
 
-The project is funded through <a href="https://github.com/sponsors/alexellis/">GitHub Sponsors</a>, and you can join today.
+The project is funded by individual <a href="https://github.com/sponsors/alexellis/">GitHub Sponsors</a> like you.
 
 <a href="https://github.com/sponsors/alexellis/">
 <img alt="Sponsor this project" src="https://github.com/alexellis/alexellis/blob/master/sponsor-today.png" width="90%">
@@ -110,7 +110,7 @@ Watch the demo:
 
 If you've benefitted from his open source projects or blog posts in some way, then and join dozens of other developers today by buying an Insiders Subscription 🏆 via GitHub Sponsors.
 
-* [Sponsor on GitHub](https://github.com/users/alexellis/sponsorship)
+* [Sponsor k3sup on GitHub](https://github.com/users/alexellis/sponsorship)
 
 ## Usage ✅
 
@@ -642,13 +642,14 @@ Do you want to install a specific version of K3s? See `k3sup install --help` and
 
 Is your system ready to run Kubernetes? K3s requires certain Kernel modules to be available, run `k3s check-config` and check the output. As a rule Raspberry Pi OS and Ubuntu 20.04 are compatible.
 
-Common issues:
+### Common issues
 
 The most common problem is that you missed a step, fortunately it's relatively easy to get the logs from the K3s service and it should tell you what's wrong.
 
 * For the Raspberry Pi you probably haven't updated `cmdline.txt` to enable cgroups for CPU and memory. Update it as per the instructions in this file.
 * You ran `kubectl` on a node. Don't do this. k3sup copies the file to your local workstation. Don't log into agents or servers other than to check logs / upgrade the system.
-* `sudo: a terminal is required to read the password` - see the [Pre-requisites for k3sup agents and servers](#pre-requisites-for-k3sup-servers-and-agents)
+* `sudo: a terminal is required to read the password` - setup password-less `sudo` on your hosts, see also:[Pre-requisites for k3sup agents and servers](#pre-requisites-for-k3sup-servers-and-agents)
+* You want to install directly on a server, without using SSH. See also: `k3sup install --local` which doesn't use SSH, but executes the commands directly on a host.
 
 * K3s server didn't start. Log in and run `sudo systemctl status k3s` or `sudo journalctl -u k3s` to see the logs for the service.
 * The K3s agent didn't start. Log in and run `sudo systemctl status k3s-agent`
@@ -658,8 +659,15 @@ The most common problem is that you missed a step, fortunately it's relatively e
   - You did not run `ssh-copy-id`. Try to run it and check if you can log in to the server and the new node without a password prompt using regular `ssh`.
   - You have an RSA public key. There is an [underlying issue in a Go library](https://github.com/golang/go/issues/39885) which is [referred here](https://github.com/alexellis/k3sup/issues/63). Please provide the additional parameter `--ssh-key ~/.ssh/id_rsa` (or wherever your private key lives) until the issue is resolved.
   - You are using different usernames for SSH'ing to the server and the node to be added. In that case, playe provide the username for the server via the `--server-user` parameter.
+* Your `.ssh/config` file isn't being used by K3sup. K3sup does not use the config file used by the `ssh` command-line, but instead uses CLI flags, run `k3sup install/join --help` to learn which are supported.
 
-Finally, if everything points to an issue that you can clearly reproduce with k3sup, feel free to open an issue here. To make sure you get a response, fill out the whole template and answer all the questions.
+### K3sup for commercial use
+
+* K3sup doesn't use a declarative YAML file to setup all my hosts. This is by design, feel free to write a very short bash script instead, it will be equivalent, since `k3sup install/join` can be run multiple times without side-effects. 
+* You want to setup a cluster using an SSH bastion host. This is a premium feature and requires a license.
+* You want to install K3s into an airgapped environment. This is a premium feature and requires a license.
+
+Finally, if you need any form of technical support, you must [first become a GitHub Sponsor](https://github.com/sponsors/alexellis) before raising an issue. All changes to K3sup must be proposed in an issue before a PR is sent, PRs without approved issues will be closed without comment.
 
 ### Getting access to your KUBECONFIG
 

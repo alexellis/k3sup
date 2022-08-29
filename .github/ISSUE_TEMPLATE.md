@@ -1,4 +1,16 @@
+## Are you a GitHub Sponsor?
+
+Only sponsors may open issues, all other issues (unless previously discussed agreed upon with a maintainer) will be closed without comment.
+
+Check at [https://github.com/sponsors/alexellis](https://github.com/sponsors/alexellis)
+
 <!--- Provide a general summary of the issue in the Title above -->
+
+## Why do you need this?
+
+<!--- How has this issue affected you? What are you trying to accomplish? -->
+<!--- Providing context helps us come up with a solution that is most useful in the real world -->
+<!--- Is this request for work, a client, your employer or for fun? -->
 
 ## Expected Behaviour
 <!--- If you're describing a bug, tell us what should happen -->
@@ -7,15 +19,6 @@
 ## Current Behaviour
 <!--- If describing a bug, tell us what happens instead of the expected behavior -->
 <!--- If suggesting a change/improvement, explain the difference from current behavior -->
-
-## Are you a GitHub Sponsor (Yes/No?)
-
-Due to limited resources, we can only respond to requests from sponsors
-
-<!--- Check at https://github.com/sponsors/alexellis -->
-
-- [ ] Yes
-- [ ] No
 
 ## Possible Solution
 <!--- Not obligatory, but suggest a fix/reason for the bug, -->
@@ -29,10 +32,6 @@ Due to limited resources, we can only respond to requests from sponsors
 2.
 3.
 4.
-
-## Context
-<!--- How has this issue affected you? What are you trying to accomplish? -->
-<!--- Providing context helps us come up with a solution that is most useful in the real world -->
 
 ## Your Environment
 

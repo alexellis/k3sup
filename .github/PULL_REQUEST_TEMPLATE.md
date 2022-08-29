@@ -1,7 +1,10 @@
-<!--- Provide a general summary of your changes in the Title above -->
+## Are you a GitHub Sponsor?
 
-## Description
-<!--- Describe your changes in detail -->
+Only sponsors may Pull Requests (PRs), all other PRs (unless previously discussed agreed upon with a maintainer) will be closed without comment.
+
+Check at [https://github.com/sponsors/alexellis](https://github.com/sponsors/alexellis)
+
+<!--- Provide a general summary of the issue in the Title above -->
 
 ## Why do you need this?
 <!--- Why is this change required? What problem does it solve? -->
@@ -10,13 +13,9 @@
 
 If you have no approval from a maintainer, close this PR and raise an issue.
 
-## Are you a GitHub Sponsor (Yes/No?)
+## Description
+<!--- Describe your changes in detail -->
 
-Due to limited resources, we can only respond to requests from sponsors
-<!--- Check at https://github.com/sponsors/alexellis -->
-
-- [ ] Yes
-- [ ] No
 
 ## How Has This Been Tested?
 <!--- Please describe in detail how you tested your changes. -->
