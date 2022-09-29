@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 	"net"
-	"path/filepath"
+	"path"
 	"runtime"
 	"strings"
 
@@ -218,7 +218,7 @@ func MakeJoin() *cobra.Command {
 
 		defer sshOperator.Close()
 
-		getTokenCommand := fmt.Sprintf("%scat %s\n", sudoPrefix, filepath.Join(dataDir, "/server/node-token"))
+		getTokenCommand := fmt.Sprintf("%scat %s\n", sudoPrefix, path.Join(dataDir, "/server/node-token"))
 		if printCommand {
 			fmt.Printf("ssh: %s\n", getTokenCommand)
 		}
