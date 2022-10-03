@@ -68,32 +68,31 @@ func MakeReady() *cobra.Command {
 				},
 				StreamStdio: false,
 			}
+
 			res, err := task.Execute()
 			if err != nil {
 				return err
 			}
 			// fmt.Println(res.Stdout, res.Stderr, res.ExitCode)
 
-			if res.ExitCode == 0 {
-				fmt.Printf("Cluster is ready\n")
-				return nil
-			}
-
 			if strings.Contains(res.Stderr, "context was not found") {
 				return fmt.Errorf("context %s not found in %s", contextName, kubeconfig)
 			}
 
-			parts := strings.Split(res.Stdout, " ")
-			ready := true
-			for _, part := range parts {
-				trimmed := strings.TrimSpace(part)
-				if len(trimmed) > 0 && trimmed != "True" {
-					ready = false
+			if res.ExitCode == 0 {
+				parts := strings.Split(res.Stdout, " ")
+				ready := true
+				for _, part := range parts {
+					trimmed := strings.TrimSpace(part)
+					if len(trimmed) > 0 && trimmed != "True" {
+						ready = false
+					}
 				}
-			}
 
-			if ready {
-				break
+				if ready {
+					fmt.Printf("Cluster is ready\n")
+					break
+				}
 			}
 			time.Sleep(pause)
 		}
