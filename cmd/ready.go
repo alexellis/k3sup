@@ -36,6 +36,7 @@ func MakeReady() *cobra.Command {
 	command.Flags().Duration("pause", time.Second*2, "Pause between checking cluster for readiness")
 	command.Flags().String("kubeconfig", "$HOME/.kube/config", "Path to the kubeconfig file")
 	command.Flags().String("context", "default", "Name of the kubeconfig context to use")
+	command.Flags().Bool("quiet", false, "Suppress output from each attempt")
 
 	command.RunE = func(cmd *cobra.Command, args []string) error {
 
@@ -43,6 +44,7 @@ func MakeReady() *cobra.Command {
 		pause, _ := cmd.Flags().GetDuration("pause")
 		kubeconfig, _ := cmd.Flags().GetString("kubeconfig")
 		contextName, _ := cmd.Flags().GetString("context")
+		quiet, _ := cmd.Flags().GetBool("quiet")
 
 		if len(kubeconfig) == 0 {
 			return fmt.Errorf("kubeconfig cannot be empty")
@@ -56,7 +58,10 @@ func MakeReady() *cobra.Command {
 
 		// Inspired by Kind: https://github.com/kubernetes-sigs/kind/blob/master/pkg/cluster/internal/create/actions/waitforready/waitforready.go
 		for i := 0; i < attempts; i++ {
-			fmt.Printf("Checking cluster status: %d/%d \n", i+1, attempts)
+			if !quiet {
+				fmt.Printf("Checking cluster status: %d/%d \n", i+1, attempts)
+			}
+
 			task := execute.ExecTask{
 				Command: "kubectl",
 				Args: []string{
@@ -73,24 +78,29 @@ func MakeReady() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			// fmt.Println(res.Stdout, res.Stderr, res.ExitCode)
 
 			if strings.Contains(res.Stderr, "context was not found") {
 				return fmt.Errorf("context %s not found in %s", contextName, kubeconfig)
 			}
 
 			if res.ExitCode == 0 {
-				parts := strings.Split(res.Stdout, " ")
+				parts := strings.Split(strings.TrimSpace(res.Stdout), " ")
+
 				ready := true
 				for _, part := range parts {
 					trimmed := strings.TrimSpace(part)
-					if len(trimmed) > 0 && trimmed != "True" {
+
+					// Note: The command is returning a single quoted string
+					if len(trimmed) > 0 && trimmed != "'True'" {
 						ready = false
+						break
 					}
 				}
 
 				if ready {
-					fmt.Printf("Cluster is ready\n")
+					if !quiet {
+						fmt.Printf("All node(s) are ready\n")
+					}
 					break
 				}
 			}
