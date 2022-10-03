@@ -26,6 +26,7 @@ How do you say it? Ketchup, as in tomato.
   - [Usage ✅](#usage-)
   - [Pre-requisites for k3sup servers and agents](#pre-requisites-for-k3sup-servers-and-agents)
     - [👑 Setup a Kubernetes *server* with `k3sup`](#-setup-a-kubernetes-server-with-k3sup)
+    - [Checking if a cluster is ready](#checking-if-a-cluster-is-ready)
     - [Merging clusters into your KUBECONFIG](#merging-clusters-into-your-kubeconfig)
     - [😸 Join some agents to your Kubernetes server](#-join-some-agents-to-your-kubernetes-server)
     - [Use your hardware authentication / 2FA or SSH Agent](#use-your-hardware-authentication--2fa-or-ssh-agent)
@@ -177,6 +178,50 @@ kubectl get node
 ```
 
 Note that you should always use `pwd/` so that a full path is set, and you can change directory if you wish.
+
+### Checking if a cluster is ready
+
+There are various ways to confirm whether a cluster is ready to use.
+
+K3sup runs the "kubectl get nodes" command using a KUBECONFIG file, and looks for the "Ready" status on each node, including agents/workers.
+
+Install K3s directly on the node and then check if it's ready:
+
+```bash
+k3sup install \
+  --local \
+  --context localk3
+
+k3sup ready \
+  --context localk3 \
+  --kubeconfig ./kubeconfig
+```
+
+Check a remote server saved to a local file:
+
+```bash
+k3sup install \
+  --ip 192.168.0.101 \
+  --user pi
+
+k3sup ready \
+  --context default \
+  --kubeconfig ./kubeconfig
+```
+
+Check a merged context in your default KUBECONFIG:
+
+```bash
+k3sup install \
+  --ip 192.168.0.101 \
+  --user pi \
+  --context pik3s \
+  --merge \
+  --local-path $HOME/.kube/config
+
+# $HOME/.kube/config is a default for kubeconfig
+k3sup ready --context pik3s
+```
 
 ### Merging clusters into your KUBECONFIG
 
