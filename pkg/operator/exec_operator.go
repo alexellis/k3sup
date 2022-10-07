@@ -21,8 +21,9 @@ func (ex ExecOperator) ExecuteStdio(command string, stream bool) (CommandRes, er
 	}
 
 	return CommandRes{
-		StdErr: []byte(res.Stderr),
-		StdOut: []byte(res.Stdout),
+		StdErr:   []byte(res.Stderr),
+		StdOut:   []byte(res.Stdout),
+		ExitCode: res.ExitCode,
 	}, nil
 }
 

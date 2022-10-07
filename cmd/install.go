@@ -266,9 +266,12 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 					return err
 				}
 
-				if len(res.StdErr) > 0 {
-					fmt.Printf("stderr: %q", res.StdErr)
+				if res.ExitCode != 0 {
+					if len(res.StdErr) > 0 {
+						fmt.Printf("stderr: %q", res.StdErr)
+					}
 				}
+
 				if len(res.StdOut) > 0 {
 					fmt.Printf("stdout: %q", res.StdOut)
 				}

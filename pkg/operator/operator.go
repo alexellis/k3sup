@@ -8,6 +8,7 @@ type CommandOperator interface {
 
 // CommandRes contains the STDIO output from running a command
 type CommandRes struct {
-	StdOut []byte
-	StdErr []byte
+	StdOut   []byte
+	StdErr   []byte
+	ExitCode int
 }
