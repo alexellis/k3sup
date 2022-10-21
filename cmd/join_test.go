@@ -38,7 +38,7 @@ func Test_makeJoinServerExec(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.title, func(t *testing.T) {
-			got := makeJoinExec(tc.serverIP, tc.joinToken, tc.installStr, tc.k3sExtraArgs, tc.serverAgent)
+			got := makeJoinExec(tc.serverIP, tc.joinToken, tc.installStr, tc.k3sExtraArgs, tc.serverAgent, "")
 
 			if got != tc.installk3sExec {
 				t.Errorf("want: %s, got: %s", tc.installk3sExec, got)
@@ -72,7 +72,7 @@ func Test_makeJoinAgentExec(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.title, func(t *testing.T) {
-			got := makeJoinExec(tc.serverIP, tc.joinToken, tc.installStr, tc.k3sExtraArgs, tc.serverAgent)
+			got := makeJoinExec(tc.serverIP, tc.joinToken, tc.installStr, tc.k3sExtraArgs, tc.serverAgent, "")
 
 			if got != tc.installk3sExec {
 				t.Errorf("want: %s, got: %s", tc.installk3sExec, got)
