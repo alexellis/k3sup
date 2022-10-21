@@ -51,6 +51,7 @@ func MakeJoin() *cobra.Command {
 
 	command.Flags().String("host", "", "Public hostname of node on which to install agent")
 	command.Flags().String("server-host", "", "Public hostname of an existing k3s server")
+	command.Flags().String("server-url", "", "If different from server-ip or server-host, the URL of the server to join")
 
 	command.Flags().String("user", "root", "Username for SSH login")
 	command.Flags().String("server-user", "root", "Server username for SSH login (Default to --user)")
@@ -111,7 +112,15 @@ func MakeJoin() *cobra.Command {
 			serverHost = serverIP.String()
 		}
 
+		serverURL, err := command.Flags().GetString("server-url")
+		if err != nil {
+			return err
+		}
+
 		fmt.Println("Server IP: " + serverHost)
+		if len(serverURL) > 0 {
+			fmt.Println("Server URL: " + serverURL)
+		}
 
 		user, _ := command.Flags().GetString("user")
 
@@ -242,9 +251,9 @@ func MakeJoin() *cobra.Command {
 
 		var boostrapErr error
 		if server {
-			boostrapErr = setupAdditionalServer(serverHost, host, port, user, sshKeyPath, joinToken, k3sExtraArgs, k3sVersion, k3sChannel, printCommand)
+			boostrapErr = setupAdditionalServer(serverHost, host, port, user, sshKeyPath, joinToken, k3sExtraArgs, k3sVersion, k3sChannel, printCommand, serverURL)
 		} else {
-			boostrapErr = setupAgent(serverHost, host, port, user, sshKeyPath, joinToken, k3sExtraArgs, k3sVersion, k3sChannel, printCommand)
+			boostrapErr = setupAgent(serverHost, host, port, user, sshKeyPath, joinToken, k3sExtraArgs, k3sVersion, k3sChannel, printCommand, serverURL)
 		}
 
 		if boostrapErr == nil {
@@ -287,7 +296,7 @@ func MakeJoin() *cobra.Command {
 	return command
 }
 
-func setupAdditionalServer(serverHost, host string, port int, user, sshKeyPath, joinToken, k3sExtraArgs, k3sVersion, k3sChannel string, printCommand bool) error {
+func setupAdditionalServer(serverHost, host string, port int, user, sshKeyPath, joinToken, k3sExtraArgs, k3sVersion, k3sChannel string, printCommand bool, serverURL string) error {
 	address := fmt.Sprintf("%s:%d", host, port)
 
 	var sshOperator *operator.SSHOperator
@@ -348,6 +357,7 @@ func setupAdditionalServer(serverHost, host string, port int, user, sshKeyPath, 
 		installStr,
 		k3sExtraArgs,
 		serverAgent,
+		serverURL,
 	)
 
 	installAgentServerCommand := fmt.Sprintf("%s | %s", getScript, installk3sExec)
@@ -371,7 +381,7 @@ func setupAdditionalServer(serverHost, host string, port int, user, sshKeyPath, 
 	return nil
 }
 
-func setupAgent(serverHost, host string, port int, user, sshKeyPath, joinToken, k3sExtraArgs, k3sVersion, k3sChannel string, printCommand bool) error {
+func setupAgent(serverHost, host string, port int, user, sshKeyPath, joinToken, k3sExtraArgs, k3sVersion, k3sChannel string, printCommand bool, serverURL string) error {
 
 	address := fmt.Sprintf("%s:%d", host, port)
 
@@ -434,6 +444,7 @@ func setupAgent(serverHost, host string, port int, user, sshKeyPath, joinToken, 
 		installStr,
 		k3sExtraArgs,
 		serverAgent,
+		serverURL,
 	)
 
 	installAgentCommand := fmt.Sprintf("%s | %s", getScript, installK3sExec)
@@ -468,15 +479,19 @@ func createVersionStr(k3sVersion, k3sChannel string) string {
 	return installStr
 }
 
-func makeJoinExec(serverIP, joinToken, installStr, k3sExtraArgs string, serverAgent bool) string {
+func makeJoinExec(serverIP, joinToken, installStr, k3sExtraArgs string, serverAgent bool, serverURL string) string {
 
 	installEnvVar := []string{}
-	installEnvVar = append(installEnvVar, fmt.Sprintf("K3S_URL='https://%s:6443'", serverIP))
+	remoteURL := fmt.Sprintf("https://%s:6443", serverIP)
+	if len(serverURL) > 0 {
+		remoteURL = serverURL
+	}
+	installEnvVar = append(installEnvVar, fmt.Sprintf("K3S_URL='%s'", remoteURL))
 	installEnvVar = append(installEnvVar, fmt.Sprintf("K3S_TOKEN='%s'", joinToken))
 	installEnvVar = append(installEnvVar, installStr)
 
 	if serverAgent {
-		installEnvVar = append(installEnvVar, fmt.Sprintf("INSTALL_K3S_EXEC='server --server https://%s:6443'", serverIP))
+		installEnvVar = append(installEnvVar, fmt.Sprintf("INSTALL_K3S_EXEC='server --server %s'", remoteURL))
 	}
 
 	joinExec := strings.Join(installEnvVar, " ")
