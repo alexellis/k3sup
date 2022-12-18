@@ -15,6 +15,7 @@ import (
 	"github.com/alexellis/k3sup/pkg"
 	operator "github.com/alexellis/k3sup/pkg/operator"
 
+	"github.com/hashicorp/go-version"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
@@ -111,7 +112,7 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 	command.Flags().String("token", "", "the token used to encrypt the datastore, must be the same token for all nodes")
 
 	command.Flags().String("k3s-version", "", "Set a version to install, overrides k3s-channel")
-	command.Flags().String("k3s-extra-args", "", "Additional arguments to pass to k3s installer, wrapped in quotes (e.g. --k3s-extra-args '--no-deploy servicelb')")
+	command.Flags().String("k3s-extra-args", "", "Additional arguments to pass to k3s installer, wrapped in quotes (e.g. --k3s-extra-args '--disable servicelb')")
 	command.Flags().String("k3s-channel", PinnedK3sChannel, "Release channel: stable, latest, or pinned v1.19")
 
 	command.Flags().String("tls-san", "", "Use an additional IP or hostname for the API server")
@@ -236,7 +237,7 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 			}
 		}
 
-		installk3sExec := makeInstallExec(cluster, host, tlsSAN,
+		installk3sExec := makeInstallExec(cluster, host, tlsSAN, k3sVersion,
 			k3sExecOptions{
 				Datastore:    datastore,
 				Token:        token,
@@ -575,7 +576,7 @@ func rewriteKubeconfig(kubeconfig string, host string, context string) []byte {
 	return []byte(kubeconfigReplacer.Replace(kubeconfig))
 }
 
-func makeInstallExec(cluster bool, host, tlsSAN string, options k3sExecOptions) string {
+func makeInstallExec(cluster bool, host, tlsSAN string, k3sVersion string, options k3sExecOptions) string {
 	extraArgs := []string{}
 	if len(options.Datastore) > 0 {
 		extraArgs = append(extraArgs, fmt.Sprintf("--datastore-endpoint %s", options.Datastore))
@@ -586,8 +587,24 @@ func makeInstallExec(cluster bool, host, tlsSAN string, options k3sExecOptions) 
 	}
 
 	if options.NoExtras {
-		extraArgs = append(extraArgs, "--no-deploy servicelb")
-		extraArgs = append(extraArgs, "--no-deploy traefik")
+		// Quick check for default out-of-the-box behavior
+		if len(k3sVersion) == 0 {
+			extraArgs = append(extraArgs, "--disable servicelb")
+			extraArgs = append(extraArgs, "--disable traefik")
+			// If k3sVersion is present, perform a minimum version check
+		} else {
+			// --no-deploy was deprecated in 1.17.4+k3s1 and returns a fatal error in 1.25.x
+			v1, _ := version.NewVersion(k3sVersion)
+			v2, _ := version.NewVersion("1.17.4+k3s1")
+			if v1.LessThan(v2) {
+				extraArgs = append(extraArgs, "--no-deploy servicelb")
+				extraArgs = append(extraArgs, "--no-deploy traefik")
+			} else {
+				extraArgs = append(extraArgs, "--disable servicelb")
+				extraArgs = append(extraArgs, "--disable traefik")
+			}
+		}
+
 	}
 
 	extraArgs = append(extraArgs, options.ExtraArgs)

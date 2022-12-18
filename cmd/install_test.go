@@ -139,7 +139,7 @@ func Test_makeInstallExec(t *testing.T) {
 	k3sExtraArgs := ""
 	ip := "raspberrypi.local"
 	tlsSAN := ""
-	got := makeInstallExec(cluster, ip, tlsSAN,
+	got := makeInstallExec(cluster, ip, tlsSAN, "",
 		k3sExecOptions{
 			Datastore:    datastore,
 			FlannelIPSec: flannelIPSec,
@@ -160,7 +160,7 @@ func Test_makeInstallExec_Cluster(t *testing.T) {
 	k3sExtraArgs := ""
 	ip := "127.0.0.1"
 	tlsSAN := ""
-	got := makeInstallExec(cluster, ip, tlsSAN,
+	got := makeInstallExec(cluster, ip, tlsSAN, "",
 		k3sExecOptions{
 			Datastore:    datastore,
 			FlannelIPSec: flannelIPSec,
@@ -181,7 +181,7 @@ func Test_makeInstallExec_SAN(t *testing.T) {
 	k3sExtraArgs := ""
 	ip := "127.0.0.1"
 	tlsSAN := "192.168.0.1"
-	got := makeInstallExec(cluster, ip, tlsSAN,
+	got := makeInstallExec(cluster, ip, tlsSAN, "",
 		k3sExecOptions{
 			Datastore:    datastore,
 			FlannelIPSec: flannelIPSec,
@@ -202,7 +202,7 @@ func Test_makeInstallExec_IPSec(t *testing.T) {
 	k3sExtraArgs := ""
 	ip := "127.0.0.1"
 	tlsSAN := ""
-	got := makeInstallExec(cluster, ip, tlsSAN,
+	got := makeInstallExec(cluster, ip, tlsSAN, "",
 		k3sExecOptions{
 			Datastore:    datastore,
 			FlannelIPSec: flannelIPSec,
@@ -224,7 +224,7 @@ func Test_makeInstallExec_Datastore(t *testing.T) {
 	token := "this-token"
 	ip := "127.0.0.1"
 	tlsSAN := "192.168.0.1"
-	got := makeInstallExec(cluster, ip, tlsSAN,
+	got := makeInstallExec(cluster, ip, tlsSAN, "",
 		k3sExecOptions{
 			Datastore:    datastore,
 			Token:        token,
@@ -247,7 +247,7 @@ func Test_makeInstallExec_Datastore_NoExtras(t *testing.T) {
 	k3sExtraArgs := ""
 	ip := "raspberrypi.local"
 	tlsSAN := "192.168.0.1"
-	got := makeInstallExec(cluster, ip, tlsSAN,
+	got := makeInstallExec(cluster, ip, tlsSAN, "",
 		k3sExecOptions{
 			Datastore:    datastore,
 			Token:        token,
@@ -255,7 +255,7 @@ func Test_makeInstallExec_Datastore_NoExtras(t *testing.T) {
 			NoExtras:     k3sNoExtras,
 			ExtraArgs:    k3sExtraArgs,
 		})
-	want := "INSTALL_K3S_EXEC='server --tls-san 192.168.0.1 --datastore-endpoint mysql://doadmin:show-password@tcp(db-mysql-lon1-40939-do-user-2197152-0.b.db.ondigitalocean.com:25060)/defaultdb --token this-token --no-deploy servicelb --no-deploy traefik'"
+	want := "INSTALL_K3S_EXEC='server --tls-san 192.168.0.1 --datastore-endpoint mysql://doadmin:show-password@tcp(db-mysql-lon1-40939-do-user-2197152-0.b.db.ondigitalocean.com:25060)/defaultdb --token this-token --no-deploy servicelb --disable traefik'"
 	if got != want {
 		t.Errorf("want: %q, got: %q", want, got)
 	}
