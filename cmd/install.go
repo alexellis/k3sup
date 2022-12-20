@@ -68,7 +68,7 @@ func MakeInstall() *cobra.Command {
     --skip-install
 
   # Install a specific version on local machine without using SSH
-  k3sup install --local --k3s-version v1.19.7
+  k3sup install --local --k3s-version v1.25.1
 
   # Install, passing extra args to K3s
   k3sup install --local --k3s-extra-args="--data-dir /mnt/ssd/k3s"
@@ -111,7 +111,7 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 	command.Flags().String("token", "", "the token used to encrypt the datastore, must be the same token for all nodes")
 
 	command.Flags().String("k3s-version", "", "Set a version to install, overrides k3s-channel")
-	command.Flags().String("k3s-extra-args", "", "Additional arguments to pass to k3s installer, wrapped in quotes (e.g. --k3s-extra-args '--no-deploy servicelb')")
+	command.Flags().String("k3s-extra-args", "", "Additional arguments to pass to k3s installer, wrapped in quotes (e.g. --k3s-extra-args '--disable servicelb')")
 	command.Flags().String("k3s-channel", PinnedK3sChannel, "Release channel: stable, latest, or pinned v1.19")
 
 	command.Flags().String("tls-san", "", "Use an additional IP or hostname for the API server")
@@ -586,8 +586,8 @@ func makeInstallExec(cluster bool, host, tlsSAN string, options k3sExecOptions) 
 	}
 
 	if options.NoExtras {
-		extraArgs = append(extraArgs, "--no-deploy servicelb")
-		extraArgs = append(extraArgs, "--no-deploy traefik")
+		extraArgs = append(extraArgs, "--disable servicelb")
+		extraArgs = append(extraArgs, "--disable traefik")
 	}
 
 	extraArgs = append(extraArgs, options.ExtraArgs)

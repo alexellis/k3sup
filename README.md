@@ -161,7 +161,8 @@ Other options for `install`:
 * `--merge` - Merge config into existing file instead of overwriting (e.g. to add config to the default kubectl config, use `--local-path ~/.kube/config --merge`).
 * `--context` - default is `default` - set the name of the kubeconfig context.
 * `--ssh-port` - default is `22`, but you can specify an alternative port i.e. `2222`
-* `--k3s-extra-args` - Optional extra arguments to pass to k3s installer, wrapped in quotes, i.e. `--k3s-extra-args '--no-deploy traefik'` or `--k3s-extra-args '--docker'`. For multiple args combine then within single quotes `--k3s-extra-args '--no-deploy traefik --docker'`.
+* `--no-extras` - disable "servicelb" and "traefik"
+* `--k3s-extra-args` - Optional extra arguments to pass to k3s installer, wrapped in quotes, i.e. `--k3s-extra-args '--disable traefik'` or `--k3s-extra-args '--docker'`. For multiple args combine then within single quotes `--k3s-extra-args '--disable traefik --docker'`.
 * `--k3s-version` - set the specific version of k3s, i.e. `v1.21.1`
 * `--k3s-channel` - set a specific version of k3s based upon a channel i.e. `stable`
 - `--ipsec` - Enforces the optional extra argument for k3s: `--flannel-backend` option: `ipsec`
@@ -700,6 +701,8 @@ The most common problem is that you missed a step, fortunately it's relatively e
   - You have an RSA public key. There is an [underlying issue in a Go library](https://github.com/golang/go/issues/39885) which is [referred here](https://github.com/alexellis/k3sup/issues/63). Please provide the additional parameter `--ssh-key ~/.ssh/id_rsa` (or wherever your private key lives) until the issue is resolved.
   - You are using different usernames for SSH'ing to the server and the node to be added. In that case, playe provide the username for the server via the `--server-user` parameter.
 * Your `.ssh/config` file isn't being used by K3sup. K3sup does not use the config file used by the `ssh` command-line, but instead uses CLI flags, run `k3sup install/join --help` to learn which are supported.
+
+> Note: Passing `--no-deploy` to `--k3s-extra-args` was deprecated by the K3s installer in K3s 1.17. Use `--disable` instead or `--no-extras`.
 
 ### Support and k3sup for commercial use
 
