@@ -1,9 +1,3 @@
-## Are you a GitHub Sponsor?
-
-Only sponsors may open issues, all other issues (unless previously discussed agreed upon with a maintainer) will be closed without comment.
-
-Check at [https://github.com/sponsors/alexellis](https://github.com/sponsors/alexellis)
-
 <!--- Provide a general summary of the issue in the Title above -->
 
 ## Why do you need this?
@@ -57,9 +51,9 @@ uname -a
 cat /etc/os-release
 ```
 
-## "Be part of the solution"
+## Do you want to work on this?
 
-Subject to approval, are you willing to work on a Pull Request for this issue or feature request?
+Subject to design approval, are you willing to work on a Pull Request for this issue or feature request?
 
 - [ ] Yes
 - [ ] No

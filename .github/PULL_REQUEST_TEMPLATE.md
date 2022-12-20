@@ -1,9 +1,3 @@
-## Are you a GitHub Sponsor?
-
-Only sponsors may Pull Requests (PRs), all other PRs (unless previously discussed agreed upon with a maintainer) will be closed without comment.
-
-Check at [https://github.com/sponsors/alexellis](https://github.com/sponsors/alexellis)
-
 <!--- Provide a general summary of the issue in the Title above -->
 
 ## Why do you need this?
@@ -15,7 +9,6 @@ If you have no approval from a maintainer, close this PR and raise an issue.
 
 ## Description
 <!--- Describe your changes in detail -->
-
 
 ## How Has This Been Tested?
 <!--- Please describe in detail how you tested your changes. -->

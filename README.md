@@ -56,17 +56,15 @@ You may wonder why a tool like this needs to exist when you can do this sort of 
 
 k3sup was developed to automate what can be a very manual and confusing process for many developers, who are already short on time. Once you've provisioned a VM with your favourite tooling, `k3sup` means you are only 60 seconds away from running `kubectl get pods` on your own computer. If you are a local computer, you can bypass SSH with `k3sup install --local`
 
-## Do you love `k3sup`?
+## Do you use `k3sup`?
 
 <a href="https://github.com/sponsors/alexellis/">
 <img alt="Sponsor this project" src="https://github.com/alexellis/alexellis/blob/master/sponsor-today.png" width="90%">
 </a>
 
-`k3sup` was created by [Alex Ellis](https://github.com/users/alexellis/sponsorship) - the founder of [OpenFaaS &reg;](https://www.openfaas.com/) & [inlets](https://inlets.dev/).
+`k3sup` was created by [Alex Ellis](https://github.com/users/alexellis/sponsorship) - the founder of [OpenFaaS &reg;](https://www.openfaas.com/) & [inlets](https://inlets.dev/). 
 
-If you've benefitted from his open source projects or blog posts in some way, then and join dozens of other developers sponsoring him today.
-
-You can use K3sup for free under the terms of the license, however a monthly GitHub sponsorship is required to receive any form of support such as Issues or Pull Requests.
+If you use k3sup for personal or commercial use, sponsor Alex for continued maintenance and development of the project.
 
 [Sponsor alexellis on GitHub](https://github.com/users/alexellis/sponsorship)
 
@@ -703,14 +701,6 @@ The most common problem is that you missed a step, fortunately it's relatively e
 * Your `.ssh/config` file isn't being used by K3sup. K3sup does not use the config file used by the `ssh` command-line, but instead uses CLI flags, run `k3sup install/join --help` to learn which are supported.
 
 > Note: Passing `--no-deploy` to `--k3s-extra-args` was deprecated by the K3s installer in K3s 1.17. Use `--disable` instead or `--no-extras`.
-
-### Support and k3sup for commercial use
-
-* K3sup doesn't use a declarative YAML file to setup all my hosts. This is by design, feel free to write a very short bash script instead, it will be equivalent, since `k3sup install/join` can be run multiple times without side-effects. 
-* You want to setup a cluster using an SSH bastion host. This is a premium feature and requires a license.
-* You want to install K3s into an airgapped environment. This is a premium feature and requires a license.
-
-Finally, if you need any form of technical support, you must [first become a GitHub Sponsor](https://github.com/sponsors/alexellis) before raising an issue. All changes to K3sup must be proposed in an issue before a PR is sent, PRs without approved issues will be closed without comment.
 
 ### Getting access to your KUBECONFIG
 
