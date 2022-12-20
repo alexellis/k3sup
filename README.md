@@ -62,11 +62,11 @@ k3sup was developed to automate what can be a very manual and confusing process 
 <img alt="Sponsor this project" src="https://github.com/alexellis/alexellis/blob/master/sponsor-today.png" width="90%">
 </a>
 
-`k3sup` was created by [Alex Ellis](https://github.com/users/alexellis/sponsorship) - the founder of [OpenFaaS &reg;](https://www.openfaas.com/) & [inlets](https://inlets.dev/). Alex is also an active part of the Docker & Kubernetes community as a [CNCF Ambassador](https://www.cncf.io/people/ambassadors/).
+`k3sup` was created by [Alex Ellis](https://github.com/users/alexellis/sponsorship) - the founder of [OpenFaaS &reg;](https://www.openfaas.com/) & [inlets](https://inlets.dev/).
 
 If you've benefitted from his open source projects or blog posts in some way, then and join dozens of other developers sponsoring him today.
 
-A monthly sponsorship is required to receive any form of support such as Issues or Pull Requests.
+You can use K3sup for free under the terms of the license, however a monthly GitHub sponsorship is required to receive any form of support such as Issues or Pull Requests.
 
 [Sponsor alexellis on GitHub](https://github.com/users/alexellis/sponsorship)
 
