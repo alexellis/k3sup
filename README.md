@@ -58,15 +58,13 @@ k3sup was developed to automate what can be a very manual and confusing process 
 
 ## Do you use `k3sup`?
 
+`k3sup` was created by [Alex Ellis](https://github.com/users/alexellis/sponsorship) - the founder of [OpenFaaS &reg;](https://www.openfaas.com/) & [inlets](https://inlets.dev/). 
+
 <a href="https://github.com/sponsors/alexellis/">
 <img alt="Sponsor this project" src="https://github.com/alexellis/alexellis/blob/master/sponsor-today.png" width="90%">
 </a>
 
-`k3sup` was created by [Alex Ellis](https://github.com/users/alexellis/sponsorship) - the founder of [OpenFaaS &reg;](https://www.openfaas.com/) & [inlets](https://inlets.dev/). 
-
-If you use k3sup for personal or commercial use, sponsor Alex for continued maintenance and development of the project.
-
-[Sponsor alexellis on GitHub](https://github.com/users/alexellis/sponsorship)
+Want to see continued development? [Sponsor alexellis on GitHub](https://github.com/users/alexellis/sponsorship)
 
 ### Uses
 
