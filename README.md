@@ -187,10 +187,10 @@ Install K3s directly on the node and then check if it's ready:
 ```bash
 k3sup install \
   --local \
-  --context localk3
+  --context localk3s
 
 k3sup ready \
-  --context localk3 \
+  --context localk3s \
   --kubeconfig ./kubeconfig
 ```
 
