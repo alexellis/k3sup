@@ -232,19 +232,23 @@ func MakeJoin() *cobra.Command {
 			fmt.Printf("ssh: %s\n", getTokenCommand)
 		}
 
-		res, err := sshOperator.Execute(getTokenCommand)
+		streamToStdio := false
+		res, err := sshOperator.ExecuteStdio(getTokenCommand, streamToStdio)
 
 		if err != nil {
 			return errors.Wrap(err, "unable to get join-token from server")
 		}
 
 		if len(res.StdErr) > 0 {
-			fmt.Printf("Logs: %s", res.StdErr)
+			fmt.Printf("Error or warning getting node-token: %s\n", res.StdErr)
+		} else {
+			fmt.Printf("Received node-token from %s.. ok.\n", serverHost)
 		}
 
 		if closeSSHAgent != nil {
 			closeSSHAgent()
 		}
+
 		sshOperator.Close()
 
 		joinToken := string(res.StdOut)
