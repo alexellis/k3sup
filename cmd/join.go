@@ -117,9 +117,9 @@ func MakeJoin() *cobra.Command {
 			return err
 		}
 
-		fmt.Println("Server IP: " + serverHost)
+		fmt.Println("Agent: %s Server: "+host, serverHost)
 		if len(serverURL) > 0 {
-			fmt.Println("Server URL: " + serverURL)
+			fmt.Println("Server join URL: " + serverURL)
 		}
 
 		user, _ := command.Flags().GetString("user")
