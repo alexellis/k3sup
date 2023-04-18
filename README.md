@@ -9,9 +9,9 @@ The tool is written in Go and is cross-compiled for Linux, Windows, MacOS and ev
 How do you say it? Ketchup, as in tomato.
 
 [![Sponsor this](https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub&link=https://github.com/sponsors/alexellis)](https://github.com/sponsors/alexellis)
+[![Github All Releases](https://img.shields.io/github/downloads/alexellis/k3sup/total.svg)]()
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![build](https://github.com/alexellis/k3sup/actions/workflows/build.yaml/badge.svg)](https://github.com/alexellis/k3sup/actions/workflows/build.yaml)
-[![GoDoc](https://godoc.org/github.com/alexellis/k3sup?status.svg)](https://godoc.org/github.com/alexellis/k3sup) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-![Downloads](https://img.shields.io/github/downloads/alexellis/k3sup/total)
 
 ## Contents:
 - [k3sup 🚀 (said 'ketchup')](#k3sup--said-ketchup)
