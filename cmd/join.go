@@ -69,6 +69,8 @@ func MakeJoin() *cobra.Command {
 	command.Flags().String("k3s-version", "", "Set a version to install, overrides k3s-channel")
 	command.Flags().String("k3s-channel", PinnedK3sChannel, "Release channel: stable, latest, or i.e. v1.19")
 
+	command.Flags().String("tls-san", "", "Use an additional IP or hostname for the API server, when using --server flag")
+
 	command.Flags().String("server-data-dir", "/var/lib/rancher/k3s/", "Override the path used to fetch the node-token from the server")
 
 	command.RunE = func(command *cobra.Command, args []string) error {
@@ -117,9 +119,9 @@ func MakeJoin() *cobra.Command {
 			return err
 		}
 
-		fmt.Println("Agent: %s Server: "+host, serverHost)
+		fmt.Printf("Agent: %s Server: %s\n", serverHost, host)
 		if len(serverURL) > 0 {
-			fmt.Println("Server join URL: " + serverURL)
+			fmt.Printf("Server join URL: %s\n", serverURL)
 		}
 
 		user, _ := command.Flags().GetString("user")
@@ -255,7 +257,9 @@ func MakeJoin() *cobra.Command {
 
 		var boostrapErr error
 		if server {
-			boostrapErr = setupAdditionalServer(serverHost, host, port, user, sshKeyPath, joinToken, k3sExtraArgs, k3sVersion, k3sChannel, printCommand, serverURL)
+			tlsSan, _ := command.Flags().GetString("tls-san")
+
+			boostrapErr = setupAdditionalServer(serverHost, host, port, user, sshKeyPath, joinToken, k3sExtraArgs, k3sVersion, k3sChannel, tlsSan, printCommand, serverURL)
 		} else {
 			boostrapErr = setupAgent(serverHost, host, port, user, sshKeyPath, joinToken, k3sExtraArgs, k3sVersion, k3sChannel, printCommand, serverURL)
 		}
@@ -294,13 +298,30 @@ func MakeJoin() *cobra.Command {
 			return err
 		}
 
+		tlsSan, err := command.Flags().GetString("tls-san")
+		if err != nil {
+			return err
+		}
+
+		if len(tlsSan) > 0 {
+			server, err := command.Flags().GetBool("server")
+			if err != nil {
+				return err
+			}
+
+			if !server {
+				return fmt.Errorf("--tls-san can only be used with --server")
+			}
+
+		}
+
 		return nil
 	}
 
 	return command
 }
 
-func setupAdditionalServer(serverHost, host string, port int, user, sshKeyPath, joinToken, k3sExtraArgs, k3sVersion, k3sChannel string, printCommand bool, serverURL string) error {
+func setupAdditionalServer(serverHost, host string, port int, user, sshKeyPath, joinToken, k3sExtraArgs, k3sVersion, k3sChannel, tlsSAN string, printCommand bool, serverURL string) error {
 	address := fmt.Sprintf("%s:%d", host, port)
 
 	var sshOperator *operator.SSHOperator
@@ -362,6 +383,7 @@ func setupAdditionalServer(serverHost, host string, port int, user, sshKeyPath, 
 		k3sExtraArgs,
 		serverAgent,
 		serverURL,
+		tlsSAN,
 	)
 
 	installAgentServerCommand := fmt.Sprintf("%s | %s", getScript, installk3sExec)
@@ -442,6 +464,8 @@ func setupAgent(serverHost, host string, port int, user, sshKeyPath, joinToken, 
 
 	serverAgent := false
 
+	// Agents don't expose an API server so don't need a TLS SAN
+	tlsSAN := ""
 	installK3sExec := makeJoinExec(
 		serverHost,
 		strings.TrimSpace(joinToken),
@@ -449,6 +473,7 @@ func setupAgent(serverHost, host string, port int, user, sshKeyPath, joinToken, 
 		k3sExtraArgs,
 		serverAgent,
 		serverURL,
+		tlsSAN,
 	)
 
 	installAgentCommand := fmt.Sprintf("%s | %s", getScript, installK3sExec)
@@ -483,7 +508,7 @@ func createVersionStr(k3sVersion, k3sChannel string) string {
 	return installStr
 }
 
-func makeJoinExec(serverIP, joinToken, installStr, k3sExtraArgs string, serverAgent bool, serverURL string) string {
+func makeJoinExec(serverIP, joinToken, installStr, k3sExtraArgs string, serverAgent bool, serverURL, tlsSan string) string {
 
 	installEnvVar := []string{}
 	remoteURL := fmt.Sprintf("https://%s:6443", serverIP)
@@ -495,7 +520,11 @@ func makeJoinExec(serverIP, joinToken, installStr, k3sExtraArgs string, serverAg
 	installEnvVar = append(installEnvVar, installStr)
 
 	if serverAgent {
-		installEnvVar = append(installEnvVar, fmt.Sprintf("INSTALL_K3S_EXEC='server --server %s'", remoteURL))
+		tlsSANValue := ""
+		if len(tlsSan) > 0 {
+			tlsSANValue = fmt.Sprintf(" --tls-san %s", tlsSan)
+		}
+		installEnvVar = append(installEnvVar, fmt.Sprintf("INSTALL_K3S_EXEC='server --server %s%s'", remoteURL, tlsSANValue))
 	}
 
 	joinExec := strings.Join(installEnvVar, " ")
