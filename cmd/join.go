@@ -253,22 +253,21 @@ func MakeJoin() *cobra.Command {
 
 		sshOperator.Close()
 
-		joinToken := string(res.StdOut)
+		joinToken := strings.TrimSpace(string(res.StdOut))
 
-		var boostrapErr error
 		if server {
 			tlsSan, _ := command.Flags().GetString("tls-san")
 
-			boostrapErr = setupAdditionalServer(serverHost, host, port, user, sshKeyPath, joinToken, k3sExtraArgs, k3sVersion, k3sChannel, tlsSan, printCommand, serverURL)
+			err = setupAdditionalServer(serverHost, host, port, user, sshKeyPath, joinToken, k3sExtraArgs, k3sVersion, k3sChannel, tlsSan, printCommand, serverURL)
 		} else {
-			boostrapErr = setupAgent(serverHost, host, port, user, sshKeyPath, joinToken, k3sExtraArgs, k3sVersion, k3sChannel, printCommand, serverURL)
+			err = setupAgent(serverHost, host, port, user, sshKeyPath, joinToken, k3sExtraArgs, k3sVersion, k3sChannel, printCommand, serverURL)
 		}
 
-		if boostrapErr == nil {
+		if err == nil {
 			fmt.Printf("\n%s\n", pkg.SupportMessageShort)
 		}
 
-		return boostrapErr
+		return err
 	}
 
 	command.PreRunE = func(command *cobra.Command, args []string) error {
@@ -452,7 +451,6 @@ func setupAgent(serverHost, host string, port int, user, sshKeyPath, joinToken, 
 		}
 
 		sshOperator, err = operator.NewSSHOperator(address, config)
-
 		if err != nil {
 			return errors.Wrapf(err, "unable to connect to %s over ssh", address)
 		}
@@ -515,6 +513,7 @@ func makeJoinExec(serverIP, joinToken, installStr, k3sExtraArgs string, serverAg
 	if len(serverURL) > 0 {
 		remoteURL = serverURL
 	}
+
 	installEnvVar = append(installEnvVar, fmt.Sprintf("K3S_URL='%s'", remoteURL))
 	installEnvVar = append(installEnvVar, fmt.Sprintf("K3S_TOKEN='%s'", joinToken))
 	installEnvVar = append(installEnvVar, installStr)
@@ -531,7 +530,9 @@ func makeJoinExec(serverIP, joinToken, installStr, k3sExtraArgs string, serverAg
 	joinExec += " sh -s -"
 
 	if len(k3sExtraArgs) > 0 {
-		installEnvVar = append(installEnvVar, k3sExtraArgs)
+		// AE: this doesn't seem to be used
+		// installEnvVar = append(installEnvVar, k3sExtraArgs)
+
 		joinExec += fmt.Sprintf(" %s", k3sExtraArgs)
 	}
 
