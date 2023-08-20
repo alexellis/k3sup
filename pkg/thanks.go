@@ -10,4 +10,4 @@ package pkg
 // to get a response. I know that you wouldn't work for free.
 //
 // Alex
-const SupportMessageShort = `🐳 k3sup needs your support: https://github.com/sponsors/alexellis`
+const SupportMessageShort = `🚀 Get a 2-3x speed up for CI whilst reducing costs. https://actuated.dev`
