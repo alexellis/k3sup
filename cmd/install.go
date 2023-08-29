@@ -15,8 +15,9 @@ import (
 	"github.com/alexellis/k3sup/pkg"
 	operator "github.com/alexellis/k3sup/pkg/operator"
 
+	"errors"
+
 	homedir "github.com/mitchellh/go-homedir"
-	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/crypto/ssh/agent"
@@ -323,7 +324,7 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 		if initialSSHErr != nil {
 			publicKeyFileAuth, closeSSHAgent, err := loadPublickey(sshKeyPath)
 			if err != nil {
-				return errors.Wrapf(err, "unable to load the ssh key with path %q", sshKeyPath)
+				return fmt.Errorf("unable to load the ssh key with path %q: %w", sshKeyPath, err)
 			}
 
 			defer closeSSHAgent()
@@ -335,9 +336,8 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 			}
 
 			sshOperator, err = operator.NewSSHOperator(address, config)
-
 			if err != nil {
-				return errors.Wrapf(err, "unable to connect to %s over ssh", address)
+				return fmt.Errorf("unable to connect to %s over ssh: %w", address, err)
 			}
 		}
 

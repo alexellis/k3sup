@@ -7,9 +7,10 @@ import (
 	"runtime"
 	"strings"
 
+	"errors"
+
 	"github.com/alexellis/k3sup/pkg"
 	operator "github.com/alexellis/k3sup/pkg/operator"
-	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"golang.org/x/crypto/ssh"
 )
@@ -196,7 +197,7 @@ func MakeJoin() *cobra.Command {
 				sshOperator, initialSSHErr = operator.NewSSHOperator(address, config)
 			}
 		} else {
-			initialSSHErr = errors.New("ssh-agent unsupported on windows")
+			initialSSHErr = fmt.Errorf("ssh-agent unsupported on windows")
 		}
 
 		// If the initial connection attempt fails fall through to the using
@@ -207,7 +208,7 @@ func MakeJoin() *cobra.Command {
 			var err error
 			publicKeyFileAuth, closeSSHAgent, err = loadPublickey(sshKeyPath)
 			if err != nil {
-				return errors.Wrapf(err, "unable to load the ssh key with path %q", sshKeyPath)
+				return fmt.Errorf("unable to load the ssh key with path %q: %w", sshKeyPath, err)
 			}
 
 			defer closeSSHAgent()
@@ -223,7 +224,7 @@ func MakeJoin() *cobra.Command {
 			sshOperator, err = operator.NewSSHOperator(address, config)
 
 			if err != nil {
-				return errors.Wrapf(err, "unable to connect to (server) %s over ssh", address)
+				return fmt.Errorf("unable to connect to (server) %s over ssh: %w", address, err)
 			}
 		}
 
@@ -238,7 +239,7 @@ func MakeJoin() *cobra.Command {
 		res, err := sshOperator.ExecuteStdio(getTokenCommand, streamToStdio)
 
 		if err != nil {
-			return errors.Wrap(err, "unable to get join-token from server")
+			return fmt.Errorf("unable to get join-token from server: %w", err)
 		}
 
 		if len(res.StdErr) > 0 {
@@ -350,7 +351,7 @@ func setupAdditionalServer(serverHost, host string, port int, user, sshKeyPath, 
 	if initialSSHErr != nil {
 		publicKeyFileAuth, closeSSHAgent, err := loadPublickey(sshKeyPath)
 		if err != nil {
-			return errors.Wrapf(err, "unable to load the ssh key with path %q", sshKeyPath)
+			return fmt.Errorf("unable to load the ssh key with path %q: %w", sshKeyPath, err)
 		}
 
 		defer closeSSHAgent()
@@ -366,7 +367,7 @@ func setupAdditionalServer(serverHost, host string, port int, user, sshKeyPath, 
 		sshOperator, err = operator.NewSSHOperator(address, config)
 
 		if err != nil {
-			return errors.Wrapf(err, "unable to connect to %s over ssh as %s", address, user)
+			return fmt.Errorf("unable to connect to %s over ssh as %s: %w", address, user, err)
 		}
 	}
 
@@ -393,7 +394,7 @@ func setupAdditionalServer(serverHost, host string, port int, user, sshKeyPath, 
 
 	res, err := sshOperator.Execute(installAgentServerCommand)
 	if err != nil {
-		return errors.Wrap(err, "unable to setup agent")
+		return fmt.Errorf("unable to setup agent: %w", err)
 	}
 
 	if len(res.StdErr) > 0 {
@@ -437,7 +438,7 @@ func setupAgent(serverHost, host string, port int, user, sshKeyPath, joinToken, 
 	if initialSSHErr != nil {
 		publicKeyFileAuth, closeSSHAgent, err := loadPublickey(sshKeyPath)
 		if err != nil {
-			return errors.Wrapf(err, "unable to load the ssh key with path %q", sshKeyPath)
+			return fmt.Errorf("unable to load the ssh key with path %q: %w", sshKeyPath, err)
 		}
 
 		defer closeSSHAgent()
@@ -452,7 +453,7 @@ func setupAgent(serverHost, host string, port int, user, sshKeyPath, joinToken, 
 
 		sshOperator, err = operator.NewSSHOperator(address, config)
 		if err != nil {
-			return errors.Wrapf(err, "unable to connect to %s over ssh", address)
+			return fmt.Errorf("unable to connect to %s over ssh: %w", address, err)
 		}
 	}
 
@@ -483,7 +484,7 @@ func setupAgent(serverHost, host string, port int, user, sshKeyPath, joinToken, 
 	res, err := sshOperator.Execute(installAgentCommand)
 
 	if err != nil {
-		return errors.Wrap(err, "unable to setup agent")
+		return fmt.Errorf("unable to setup agent: %w", err)
 	}
 
 	if len(res.StdErr) > 0 {
