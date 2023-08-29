@@ -3,7 +3,7 @@ Version := $(shell git describe --tags --dirty)
 GitCommit := $(shell git rev-parse HEAD)
 LDFLAGS := "-s -w -X github.com/alexellis/k3sup/cmd.Version=$(Version) -X github.com/alexellis/k3sup/cmd.GitCommit=$(GitCommit)"
 export GO111MODULE=on
-SOURCE_DIRS = cmd pkg main.go
+SOURCE_DIRS = main.go cmd pkg
 
 .PHONY: all
 all: gofmt test dist hash
@@ -13,8 +13,8 @@ test:
 	CGO_ENABLED=0 go test $(shell go list ./... | grep -v /vendor/|xargs echo) -cover
 
 .PHONY: gofmt
-gofmt: 
-	@test -z $(shell gofmt -l -s $(SOURCE_DIRS) ./ | tee /dev/stderr) || (echo "[WARN] Fix formatting issues with 'make fmt'" && exit 1)
+gofmt:
+	@test -z $(shell gofmt -l $(SOURCE_DIRS) ./ | grep -v vendor/| tee /dev/stderr) || (echo "[WARN] Fix formatting issues with 'make gofmt'" && exit 1)
 
 .PHONY: dist
 dist:
