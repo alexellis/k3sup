@@ -3,7 +3,6 @@ package cmd
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net"
 	"os"
@@ -428,7 +427,7 @@ kubectl get node -o wide
 			pkg.SupportMessageShort)
 	}
 
-	if err := ioutil.WriteFile(absPath, []byte(data), 0600); err != nil {
+	if err := os.WriteFile(absPath, []byte(data), 0600); err != nil {
 		return err
 	}
 
@@ -437,7 +436,7 @@ kubectl get node -o wide
 
 func mergeConfigs(localKubeconfigPath, context string, k3sconfig []byte) ([]byte, error) {
 	// Create a temporary kubeconfig to store the config of the newly create k3s cluster
-	file, err := ioutil.TempFile(os.TempDir(), "k3s-temp-*")
+	file, err := os.CreateTemp(os.TempDir(), "k3s-temp-*")
 	if err != nil {
 		return nil, fmt.Errorf("could not generate a temporary file to store the kubeconfig: %w", err)
 	}
@@ -498,7 +497,7 @@ func sshAgent(publicKeyPath string) (ssh.AuthMethod, func() error) {
 			return nil, sshAgentConn.Close
 		}
 
-		pubkey, err := ioutil.ReadFile(publicKeyPath)
+		pubkey, err := os.ReadFile(publicKeyPath)
 		if err != nil {
 			return nil, sshAgentConn.Close
 		}
@@ -521,7 +520,7 @@ func sshAgent(publicKeyPath string) (ssh.AuthMethod, func() error) {
 func loadPublickey(path string) (ssh.AuthMethod, func() error, error) {
 	noopCloseFunc := func() error { return nil }
 
-	key, err := ioutil.ReadFile(path)
+	key, err := os.ReadFile(path)
 	if err != nil {
 		return nil, noopCloseFunc, fmt.Errorf("unable to read file: %s, %s", path, err)
 	}

@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"errors"
-	"io/ioutil"
 	"os"
 	"regexp"
 	"strings"
@@ -48,7 +47,7 @@ kfFJfrUjElq6Bx9oPPxc2vD40gqnYL57A+Y+X+A0kL4fO7pfh2VxOw==
 func Test_loadPublickeyEncrypted(t *testing.T) {
 	want := &ssh.PassphraseMissingError{}
 
-	tmpfile, err := ioutil.TempFile("", "key")
+	tmpfile, err := os.CreateTemp("", "key")
 	if err != nil {
 		t.Error(err)
 	}
