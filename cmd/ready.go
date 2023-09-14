@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	execute "github.com/alexellis/go-execute/pkg/v1"
+	execute "github.com/alexellis/go-execute/v2"
 	"github.com/alexellis/k3sup/pkg"
 	"github.com/spf13/cobra"
 )
@@ -74,7 +74,7 @@ func MakeReady() *cobra.Command {
 				StreamStdio: false,
 			}
 
-			res, err := task.Execute()
+			res, err := task.Execute(cmd.Context())
 			if err != nil {
 				return err
 			}

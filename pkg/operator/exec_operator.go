@@ -1,7 +1,9 @@
 package ssh
 
 import (
-	goexecute "github.com/alexellis/go-execute/pkg/v1"
+	"context"
+
+	goexecute "github.com/alexellis/go-execute/v2"
 )
 
 // ExecOperator executes commands on the local machine directly
@@ -15,7 +17,7 @@ func (ex ExecOperator) ExecuteStdio(command string, stream bool) (CommandRes, er
 		StreamStdio: stream,
 	}
 
-	res, err := task.Execute()
+	res, err := task.Execute(context.Background())
 	if err != nil {
 		return CommandRes{}, err
 	}
