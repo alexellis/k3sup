@@ -1,13 +1,4 @@
 package pkg
 
-// SupportMessageShort is an attempt to connect with the hundreds if not more
-// of developers who use k3sup for free and do not support it in any way.
-//
-// Development comes at a real and personal cost, and is not funded by any
-// company.
-//
-// If you're asking for my for time and support, you will need to be sponsor
-// to get a response. I know that you wouldn't work for free.
-//
-// Alex
-const SupportMessageShort = `🚀 Get a 2-3x speed up for CI whilst reducing costs. https://actuated.dev`
+// SupportMessageShort is how to support k3sup's ongoing development.
+const SupportMessageShort = `🚀 Speed up GitHub Actions/GitLab CI + reduce costs: https://actuated.dev`
