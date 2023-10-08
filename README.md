@@ -111,7 +111,7 @@ The `k3sup` tool is a client application which you can run on your own computer.
 
 ## Pre-requisites for k3sup servers and agents
 
-Some Linux hosts are configured to allow `sudo` to run without having to repeat your password. For those which are not already configured that way, you'll nee to make the following changes if you wish to use `k3sup`:
+Some Linux hosts are configured to allow `sudo` to run without having to repeat your password. For those which are not already configured that way, you'll need to make the following changes if you wish to use `k3sup`:
 
 ```bash
 # sudo visudo
