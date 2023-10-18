@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"net"
+	"os"
 	"path"
 	"runtime"
 	"strings"
@@ -65,6 +66,7 @@ func MakeJoin() *cobra.Command {
 
 	command.Flags().Bool("server", false, "Join the cluster as a server rather than as an agent for the embedded etcd mode")
 	command.Flags().Bool("print-command", false, "Print a command that you can use with SSH to manually recover from an error")
+	command.Flags().String("node-token-path", "", "prefetched token used by nodes to join the cluster")
 
 	command.Flags().String("k3s-extra-args", "", "Additional arguments to pass to k3s installer, wrapped in quotes (e.g. --k3s-extra-args '--node-taint key=value:NoExecute')")
 	command.Flags().String("k3s-version", "", "Set a version to install, overrides k3s-channel")
@@ -82,6 +84,18 @@ func MakeJoin() *cobra.Command {
 			return err
 		}
 
+		var nodeToken string
+
+		nodeTokenPath, _ := command.Flags().GetString("node-token-path")
+		if len(nodeTokenPath) > 0 {
+			data, err := os.ReadFile(nodeTokenPath)
+			if err != nil {
+				return err
+			}
+
+			nodeToken = strings.TrimSpace(string(data))
+		}
+
 		host, err := command.Flags().GetString("host")
 		if err != nil {
 			return err
@@ -94,6 +108,7 @@ func MakeJoin() *cobra.Command {
 		if err != nil {
 			return err
 		}
+
 		if len(dataDir) == 0 {
 			return fmt.Errorf("--server-data-dir must be set")
 		}
@@ -174,94 +189,53 @@ func MakeJoin() *cobra.Command {
 		if useSudo {
 			sudoPrefix = "sudo "
 		}
-
 		sshKeyPath := expandPath(sshKey)
-		address := fmt.Sprintf("%s:%d", serverHost, serverPort)
 
-		var sshOperator *operator.SSHOperator
-		var initialSSHErr error
-		if runtime.GOOS != "windows" {
+		if len(nodeToken) == 0 {
+			address := fmt.Sprintf("%s:%d", serverHost, serverPort)
 
-			var sshAgentAuthMethod ssh.AuthMethod
-			sshAgentAuthMethod, initialSSHErr = sshAgentOnly()
-			if initialSSHErr == nil {
-				// Try SSH agent without parsing key files, will succeed if the user
-				// has already added a key to the SSH Agent, or if using a configured
-				// smartcard
-				config := &ssh.ClientConfig{
-					User:            serverUser,
-					Auth:            []ssh.AuthMethod{sshAgentAuthMethod},
-					HostKeyCallback: ssh.InsecureIgnoreHostKey(),
-				}
-
-				sshOperator, initialSSHErr = operator.NewSSHOperator(address, config)
-			}
-		} else {
-			initialSSHErr = fmt.Errorf("ssh-agent unsupported on windows")
-		}
-
-		// If the initial connection attempt fails fall through to the using
-		// the supplied/default private key file
-		var publicKeyFileAuth ssh.AuthMethod
-		var closeSSHAgent func() error
-		if initialSSHErr != nil {
-			var err error
-			publicKeyFileAuth, closeSSHAgent, err = loadPublickey(sshKeyPath)
-			if err != nil {
-				return fmt.Errorf("unable to load the ssh key with path %q: %w", sshKeyPath, err)
+			sshOperator, sshOperatorDone, errored, err := connectOperator(serverUser, address, sshKeyPath)
+			if errored {
+				return err
 			}
 
-			defer closeSSHAgent()
-
-			config := &ssh.ClientConfig{
-				User: serverUser,
-				Auth: []ssh.AuthMethod{
-					publicKeyFileAuth,
-				},
-				HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+			if sshOperatorDone != nil {
+				defer sshOperatorDone()
 			}
 
-			sshOperator, err = operator.NewSSHOperator(address, config)
+			getTokenCommand := fmt.Sprintf("%scat %s\n", sudoPrefix, path.Join(dataDir, "/server/node-token"))
+			if printCommand {
+				fmt.Printf("ssh: %s\n", getTokenCommand)
+			}
+
+			streamToStdio := false
+			res, err := sshOperator.ExecuteStdio(getTokenCommand, streamToStdio)
 
 			if err != nil {
-				return fmt.Errorf("unable to connect to (server) %s over ssh: %w", address, err)
+				return fmt.Errorf("unable to get join-token from server: %w", err)
 			}
+
+			if len(res.StdErr) > 0 {
+				fmt.Printf("Error or warning getting node-token: %s\n", res.StdErr)
+			} else {
+				fmt.Printf("Received node-token from %s.. ok.\n", serverHost)
+			}
+
+			// Explicit close of the SSH connection as early as possible
+			// which complements the defer
+			if sshOperatorDone != nil {
+				sshOperatorDone()
+			}
+
+			nodeToken = strings.TrimSpace(string(res.StdOut))
 		}
-
-		defer sshOperator.Close()
-
-		getTokenCommand := fmt.Sprintf("%scat %s\n", sudoPrefix, path.Join(dataDir, "/server/node-token"))
-		if printCommand {
-			fmt.Printf("ssh: %s\n", getTokenCommand)
-		}
-
-		streamToStdio := false
-		res, err := sshOperator.ExecuteStdio(getTokenCommand, streamToStdio)
-
-		if err != nil {
-			return fmt.Errorf("unable to get join-token from server: %w", err)
-		}
-
-		if len(res.StdErr) > 0 {
-			fmt.Printf("Error or warning getting node-token: %s\n", res.StdErr)
-		} else {
-			fmt.Printf("Received node-token from %s.. ok.\n", serverHost)
-		}
-
-		if closeSSHAgent != nil {
-			closeSSHAgent()
-		}
-
-		sshOperator.Close()
-
-		joinToken := strings.TrimSpace(string(res.StdOut))
 
 		if server {
 			tlsSan, _ := command.Flags().GetString("tls-san")
 
-			err = setupAdditionalServer(serverHost, host, port, user, sshKeyPath, joinToken, k3sExtraArgs, k3sVersion, k3sChannel, tlsSan, printCommand, serverURL)
+			err = setupAdditionalServer(serverHost, host, port, user, sshKeyPath, nodeToken, k3sExtraArgs, k3sVersion, k3sChannel, tlsSan, printCommand, serverURL)
 		} else {
-			err = setupAgent(serverHost, host, port, user, sshKeyPath, joinToken, k3sExtraArgs, k3sVersion, k3sChannel, printCommand, serverURL)
+			err = setupAgent(serverHost, host, port, user, sshKeyPath, nodeToken, k3sExtraArgs, k3sVersion, k3sChannel, printCommand, serverURL)
 		}
 
 		if err == nil {

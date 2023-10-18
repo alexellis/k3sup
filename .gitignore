@@ -5,3 +5,6 @@ kubeconfig
 .idea/
 mc
 /install.sh
+/*.json
+*.txt
+/bootstrap.sh

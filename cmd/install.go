@@ -20,7 +20,7 @@ import (
 	"github.com/spf13/cobra"
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/crypto/ssh/agent"
-	"golang.org/x/crypto/ssh/terminal"
+	"golang.org/x/term"
 )
 
 var kubeconfig []byte
@@ -117,6 +117,7 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 	command.Flags().String("tls-san", "", "Use an additional IP or hostname for the API server")
 
 	command.PreRunE = func(command *cobra.Command, args []string) error {
+
 		local, err := command.Flags().GetBool("local")
 		if err != nil {
 			return err
@@ -286,61 +287,24 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 			return nil
 		}
 
-		port, _ := command.Flags().GetInt("ssh-port")
-
 		fmt.Println("Public IP: " + host)
 
+		port, _ := command.Flags().GetInt("ssh-port")
 		user, _ := command.Flags().GetString("user")
 		sshKey, _ := command.Flags().GetString("ssh-key")
 
 		sshKeyPath := expandPath(sshKey)
 		address := fmt.Sprintf("%s:%d", host, port)
 
-		var sshOperator *operator.SSHOperator
-		var initialSSHErr error
-		if runtime.GOOS != "windows" {
-
-			var sshAgentAuthMethod ssh.AuthMethod
-			sshAgentAuthMethod, initialSSHErr = sshAgentOnly()
-			if initialSSHErr == nil {
-				// Try SSH agent without parsing key files, will succeed if the user
-				// has already added a key to the SSH Agent, or if using a configured
-				// smartcard
-				config := &ssh.ClientConfig{
-					User:            user,
-					Auth:            []ssh.AuthMethod{sshAgentAuthMethod},
-					HostKeyCallback: ssh.InsecureIgnoreHostKey(),
-				}
-
-				sshOperator, initialSSHErr = operator.NewSSHOperator(address, config)
-			}
-		} else {
-			initialSSHErr = errors.New("ssh-agent unsupported on windows")
+		sshOperator, sshOperatorDone, errored, err := connectOperator(user, address, sshKeyPath)
+		if errored {
+			return err
 		}
 
-		// If the initial connection attempt fails fall through to the using
-		// the supplied/default private key file
-		if initialSSHErr != nil {
-			publicKeyFileAuth, closeSSHAgent, err := loadPublickey(sshKeyPath)
-			if err != nil {
-				return fmt.Errorf("unable to load the ssh key with path %q: %w", sshKeyPath, err)
-			}
+		if sshOperatorDone != nil {
 
-			defer closeSSHAgent()
-
-			config := &ssh.ClientConfig{
-				User:            user,
-				Auth:            []ssh.AuthMethod{publicKeyFileAuth},
-				HostKeyCallback: ssh.InsecureIgnoreHostKey(),
-			}
-
-			sshOperator, err = operator.NewSSHOperator(address, config)
-			if err != nil {
-				return fmt.Errorf("unable to connect to %s over ssh: %w", address, err)
-			}
+			defer sshOperatorDone()
 		}
-
-		defer sshOperator.Close()
 
 		if !skipInstall {
 
@@ -360,6 +324,7 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 		if printCommand {
 			fmt.Printf("ssh: %s\n", getConfigcommand)
 		}
+
 		if err = obtainKubeconfig(sshOperator, getConfigcommand, host, context, localKubeconfig, merge, printConfig); err != nil {
 			return err
 		}
@@ -368,6 +333,71 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 	}
 
 	return command
+}
+
+type DoneFunc func()
+
+// connectOperator
+//
+// Try SSH agent without parsing key files, will succeed if the user
+// has already added a key to the SSH Agent, or if using a configured
+// smartcard.
+//
+// If the initial connection attempt fails fall through to the using
+// the supplied/default private key file
+// DoneFunc should be called by the caller to close the SSH connection when done
+func connectOperator(user string, address string, sshKeyPath string) (*operator.SSHOperator, DoneFunc, bool, error) {
+	var sshOperator *operator.SSHOperator
+	var initialSSHErr error
+	var closeSSHAgentFunc func() error
+
+	doneFunc := func() {
+		if sshOperator != nil {
+			sshOperator.Close()
+		}
+		if closeSSHAgentFunc != nil {
+			closeSSHAgentFunc()
+		}
+	}
+
+	if runtime.GOOS != "windows" {
+		var sshAgentAuthMethod ssh.AuthMethod
+		sshAgentAuthMethod, initialSSHErr = sshAgentOnly()
+		if initialSSHErr == nil {
+
+			config := &ssh.ClientConfig{
+				User:            user,
+				Auth:            []ssh.AuthMethod{sshAgentAuthMethod},
+				HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+			}
+
+			sshOperator, initialSSHErr = operator.NewSSHOperator(address, config)
+		}
+	} else {
+		initialSSHErr = errors.New("ssh-agent unsupported on windows")
+	}
+
+	if initialSSHErr != nil {
+		publicKeyFileAuth, closeSSHAgent, err := loadPublickey(sshKeyPath)
+		if err != nil {
+			return nil, nil, true, fmt.Errorf("unable to load the ssh key with path %q: %w", sshKeyPath, err)
+		}
+
+		defer closeSSHAgent()
+
+		config := &ssh.ClientConfig{
+			User:            user,
+			Auth:            []ssh.AuthMethod{publicKeyFileAuth},
+			HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+		}
+
+		sshOperator, err = operator.NewSSHOperator(address, config)
+		if err != nil {
+			return nil, nil, true, fmt.Errorf("unable to connect to %s over ssh: %w", address, err)
+		}
+	}
+
+	return sshOperator, doneFunc, false, nil
 }
 
 func sshAgentOnly() (ssh.AuthMethod, error) {
@@ -540,7 +570,7 @@ func loadPublickey(path string) (ssh.AuthMethod, func() error, error) {
 
 		fmt.Printf("Enter passphrase for '%s': ", path)
 		STDIN := int(os.Stdin.Fd())
-		bytePassword, _ := terminal.ReadPassword(STDIN)
+		bytePassword, _ := term.ReadPassword(STDIN)
 
 		// Ignore any error from reading stdin to retain existing behaviour for unit test in
 		// install_test.go
