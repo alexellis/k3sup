@@ -66,7 +66,8 @@ func MakeJoin() *cobra.Command {
 
 	command.Flags().Bool("server", false, "Join the cluster as a server rather than as an agent for the embedded etcd mode")
 	command.Flags().Bool("print-command", false, "Print a command that you can use with SSH to manually recover from an error")
-	command.Flags().String("node-token-path", "", "prefetched token used by nodes to join the cluster")
+	command.Flags().String("node-token-path", "", "file containing --node-token")
+	command.Flags().String("node-token", "", "prefetched token used by nodes to join the cluster")
 
 	command.Flags().String("k3s-extra-args", "", "Additional arguments to pass to k3s installer, wrapped in quotes (e.g. --k3s-extra-args '--node-taint key=value:NoExecute')")
 	command.Flags().String("k3s-version", "", "Set a version to install, overrides k3s-channel")
@@ -86,14 +87,18 @@ func MakeJoin() *cobra.Command {
 
 		var nodeToken string
 
-		nodeTokenPath, _ := command.Flags().GetString("node-token-path")
-		if len(nodeTokenPath) > 0 {
-			data, err := os.ReadFile(nodeTokenPath)
-			if err != nil {
-				return err
-			}
+		if command.Flags().Changed("node-token") {
+			nodeToken, _ = command.Flags().GetString("node-token")
+		} else if command.Flags().Changed("node-token-path") {
+			nodeTokenPath, _ := command.Flags().GetString("node-token-path")
+			if len(nodeTokenPath) > 0 {
+				data, err := os.ReadFile(nodeTokenPath)
+				if err != nil {
+					return err
+				}
 
-			nodeToken = strings.TrimSpace(string(data))
+				nodeToken = strings.TrimSpace(string(data))
+			}
 		}
 
 		host, err := command.Flags().GetString("host")
@@ -135,7 +140,7 @@ func MakeJoin() *cobra.Command {
 			return err
 		}
 
-		fmt.Printf("Agent: %s Server: %s\n", serverHost, host)
+		fmt.Printf("Joining %s => %s\n", host, serverHost)
 		if len(serverURL) > 0 {
 			fmt.Printf("Server join URL: %s\n", serverURL)
 		}
