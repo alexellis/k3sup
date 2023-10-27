@@ -13,25 +13,31 @@ func MakePlan() *cobra.Command {
 	var command = &cobra.Command{
 		Use:   "plan",
 		Short: "Plan an installation of K3s.",
-		Long: `Generate a plan of installation commands for K3s for a HA cluster.
+		Long: `Generate a bash script or plan of installation commands for K3s for a 
+Highly Available (HA) Kubernetes cluster.
 
-Format:
+Input file format, in JSON:
 
 [{
 	"hostname": "node-1",
-	"ip": "192.168.1.128"
+	"ip": "192.168.128.100",
+	"hostname": "node-2",
+	"ip": "192.168.128.101",
 }]
 
 ` + pkg.SupportMessageShort + `
 `,
-		Example: `  Generate an installation script where 3x of the
-  available hosts are dedicated as servers.
-  k3sup plan hosts.json --servers 3
+		Example: `  ## Generate an installation script where 3x of the
+  ## available hosts are dedicated as servers, with a custom user
+  k3sup plan hosts.json --servers 3 --user ubuntu
+
+  ## Override the TLS SAN, for HA
+  k3sup plan hosts.json --servers 3 --tls-san $SAN_IP
 `,
 		SilenceUsage: true,
 	}
 
-	command.Flags().Int("servers", 3, "Number of servers to use from the pool of hosts")
+	command.Flags().Int("servers", 3, "Number of servers to use from the devices file")
 	command.Flags().String("local-path", "kubeconfig", "Where to save the kubeconfig file")
 	command.Flags().String("context", "default", "Name of the kubeconfig context to use")
 	command.Flags().String("user", "root", "Username for SSH login")
@@ -42,12 +48,12 @@ Format:
 	// Background
 	command.Flags().Bool("background", false, "Run the installation in the background for all agents/nodes after the first server is up")
 
-	command.Flags().Int("limit", 0, "Maximum number of nodes to use from the pool of hosts, 0 for all")
+	command.Flags().Int("limit", 0, "Maximum number of nodes to use from the devices file, 0 to use all devices")
 
 	command.RunE = func(cmd *cobra.Command, args []string) error {
 
 		if len(args) == 0 {
-			return fmt.Errorf("give a path to a JSON file containing a list of hosts")
+			return fmt.Errorf("give a path to a JSON file containing a list of devices")
 		}
 
 		nodeLimit, _ := cmd.Flags().GetInt("limit")
