@@ -95,7 +95,7 @@ Input file format, in JSON:
 		for i, host := range hosts {
 			if serversAdded == 0 {
 
-				script += `echo ""Setting up primary server 1
+				script += `echo "Setting up primary server 1"
 `
 
 				script += fmt.Sprintf(`k3sup install --host %s \
@@ -112,7 +112,7 @@ Input file format, in JSON:
 				script += fmt.Sprintf(`
 echo "Fetching the server's node-token into memory"
 
-NODE_TOKEN=$(k3sup node-token --host %s --user %s)
+export NODE_TOKEN=$(k3sup node-token --host %s --user %s)
 `, host.IP, user)
 
 				serversAdded = 1
@@ -120,10 +120,11 @@ NODE_TOKEN=$(k3sup node-token --host %s --user %s)
 			} else if serversAdded < servers {
 				script += fmt.Sprintf("\necho \"Setting up additional server: %d\"\n", serversAdded+1)
 
-				script += fmt.Sprintf(`k3sup join --host %s \
+				script += fmt.Sprintf(`k3sup join \
+--host %s \
 --server-host %s \
 --server \
---node-token-path $NODE_TOKEN \
+--node-token "$NODE_TOKEN" \
 --user %s%s%s
 `, host.IP, primaryServer.IP, user, tlsSanStr, bgStr)
 
@@ -131,9 +132,10 @@ NODE_TOKEN=$(k3sup node-token --host %s --user %s)
 			} else {
 				script += fmt.Sprintf("\necho \"Setting up worker: %d\"\n", (i+1)-serversAdded)
 
-				script += fmt.Sprintf(`k3sup join --host %s \
+				script += fmt.Sprintf(`k3sup join \
+--host %s \
 --server-host %s \
---node-token-path $NODE_TOKEN \
+--node-token "$NODE_TOKEN" \
 --user %s%s
 `, host.IP, primaryServer.IP, user, bgStr)
 			}
