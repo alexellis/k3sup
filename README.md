@@ -326,6 +326,7 @@ k3sup plan \
   devices.json \
   --user ubuntu \
   --servers 3 \
+  --server-k3s-extra-args "--disable traefik"
   --background > bootstrap.sh
 ```
 
@@ -338,7 +339,7 @@ chmod +x bootstrap.sh
 
 Watch a demo with dozens of Firecracker VMs: [Testing Kubernetes at Scale with bare-metal](https://youtu.be/o4UxRw-Cc8c)
 
-The initial version of `k3sup plan` has a reduced set of flags such as `--k3s-extra-args`, but contributions are welcomed from users and sponsors.
+The initial version of `k3sup plan` has a reduced set of flags. Flags such as `--k3s-version` and `--datastore` are not available, but feel free to propose an issue with what you need.
 
 ### Create a multi-master (HA) setup with external SQL
 

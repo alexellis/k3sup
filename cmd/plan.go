@@ -44,6 +44,8 @@ Input file format, in JSON:
 
 	command.Flags().String("ssh-key", "", "Path to the private key for SSH login")
 	command.Flags().String("tls-san", "", "SAN for TLS certificates, can be a comma-separated list")
+	command.Flags().String("server-k3s-extra-args", "", "Extra arguments to be passed into the k3s server")
+	command.Flags().String("agent-k3s-extra-args", "", "Extra arguments to be passed into the k3s agent")
 
 	// Background
 	command.Flags().Bool("background", false, "Run the installation in the background for all agents/nodes after the first server is up")
@@ -70,6 +72,9 @@ Input file format, in JSON:
 			return err
 		}
 
+		serverK3sExtraArgs, _ := cmd.Flags().GetString("server-k3s-extra-args")
+		agentK3sExtraArgs, _ := cmd.Flags().GetString("agent-k3s-extra-args")
+
 		servers, _ := cmd.Flags().GetInt("servers")
 		kubeconfig, _ := cmd.Flags().GetString("local-path")
 		contextName, _ := cmd.Flags().GetString("context")
@@ -92,6 +97,17 @@ Input file format, in JSON:
 		var primaryServer Host
 		script := "#!/bin/sh\n\n"
 
+		serverExtraArgsSt := ""
+		if len(serverK3sExtraArgs) > 0 {
+			serverExtraArgsSt = fmt.Sprintf(` \
+--k3s-extra-args "%s"`, serverK3sExtraArgs)
+		}
+		agentExtraArgsSt := ""
+		if len(agentK3sExtraArgs) > 0 {
+			agentExtraArgsSt = fmt.Sprintf(` \
+--k3s-extra-args "%s"`, agentK3sExtraArgs)
+		}
+
 		for i, host := range hosts {
 			if serversAdded == 0 {
 
@@ -102,12 +118,14 @@ Input file format, in JSON:
 --user %s \
 --cluster \
 --local-path %s \
---context %s%s
+--context %s%s%s
 `,
 					host.IP,
 					user,
 					kubeconfig,
-					contextName, tlsSanStr)
+					contextName,
+					tlsSanStr,
+					serverExtraArgsSt)
 
 				script += fmt.Sprintf(`
 echo "Fetching the server's node-token into memory"
@@ -125,8 +143,8 @@ export NODE_TOKEN=$(k3sup node-token --host %s --user %s)
 --server-host %s \
 --server \
 --node-token "$NODE_TOKEN" \
---user %s%s%s
-`, host.IP, primaryServer.IP, user, tlsSanStr, bgStr)
+--user %s%s%s%s
+`, host.IP, primaryServer.IP, user, tlsSanStr, serverExtraArgsSt, bgStr)
 
 				serversAdded++
 			} else {
@@ -136,8 +154,8 @@ export NODE_TOKEN=$(k3sup node-token --host %s --user %s)
 --host %s \
 --server-host %s \
 --node-token "$NODE_TOKEN" \
---user %s%s
-`, host.IP, primaryServer.IP, user, bgStr)
+--user %s%s%s
+`, host.IP, primaryServer.IP, user, agentExtraArgsSt, bgStr)
 			}
 
 			if nodeLimit > 0 && i+1 >= nodeLimit {
