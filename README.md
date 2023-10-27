@@ -30,6 +30,7 @@ How do you say it? Ketchup, as in tomato.
     - [Merging clusters into your KUBECONFIG](#merging-clusters-into-your-kubeconfig)
     - [😸 Join some agents to your Kubernetes server](#-join-some-agents-to-your-kubernetes-server)
     - [Use your hardware authentication / 2FA or SSH Agent](#use-your-hardware-authentication--2fa-or-ssh-agent)
+    - [K3sup plan for automation](#k3sup-plan-for-automation)
     - [Create a multi-master (HA) setup with external SQL](#create-a-multi-master-ha-setup-with-external-sql)
     - [Create a multi-master (HA) setup with embedded etcd](#create-a-multi-master-ha-setup-with-embedded-etcd)
     - [👨‍💻 Micro-tutorial for Raspberry Pi (2, 3, or 4) 🥧](#-micro-tutorial-for-raspberry-pi-2-3-or-4-)
@@ -284,6 +285,60 @@ Optionally, if your key is encrypted, run: `ssh-add ~/.ssh/id_rsa`
 Now run any `k3sup` command, and your SSH key will be requested from the ssh-agent instead of from the usual location.
 
 You can also specify an SSH key with `--ssh-key` if you want to use a specific key-pair.
+
+### K3sup plan for automation
+
+A new command was added to k3sup to help with automating large amounts of nodes.
+
+`k3sup plan` reads a JSON input file containing hosts, and will generate an installation command for a number of servers and agents.
+
+Example input file:
+
+```json
+[
+  {
+    "hostname": "node-a-1",
+    "ip": "192.168.129.138"
+  },
+  {
+    "hostname": "node-a-2",
+    "ip": "192.168.129.128"
+  },
+  {
+    "hostname": "node-a-3",
+    "ip": "192.168.129.131"
+  },
+  {
+    "hostname": "node-a-4",
+    "ip": "192.168.129.130"
+  },
+  {
+    "hostname": "node-a-5",
+    "ip": "192.168.129.127"
+  }
+]
+```
+
+The following will create 1x primary server, with 2x additional servers within a HA etcd cluster, the last two nodes will be added as agents:
+
+```bash
+k3sup plan \
+  devices.json \
+  --user ubuntu \
+  --servers 3 \
+  --background > bootstrap.sh
+```
+
+Then make the file executable and run it:
+
+```bash
+chmod +x bootstrap.sh
+./bootstrap.sh
+```
+
+Watch a demo with dozens of Firecracker VMs: [Testing Kubernetes at Scale with bare-metal](https://youtu.be/o4UxRw-Cc8c)
+
+The initial version of `k3sup plan` has a reduced set of flags such as `--k3s-extra-args`, but contributions are welcomed from users and sponsors.
 
 ### Create a multi-master (HA) setup with external SQL
 
