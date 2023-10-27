@@ -471,6 +471,14 @@ func mergeConfigs(localKubeconfigPath, context string, k3sconfig []byte) ([]byte
 		return nil, fmt.Errorf("could not generate a temporary file to store the kubeconfig: %w", err)
 	}
 
+	defer func() {
+		// Remove the temporarily generated file, even if there is an error and the
+		// function returns early
+		if err = os.Remove(file.Name()); err != nil {
+			log.Printf("could not remove temporary kubeconfig file: %s %s", file.Name(), err)
+		}
+	}()
+
 	if err := writeConfig(file.Name(), []byte(k3sconfig), context, true); err != nil {
 		return nil, err
 	}
@@ -500,13 +508,6 @@ func mergeConfigs(localKubeconfigPath, context string, k3sconfig []byte) ([]byte
 
 	if err := file.Close(); err != nil {
 		return nil, fmt.Errorf("could not close temporary kubeconfig file: %s %w",
-			file.Name(), err)
-	}
-
-	// Remove the temporarily generated file
-	err = os.Remove(file.Name())
-	if err != nil {
-		return nil, fmt.Errorf("could not remove temporary kubeconfig file: %s %w",
 			file.Name(), err)
 	}
 
@@ -590,6 +591,8 @@ func loadPublickey(path string) (ssh.AuthMethod, func() error, error) {
 	return ssh.PublicKeys(signer), noopCloseFunc, nil
 }
 
+// rewriteKubeconfig replaces the IP address of the server with the IP address
+// it also changes the context from "default" to the value of the --context flag
 func rewriteKubeconfig(kubeconfig string, host string, context string) []byte {
 	if context == "" {
 		context = "default"
