@@ -27,11 +27,11 @@ Input file format, in JSON:
 
 ` + pkg.SupportMessageShort + `
 `,
-		Example: `  ## Generate an installation script where 3x of the
-  ## available hosts are dedicated as servers, with a custom user
+		Example: `  # Generate an installation script where 3x of the
+  # available hosts are dedicated as servers, with a custom user
   k3sup plan hosts.json --servers 3 --user ubuntu
 
-  ## Override the TLS SAN, for HA
+  # Override the TLS SAN, for HA
   k3sup plan hosts.json --servers 3 --tls-san $SAN_IP
 `,
 		SilenceUsage: true,
@@ -110,10 +110,9 @@ Input file format, in JSON:
 					contextName, tlsSanStr)
 
 				script += fmt.Sprintf(`
-echo "Saving the server's node-token to ./token.txt"
+echo "Fetching the server's node-token into memory"
 
-k3sup node-token --host %s \
---user %s > token.txt
+NODE_TOKEN=$(k3sup node-token --host %s --user %s)
 `, host.IP, user)
 
 				serversAdded = 1
@@ -124,7 +123,7 @@ k3sup node-token --host %s \
 				script += fmt.Sprintf(`k3sup join --host %s \
 --server-host %s \
 --server \
---node-token-path ./token.txt \
+--node-token-path $NODE_TOKEN \
 --user %s%s%s
 `, host.IP, primaryServer.IP, user, tlsSanStr, bgStr)
 
@@ -134,7 +133,7 @@ k3sup node-token --host %s \
 
 				script += fmt.Sprintf(`k3sup join --host %s \
 --server-host %s \
---node-token-path ./token.txt \
+--node-token-path $NODE_TOKEN \
 --user %s%s
 `, host.IP, primaryServer.IP, user, bgStr)
 			}
