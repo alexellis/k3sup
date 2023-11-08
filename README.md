@@ -326,7 +326,7 @@ k3sup plan \
   devices.json \
   --user ubuntu \
   --servers 3 \
-  --server-k3s-extra-args "--disable traefik"
+  --server-k3s-extra-args "--disable traefik" \
   --background > bootstrap.sh
 ```
 
