@@ -372,7 +372,7 @@ func connectOperator(user string, address string, sshKeyPath string) (*operator.
 
 			sshOperator, initialSSHErr = operator.NewSSHOperator(address, config)
 		} else {
-			return nil, nil, true, fmt.Errorf("unable to load key from ssh-agent: %w", initialSSHErr)
+			fmt.Printf("Unable to load key from ssh-agent: %w", initialSSHErr)
 		}
 	} else {
 		initialSSHErr = errors.New("ssh-agent unsupported on windows")
