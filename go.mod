@@ -1,12 +1,12 @@
 module github.com/alexellis/k3sup
 
-go 1.20
+go 1.21
 
 require (
-	github.com/alexellis/go-execute/v2 v2.0.0
+	github.com/alexellis/go-execute/v2 v2.2.1
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/morikuni/aec v1.0.0
-	github.com/spf13/cobra v1.7.0
+	github.com/spf13/cobra v1.8.0
 	golang.org/x/crypto v0.17.0
 	golang.org/x/term v0.15.0
 )

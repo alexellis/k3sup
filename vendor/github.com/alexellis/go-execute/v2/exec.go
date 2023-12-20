@@ -15,9 +15,7 @@ type ExecTask struct {
 	// or the executable with arguments. The arguments are detected by looking for
 	// a space.
 	//
-	// Examples:
-	//  - Just a binary executable: `/bin/ls`
-	//  - Binary executable with arguments: `/bin/ls -la /`
+	// Any arguments must be given via Args
 	Command string
 
 	// Args are the arguments to pass to the command. These are ignored if the
@@ -110,14 +108,18 @@ func (et ExecTask) Execute(ctx context.Context) (ExecResult, error) {
 			commandArgs = append([]string{"-c"}, fmt.Sprintf("%s %s", et.Command, script))
 		}
 	} else {
-		if strings.Contains(et.Command, " ") {
-			parts := strings.Split(et.Command, " ")
-			command = parts[0]
-			commandArgs = parts[1:]
-		} else {
-			command = et.Command
-			commandArgs = et.Args
-		}
+
+		command = et.Command
+		commandArgs = et.Args
+
+		// AE: This had to be removed to fix: #117 where Windows users
+		// have spaces in their paths, which are misinterpreted as
+		// arguments for the command.
+		// if strings.Contains(et.Command, " ") {
+		// 	parts := strings.Split(et.Command, " ")
+		// 	command = parts[0]
+		// 	commandArgs = parts[1:]
+		// }
 	}
 
 	cmd := exec.CommandContext(ctx, command, commandArgs...)
@@ -149,9 +151,10 @@ func (et ExecTask) Execute(ctx context.Context) (ExecResult, error) {
 	var stdoutWriters []io.Writer
 	var stderrWriters []io.Writer
 
-	// Always capture to a buffer
-	stdoutWriters = append(stdoutWriters, &stdoutBuff)
-	stderrWriters = append(stderrWriters, &stderrBuff)
+	if !et.DisableStdioBuffer {
+		stdoutWriters = append(stdoutWriters, &stdoutBuff)
+		stderrWriters = append(stderrWriters, &stderrBuff)
+	}
 
 	if et.StreamStdio {
 		stdoutWriters = append(stdoutWriters, os.Stdout)

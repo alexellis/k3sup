@@ -60,6 +60,7 @@ import (
 	"fmt"
 
 	execute "github.com/alexellis/go-execute/v2"
+	"context"
 )
 
 func main() {
@@ -69,7 +70,7 @@ func main() {
 		StreamStdio: false,
 	}
 
-	res, err := cmd.Execute()
+	res, err := cmd.Execute(context.Background())
 	if err != nil {
 		panic(err)
 	}
@@ -82,7 +83,6 @@ func main() {
 }
 ```
 
-
 ## Example with "shell" and exit-code 0
 
 ```golang
@@ -92,6 +92,7 @@ import (
 	"fmt"
 
 	execute "github.com/alexellis/go-execute/v2"
+	"context"
 )
 
 func main() {
@@ -100,7 +101,7 @@ func main() {
 		Args:    []string{"-l"},
 		Shell:   true,
 	}
-	res, err := ls.Execute()
+	res, err := ls.Execute(context.Background())
 	if err != nil {
 		panic(err)
 	}
@@ -117,6 +118,7 @@ package main
 import (
 	"fmt"
 
+	"context"
 	execute "github.com/alexellis/go-execute/v2"
 )
 
@@ -125,7 +127,7 @@ func main() {
 		Command: "exit 1",
 		Shell:   true,
 	}
-	res, err := ls.Execute()
+	res, err := ls.Execute(context.Background())
 	if err != nil {
 		panic(err)
 	}
