@@ -538,6 +538,23 @@ paprika-gregory   Ready    master   8m27s   v1.19.2-k3s
 cave-sensor       Ready    master   27m     v1.19.2-k3s
 ```
 
+If you used `--no-extras` on the initial installation you will also need to provide it on each join:
+
+```sh
+export USER=root
+export SERVER_IP=192.168.0.100
+export NEXT_SERVER_IP=192.168.0.101
+
+k3sup join \
+  --ip $NEXT_SERVER_IP \
+  --user $USER \
+  --server-user $USER \
+  --server-ip $SERVER_IP \
+  --server \
+  --no-extras \
+  --k3s-version v1.19.1+k3s1
+```
+
 ### 👨‍💻 Micro-tutorial for Raspberry Pi (2, 3, or 4) 🥧
 
 In a few moments you will have Kubernetes up and running on your Raspberry Pi 2, 3 or 4. Stand by for the fastest possible install. At the end you will have a KUBECONFIG file on your local computer that you can use to access your cluster remotely.

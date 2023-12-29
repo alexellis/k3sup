@@ -65,6 +65,7 @@ func MakeJoin() *cobra.Command {
 	command.Flags().Bool("sudo", true, "Use sudo for installation. e.g. set to false when using the root user and no sudo is available.")
 
 	command.Flags().Bool("server", false, "Join the cluster as a server rather than as an agent for the embedded etcd mode")
+	command.Flags().Bool("no-extras", false, `Disable "servicelb" and "traefik", when using --server flag`)
 	command.Flags().Bool("print-command", false, "Print a command that you can use with SSH to manually recover from an error")
 	command.Flags().String("node-token-path", "", "file containing --node-token")
 	command.Flags().String("node-token", "", "prefetched token used by nodes to join the cluster")
@@ -236,9 +237,11 @@ func MakeJoin() *cobra.Command {
 		}
 
 		if server {
-			tlsSan, _ := command.Flags().GetString("tls-san")
 
-			err = setupAdditionalServer(serverHost, host, port, user, sshKeyPath, nodeToken, k3sExtraArgs, k3sVersion, k3sChannel, tlsSan, printCommand, serverURL)
+			tlsSan, _ := command.Flags().GetString("tls-san")
+			noExtras, _ := command.Flags().GetBool("no-extras")
+
+			err = setupAdditionalServer(serverHost, host, port, user, sshKeyPath, nodeToken, k3sExtraArgs, k3sVersion, k3sChannel, tlsSan, printCommand, serverURL, noExtras)
 		} else {
 			err = setupAgent(serverHost, host, port, user, sshKeyPath, nodeToken, k3sExtraArgs, k3sVersion, k3sChannel, printCommand, serverURL)
 		}
@@ -282,13 +285,21 @@ func MakeJoin() *cobra.Command {
 			return err
 		}
 
-		if len(tlsSan) > 0 {
+		noExtras, err := command.Flags().GetBool("no-extras")
+		if err != nil {
+			return err
+		}
+
+		if len(tlsSan) > 0 || noExtras {
 			server, err := command.Flags().GetBool("server")
 			if err != nil {
 				return err
 			}
 
 			if !server {
+				if noExtras {
+					return fmt.Errorf("--no-extras can only be used with --server")
+				}
 				return fmt.Errorf("--tls-san can only be used with --server")
 			}
 
@@ -300,7 +311,7 @@ func MakeJoin() *cobra.Command {
 	return command
 }
 
-func setupAdditionalServer(serverHost, host string, port int, user, sshKeyPath, joinToken, k3sExtraArgs, k3sVersion, k3sChannel, tlsSAN string, printCommand bool, serverURL string) error {
+func setupAdditionalServer(serverHost, host string, port int, user, sshKeyPath, joinToken, k3sExtraArgs, k3sVersion, k3sChannel, tlsSAN string, printCommand bool, serverURL string, noExtras bool) error {
 	address := fmt.Sprintf("%s:%d", host, port)
 
 	var sshOperator *operator.SSHOperator
@@ -354,6 +365,11 @@ func setupAdditionalServer(serverHost, host string, port int, user, sshKeyPath, 
 	serverAgent := true
 
 	defer sshOperator.Close()
+
+	if noExtras {
+		k3sExtraArgs += " --disable servicelb"
+		k3sExtraArgs += " --disable traefik"
+	}
 
 	installk3sExec := makeJoinExec(
 		serverHost,
