@@ -20,9 +20,11 @@ Input file format, in JSON:
 
 [{
 	"hostname": "node-1",
-	"ip": "192.168.128.100",
+	"ip": "192.168.128.100"
+},
+{
 	"hostname": "node-2",
-	"ip": "192.168.128.101",
+	"ip": "192.168.128.101"
 }]
 
 ` + pkg.SupportMessageShort + `
