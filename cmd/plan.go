@@ -16,25 +16,21 @@ func MakePlan() *cobra.Command {
 		Long: `Generate a bash script or plan of installation commands for K3s for a 
 Highly Available (HA) Kubernetes cluster.
 
-Input file format, in JSON:
+Examples JSON input file:
 
-[{
-	"hostname": "node-1",
-	"ip": "192.168.128.100"
-},
-{
-	"hostname": "node-2",
-	"ip": "192.168.128.101"
-}]
+[{"hostname": "node-1", "ip": "192.168.128.102"},
+{"hostname": "node-2", "ip": "192.168.128.103"},
+{"hostname": "node-3", "ip": "192.168.128.104"}]
 
 ` + pkg.SupportMessageShort + `
 `,
-		Example: `  # Generate an installation script where 3x of the
-  # available hosts are dedicated as servers, with a custom user
+		Example: `  # Generate an installation script where the first
+  # 3 available hosts are dedicated as servers, with a custom user.
+  # The remaining hosts are added as agents.
   k3sup plan hosts.json --servers 3 --user ubuntu
 
-  # Override the TLS SAN, for HA
-  k3sup plan hosts.json --servers 3 --tls-san $SAN_IP
+  # Override the TLS SAN, for HA with 5 servers specified
+  k3sup plan hosts.json --servers 5 --tls-san $SAN_IP
 `,
 		SilenceUsage: true,
 	}
