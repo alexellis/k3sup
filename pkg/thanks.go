@@ -1,4 +1,4 @@
 package pkg
 
 // SupportMessageShort is how to support k3sup's ongoing development.
-const SupportMessageShort = `🚀 Speed up GitHub Actions/GitLab CI + reduce costs: https://actuated.dev`
+const SupportMessageShort = `👏 Say thanks for k3sup and sponsor Alex via GitHub: https://github.com/sponsors/alexellis`
