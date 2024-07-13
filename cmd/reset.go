@@ -17,18 +17,19 @@ type Node struct {
 }
 
 func MakeReset() *cobra.Command {
-    var user, ip, sshKey, plan string
+    var user, ip, sshKey, hosts string
 
     cmd := &cobra.Command{
         Use:   "reset",
         Short: "Uninstall k3s on specified nodes",
         RunE: func(cmd *cobra.Command, args []string) error {
-            if user == "" || (ip == "" && plan == "") {
-                return fmt.Errorf("Usage: %s", cmd.UsageString())
+            if user == "" || (ip == "" && hosts == "") {
+                cmd.Help()
+                return nil // Change this line to return nil instead of an error
             }
 
-            if plan != "" {
-                return uninstallK3sFromPlan(user, sshKey, plan)
+            if hosts != "" {
+                return uninstallK3sFromHosts(user, sshKey, hosts)
             }
             return uninstallK3s(user, sshKey, ip)
         },
@@ -37,7 +38,7 @@ func MakeReset() *cobra.Command {
     cmd.Flags().StringVarP(&user, "user", "u", "", "Username for SSH connection")
     cmd.Flags().StringVarP(&ip, "ip", "i", "", "IP address of the host")
     cmd.Flags().StringVar(&sshKey, "ssh-key", os.Getenv("HOME")+"/.ssh/id_rsa", "Path to the private SSH key")
-    cmd.Flags().StringVar(&plan, "plan", "", "JSON file containing the list of nodes")
+    cmd.Flags().StringVar(&hosts, "hosts", "", "JSON file containing the list of nodes")
 
     return cmd
 }
@@ -65,15 +66,15 @@ fi
     return nil
 }
 
-func uninstallK3sFromPlan(user, sshKey, plan string) error {
-    data, err := ioutil.ReadFile(plan)
+func uninstallK3sFromHosts(user, sshKey, hosts string) error {
+    data, err := ioutil.ReadFile(hosts)
     if err != nil {
-        return fmt.Errorf("unable to read JSON file %s: %v", plan, err)
+        return fmt.Errorf("unable to read JSON file %s: %v", hosts, err)
     }
 
     var nodes []Node
     if err := json.Unmarshal(data, &nodes); err != nil {
-        return fmt.Errorf("error parsing JSON file %s: %v", plan, err)
+        return fmt.Errorf("error parsing JSON file %s: %v", hosts, err)
     }
 
     var successNodes []Node
