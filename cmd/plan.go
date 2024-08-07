@@ -84,7 +84,14 @@ Examples JSON input file:
 			tlsSanStr = fmt.Sprintf(` \
 --tls-san %s`, tlsSan)
 		}
-		// sshKey, _ := cmd.Flags().GetString("ssh-key")
+
+		sshKey, _ := cmd.Flags().GetString("ssh-key")
+
+		sshKeySt := ""
+		if len(sshKey) > 0 {
+			sshKeySt = fmt.Sprintf(` \
+--ssh-key %s`, sshKey)
+		}
 
 		bgStr := ""
 		if background {
@@ -116,20 +123,21 @@ Examples JSON input file:
 --user %s \
 --cluster \
 --local-path %s \
---context %s%s%s
+--context %s%s%s%s
 `,
 					host.IP,
 					user,
 					kubeconfig,
 					contextName,
 					tlsSanStr,
-					serverExtraArgsSt)
+					serverExtraArgsSt,
+					sshKeySt)
 
 				script += fmt.Sprintf(`
 echo "Fetching the server's node-token into memory"
 
-export NODE_TOKEN=$(k3sup node-token --host %s --user %s)
-`, host.IP, user)
+export NODE_TOKEN=$(k3sup node-token --host %s --user %s%s)
+`, host.IP, user, sshKeySt)
 
 				serversAdded = 1
 				primaryServer = host
@@ -141,8 +149,8 @@ export NODE_TOKEN=$(k3sup node-token --host %s --user %s)
 --server-host %s \
 --server \
 --node-token "$NODE_TOKEN" \
---user %s%s%s%s
-`, host.IP, primaryServer.IP, user, tlsSanStr, serverExtraArgsSt, bgStr)
+--user %s%s%s%s%s
+`, host.IP, primaryServer.IP, user, tlsSanStr, serverExtraArgsSt, sshKeySt, bgStr)
 
 				serversAdded++
 			} else {
@@ -152,8 +160,8 @@ export NODE_TOKEN=$(k3sup node-token --host %s --user %s)
 --host %s \
 --server-host %s \
 --node-token "$NODE_TOKEN" \
---user %s%s%s
-`, host.IP, primaryServer.IP, user, agentExtraArgsSt, bgStr)
+--user %s%s%s%s
+`, host.IP, primaryServer.IP, user, agentExtraArgsSt, sshKeySt, bgStr)
 			}
 
 			if nodeLimit > 0 && i+1 >= nodeLimit {
