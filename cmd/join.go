@@ -506,7 +506,7 @@ func createVersionStr(k3sVersion, k3sChannel string) string {
 func makeJoinExec(serverIP, joinToken, installStr, k3sExtraArgs string, serverAgent bool, serverURL, tlsSan string) string {
 
 	installEnvVar := []string{}
-	remoteURL := fmt.Sprintf("https://%s:6443", serverIP)
+	remoteURL := "https://" + net.JoinHostPort(serverIP, "6443")
 	if len(serverURL) > 0 {
 		remoteURL = serverURL
 	}
