@@ -6,6 +6,7 @@ import (
 	"os"
 	"path"
 	"runtime"
+	"strconv"
 	"strings"
 
 	"errors"
@@ -198,7 +199,7 @@ func MakeJoin() *cobra.Command {
 		sshKeyPath := expandPath(sshKey)
 
 		if len(nodeToken) == 0 {
-			address := fmt.Sprintf("%s:%d", serverHost, serverPort)
+			address := net.JoinHostPort(host, strconv.Itoa(serverPort))
 
 			sshOperator, sshOperatorDone, errored, err := connectOperator(serverUser, address, sshKeyPath)
 			if errored {
@@ -312,7 +313,7 @@ func MakeJoin() *cobra.Command {
 }
 
 func setupAdditionalServer(serverHost, host string, port int, user, sshKeyPath, joinToken, k3sExtraArgs, k3sVersion, k3sChannel, tlsSAN string, printCommand bool, serverURL string, noExtras bool) error {
-	address := fmt.Sprintf("%s:%d", host, port)
+	address := net.JoinHostPort(host, strconv.Itoa(port))
 
 	var sshOperator *operator.SSHOperator
 	var initialSSHErr error
@@ -404,7 +405,7 @@ func setupAdditionalServer(serverHost, host string, port int, user, sshKeyPath, 
 
 func setupAgent(serverHost, host string, port int, user, sshKeyPath, joinToken, k3sExtraArgs, k3sVersion, k3sChannel string, printCommand bool, serverURL string) error {
 
-	address := fmt.Sprintf("%s:%d", host, port)
+	address := net.JoinHostPort(host, strconv.Itoa(port))
 
 	var sshOperator *operator.SSHOperator
 	var initialSSHErr error
