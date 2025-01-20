@@ -7,23 +7,19 @@ on:
 
 jobs:
   publish:
-    strategy:
-      matrix:
-        go-version: [ 1.20.x ]
-        os: [ ubuntu-latest ]
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
         with:
           fetch-depth: 1
       - name: Install Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@master
         with:
-          go-version: ${{ matrix.go-version }}
+          go-version: "1.23.x"
       - name: Make all
         run: make all
       - name: Upload release binaries
-        uses: alexellis/upload-assets@0.4.0
+        uses: alexellis/upload-assets@0.4.1
         env:
           GITHUB_TOKEN: ${{ github.token }}
         with:
