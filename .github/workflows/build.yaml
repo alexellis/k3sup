@@ -10,6 +10,10 @@ on:
 
 jobs:
   build:
+    concurrency: 
+      group: ${{ github.ref }}
+      cancel-in-progress: true
+
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
