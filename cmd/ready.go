@@ -56,10 +56,10 @@ func MakeReady() *cobra.Command {
 
 		kubeconfig = os.ExpandEnv(kubeconfig)
 
-		// Inspired by Kind: https://github.com/kubernetes-sigs/kind/blob/master/pkg/cluster/internal/create/actions/waitforready/waitforready.go
+		// Inspired by Kind: https://github.com/kubernetes-sigs/kind/blob/main/pkg/cluster/internal/create/actions/waitforready/waitforready.go
 		for i := 0; i < attempts; i++ {
 			if !quiet {
-				fmt.Printf("Checking cluster status: %d/%d \n", i+1, attempts)
+				fmt.Printf("Checking for nodes to be ready: %d/%d \n", i+1, attempts)
 			}
 
 			task := execute.ExecTask{
@@ -89,9 +89,10 @@ func MakeReady() *cobra.Command {
 				ready := true
 				for _, part := range parts {
 					trimmed := strings.TrimSpace(part)
+					trimmed = strings.Trim(trimmed, "'")
 
 					// Note: The command is returning a single quoted string
-					if len(trimmed) > 0 && trimmed != "'True'" {
+					if len(trimmed) > 0 && trimmed != "True" {
 						ready = false
 						break
 					}
@@ -103,6 +104,38 @@ func MakeReady() *cobra.Command {
 					}
 					break
 				}
+			}
+			time.Sleep(pause)
+		}
+
+		// Wait until the default service account is created. This was causing a failure during CI.
+		for i := 0; i < attempts; i++ {
+			if !quiet {
+				fmt.Printf("Looking for default service account: %d/%d \n", i+1, attempts)
+			}
+
+			task := execute.ExecTask{
+				Command: "kubectl",
+				Args: []string{
+					"get",
+					"serviceaccount",
+					"default",
+					"--kubeconfig=" + kubeconfig,
+					"--context=" + contextName,
+				},
+				StreamStdio: false,
+			}
+
+			res, err := task.Execute(cmd.Context())
+			if err != nil {
+				return err
+			}
+
+			if res.ExitCode == 0 {
+				if !quiet {
+					fmt.Printf("Default service account is ready\n")
+				}
+				break
 			}
 			time.Sleep(pause)
 		}
