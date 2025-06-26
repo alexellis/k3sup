@@ -50,6 +50,9 @@ Examples JSON input file:
 
 	command.Flags().Int("limit", 0, "Maximum number of nodes to use from the devices file, 0 to use all devices")
 
+	command.Flags().Bool("merge", true, `Merge the config with existing kubeconfig if it already exists.
+Provide the --local-path flag with --merge if a kubeconfig already exists in some other directory`)
+
 	command.RunE = func(cmd *cobra.Command, args []string) error {
 
 		if len(args) == 0 {
@@ -64,6 +67,7 @@ Examples JSON input file:
 		}
 
 		background, _ := cmd.Flags().GetBool("background")
+		merge, _ := cmd.Flags().GetBool("merge")
 
 		var hosts []Host
 		if err = json.Unmarshal(data, &hosts); err != nil {
@@ -91,6 +95,13 @@ Examples JSON input file:
 		if len(sshKey) > 0 {
 			sshKeySt = fmt.Sprintf(` \
 --ssh-key %s`, sshKey)
+		}
+
+		mergeStr := ""
+		if merge {
+			if _, err := os.Stat(kubeconfig); err == nil {
+				mergeStr = " \n--merge"
+			}
 		}
 
 		bgStr := ""
@@ -123,7 +134,7 @@ Examples JSON input file:
 --user %s \
 --cluster \
 --local-path %s \
---context %s%s%s%s
+--context %s%s%s%s%s
 `,
 					host.IP,
 					user,
@@ -131,7 +142,8 @@ Examples JSON input file:
 					contextName,
 					tlsSanStr,
 					serverExtraArgsSt,
-					sshKeySt)
+					sshKeySt,
+					mergeStr)
 
 				script += fmt.Sprintf(`
 echo "Fetching the server's node-token into memory"
