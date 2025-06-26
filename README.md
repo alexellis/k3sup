@@ -17,8 +17,8 @@ How do you say it? Ketchup, as in tomato.
 - [k3sup 🚀 (said 'ketchup')](#k3sup--said-ketchup)
   - [Contents:](#contents)
   - [What's this for? 💻](#whats-this-for-)
-  - [Do you love `k3sup`?](#do-you-love-k3sup)
-    - [Uses](#uses)
+  - [Are you a `k3sup` user?](#are-you-a-k3sup-user)
+    - [Use-cases](#use-cases)
     - [Bootstrapping Kubernetes](#bootstrapping-kubernetes)
   - [Download `k3sup` (tl;dr)](#download-k3sup-tldr)
     - [A note for Windows users](#a-note-for-windows-users)
@@ -45,7 +45,6 @@ How do you say it? Ketchup, as in tomato.
   - [Troubleshooting and support](#troubleshooting-and-support)
     - [Maybe the problem is with K3s?](#maybe-the-problem-is-with-k3s)
     - [Common issues](#common-issues)
-    - [Support and k3sup for commercial use](#support-and-k3sup-for-commercial-use)
     - [Getting access to your KUBECONFIG](#getting-access-to-your-kubeconfig)
     - [Smart cards and 2FA](#smart-cards-and-2fa)
     - [Misc note on `iptables`](#misc-note-on-iptables)
@@ -58,7 +57,7 @@ You may wonder why a tool like this needs to exist when you can do this sort of 
 
 k3sup was developed to automate what can be a very manual and confusing process for many developers, who are already short on time. Once you've provisioned a VM with your favourite tooling, `k3sup` means you are only 60 seconds away from running `kubectl get pods` on your own computer. If you are a local computer, you can bypass SSH with `k3sup install --local`
 
-## Do you use `k3sup`?
+## Are you a `k3sup` user?
 
 `k3sup` was created by [Alex Ellis](https://github.com/users/alexellis/sponsorship) - the founder of [OpenFaaS &reg;](https://www.openfaas.com/) & [inlets](https://inlets.dev/). 
 
@@ -68,13 +67,16 @@ k3sup was developed to automate what can be a very manual and confusing process 
 
 Want to see continued development? [Sponsor alexellis on GitHub](https://github.com/users/alexellis/sponsorship)
 
-### Uses
+### Use-cases
+
+K3sup runs from your local machine, without ever having to log into a remote server.
 
 * Bootstrap Kubernetes with k3s onto any VM with `k3sup install` - either manually, during CI or through `cloud-init`
-* Get from zero to `kubectl` with `k3s` on Raspberry Pi (RPi), VMs, AWS EC2, Packet bare-metal, DigitalOcean, Civo, Scaleway, and others
-* Build a HA, multi-master (server) cluster
-* Fetch the KUBECONFIG from an existing `k3s` cluster
+* Get from zero to `kubectl` with `k3s` on bare-metal, Raspberry Pi (RPi), VMs, AWS EC2, Google Cloud, DigitalOcean, Civo, Linode, Scaleway, and others
+* Build a Highly-Available (HA), multi-master (server) cluster
+* Fetch the KUBECONFIG from an existing cluster with `k3sup get-config`
 * Join nodes into an existing `k3s` cluster with `k3sup join`
+* Build a massive cluster for automation and scale-out testing using `k3sup plan` and a JSON file with IP addresses
 
 ### Bootstrapping Kubernetes
 
