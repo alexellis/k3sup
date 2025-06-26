@@ -820,9 +820,11 @@ The most common problem is that you missed a step, fortunately it's relatively e
 
 You may have run into an issue where `sudo` access is required for `kubectl` access.
 
-You should not run kubectl on your server or agent nodes. k3sup is designed to rewrite and/or merge your cluster's config to your local KUBECONFIG file. You should run `kubectl` on your laptop / client machine.
+You should not run `kubectl` directly on hosts where K3s is installed. k3sup is designed to rewrite and/or merge your cluster's config to your local KUBECONFIG file.
 
-If you've lost your kubeconfig, you can use `k3sup install --skip-install`. See also the various flags for merging and setting a context name.
+You should only run `kubectl` on your laptop / client machine.
+
+If you've lost your kubeconfig, you can use `k3sup get-config`. See also the various flags for merging and setting a context name.
 
 ### Smart cards and 2FA
 
