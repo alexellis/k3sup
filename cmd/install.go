@@ -94,7 +94,6 @@ func MakeInstall() *cobra.Command {
 	command.Flags().Int("ssh-port", 22, "The port on which to connect for ssh")
 	command.Flags().Bool("sudo", true, "Use sudo for installation. e.g. set to false when using the root user and no sudo is available.")
 	command.Flags().Bool("skip-install", false, "Skip the k3s installer")
-	command.Flags().Bool("print-config", false, "Print the kubeconfig obtained from the server after installation")
 
 	command.Flags().String("local-path", "kubeconfig", "Local path to save the kubeconfig file")
 	command.Flags().String("context", "default", "Set the name of the kubeconfig context.")
@@ -154,11 +153,6 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 		tlsSAN, _ := command.Flags().GetString("tls-san")
 
 		useSudo, err := command.Flags().GetBool("sudo")
-		if err != nil {
-			return err
-		}
-
-		printConfig, err := command.Flags().GetBool("print-config")
 		if err != nil {
 			return err
 		}
@@ -280,7 +274,7 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 				fmt.Printf("Skipping local installation\n")
 			}
 
-			if err = obtainKubeconfig(operator, getConfigcommand, host, context, localKubeconfig, merge, printConfig); err != nil {
+			if err = obtainKubeconfig(operator, getConfigcommand, host, context, localKubeconfig, merge); err != nil {
 				return err
 			}
 
@@ -325,7 +319,7 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 			fmt.Printf("ssh: %s\n", getConfigcommand)
 		}
 
-		if err = obtainKubeconfig(sshOperator, getConfigcommand, host, context, localKubeconfig, merge, printConfig); err != nil {
+		if err = obtainKubeconfig(sshOperator, getConfigcommand, host, context, localKubeconfig, merge); err != nil {
 			return err
 		}
 
@@ -408,14 +402,10 @@ func sshAgentOnly() (ssh.AuthMethod, error) {
 	return ssh.PublicKeysCallback(agent.NewClient(sshAgent).Signers), nil
 }
 
-func obtainKubeconfig(operator operator.CommandOperator, getConfigcommand, host, context, localKubeconfig string, merge, printConfig bool) error {
+func obtainKubeconfig(operator operator.CommandOperator, getConfigcommand, host, context, localKubeconfig string, merge bool) error {
 	res, err := operator.ExecuteStdio(getConfigcommand, false)
 	if err != nil {
 		return fmt.Errorf("error received processing command: %s", err)
-	}
-
-	if printConfig {
-		fmt.Printf("Result: %s %s\n", string(res.StdOut), string(res.StdErr))
 	}
 
 	absPath, _ := filepath.Abs(expandPath(localKubeconfig))

@@ -28,6 +28,7 @@ How do you say it? Ketchup, as in tomato.
     - [👑 Setup a Kubernetes *server* with `k3sup`](#-setup-a-kubernetes-server-with-k3sup)
     - [Checking if a cluster is ready](#checking-if-a-cluster-is-ready)
     - [Merging clusters into your KUBECONFIG](#merging-clusters-into-your-kubeconfig)
+    - [Getting a kubeconfig from an existing installation](#getting-a-kubeconfig-from-an-existing-installation)
     - [😸 Join some agents to your Kubernetes server](#-join-some-agents-to-your-kubernetes-server)
     - [Use your hardware authentication / 2FA or SSH Agent](#use-your-hardware-authentication--2fa-or-ssh-agent)
     - [K3sup plan for automation](#k3sup-plan-for-automation)
@@ -239,6 +240,48 @@ k3sup install \
 ```
 
 Here we set a context of `my-k3s` and also merge into our main local `KUBECONFIG` file, so we could run `kubectl config use-context my-k3s` or `kubectx my-k3s`.
+
+### Getting a kubeconfig from an existing installation
+
+The `k3sup get-config` command allows you to retrieve kubeconfig files from existing K3s installations without performing any installation steps. This is useful when you already have K3s running and just need to access the cluster configuration.
+
+You can also use it if you initially created a local `./kubeconfig` file but now want to merge it under a meaningful context name to your main `$HOME/.kube/config` file.
+
+Get kubeconfig from a remote server:
+
+```bash
+k3sup get-config \
+  --host 192.168.0.100 \
+  --user ubuntu \
+  --local-path ./kubeconfig
+```
+
+Get kubeconfig from a local installation:
+
+```bash
+k3sup get-config --local
+```
+
+Merge kubeconfig into your main KUBECONFIG file:
+
+```bash
+k3sup get-config \
+  --host 192.168.0.100 \
+  --user ubuntu \
+  --merge \
+  --local-path $HOME/.kube/config \
+  --context my-remote-cluster
+```
+
+Use a custom SSH key:
+
+```bash
+k3sup get-config \
+  --host 192.168.0.100 \
+  --user ubuntu \
+  --ssh-key $HOME/.ssh/my-key \
+  --local-path ./kubeconfig
+```
 
 ### 😸 Join some agents to your Kubernetes server
 
@@ -714,7 +757,7 @@ MIT
 
 * [Creating a k3s Cluster with k3sup & Multipass 💻☸️](https://dev.to/tomowatt/creating-a-k3s-cluster-with-k3sup-multipass-h26) by Tom Watt
 
-* [How I’ve set up my highly-available Kubernetes cluster](https://jmac.ph/2021/01/25/how-ive-set-up-my-highly-available-kubernetes-cluster/) by JJ Macalinao
+* [How I've set up my highly-available Kubernetes cluster](https://jmac.ph/2021/01/25/how-ive-set-up-my-highly-available-kubernetes-cluster/) by JJ Macalinao
 
 * [Creating a K3S Raspberry PI Cluster with K3Sup to fire up nightscout with MongoDB](https://h3rmanns.medium.com/creating-a-k3s-raspberry-pi-cluster-with-k3sup-to-fire-up-a-nightscout-backend-service-based-on-a-27c1f5727e5b)
 
