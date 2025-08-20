@@ -174,8 +174,7 @@ The `k3sup pro` binary is packaged in a container image, rather than being downl
 The recommended option is to use K3sup CE to obtain K3sup Pro:
 
 ```bash
-# Get the latest K3sup CE version
-PRO=1 curl -sLS https://get.k3sup.dev | sudo sh
+PRO=1 curl -sLS https://get.k3sup.dev | sudo -E sh
 ```
 
 Or, if you already have the latest K3sup CE version, it can replace itself:
