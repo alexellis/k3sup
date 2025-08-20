@@ -10,7 +10,7 @@ How do you say it? Ketchup, as in tomato.
 
 **Introducing K3sup Pro 🎉**
 
-Whilst the CE edition is ideal for experimentation, we built `k3sup pro` for an IaaC/GitOps experience.
+Whilst the CE edition is ideal for experimentation, `k3sup pro` was built to satisfy long standing requests for an IaaC/GitOps experience.
 
 `k3sup pro` adds a `plan` and `apply` command to automate installations both small and large - running in parallel. The plan file can be customised and retained in Git for maintenance and updates.
 
@@ -20,29 +20,30 @@ Whilst the CE edition is ideal for experimentation, we built `k3sup pro` for an 
 [![Github All Releases](https://img.shields.io/github/downloads/alexellis/k3sup/total.svg)]()
 
 ## Contents:
+
 - [k3sup 🚀 (said 'ketchup')](#k3sup--said-ketchup)
   - [Contents:](#contents)
   - [What's this for? 💻](#whats-this-for-)
   - [Are you a `k3sup` user?](#are-you-a-k3sup-user)
     - [Use-cases](#use-cases)
     - [Bootstrapping Kubernetes](#bootstrapping-kubernetes)
-  - [Download `k3sup` (tl;dr)](#download-k3sup-tldr)
-    - [A note for Windows users](#a-note-for-windows-users)
-  - [Demo 📼](#demo-)
+    - [Download `k3sup` CE (tl;dr)](#download-k3sup-ce-tldr)
+  - [Demo of K3sup CE📼](#demo-of-k3sup-ce)
   - [Usage ✅](#usage-)
-  - [Pre-requisites for k3sup servers and agents](#pre-requisites-for-k3sup-servers-and-agents)
-  - [K3sup pro](#k3sup-pro)
-    - [K3sup plan / apply for automation and large installations](#k3sup-plan--apply-for-automation-and-large-installations)
+    - [Pre-requisites for k3sup servers and agents](#pre-requisites-for-k3sup-servers-and-agents)
+  - [K3sup Pro](#k3sup-pro)
+    - [Getting `k3sup pro`](#getting-k3sup-pro)
+    - [Activating K3sup Pro](#activating-k3sup-pro)
+    - [K3sup `plan` / `apply` for automation and large installations](#k3sup-plan--apply-for-automation-and-large-installations)
     - [Rapid uninstallation / reset with `k3sup pro uninstall`](#rapid-uninstallation--reset-with-k3sup-pro-uninstall)
-    - [K3sup pro exec](#k3sup-pro-exec)
-    - [Get a kubeconfig from an existing installation](#get-a-kubeconfig-from-an-existing-installation)
+    - [K3sup `pro exec` - run a command everywhere](#k3sup-pro-exec---run-a-command-everywhere)
+    - [K3sup `pro get-config` - work with an existing cluster](#k3sup-pro-get-config---work-with-an-existing-cluster)
   - [K3sup Community Edition (CE)](#k3sup-community-edition-ce)
     - [👑 Setup a Kubernetes *server* with `k3sup`](#-setup-a-kubernetes-server-with-k3sup)
     - [Checking if a cluster is ready](#checking-if-a-cluster-is-ready)
     - [Merging clusters into your KUBECONFIG](#merging-clusters-into-your-kubeconfig)
     - [😸 Join some agents to your Kubernetes server](#-join-some-agents-to-your-kubernetes-server)
     - [Use your hardware authentication / 2FA or SSH Agent](#use-your-hardware-authentication--2fa-or-ssh-agent)
-    - [K3sup plan for automation](#k3sup-plan-for-automation)
     - [Create a multi-master (HA) setup with external SQL](#create-a-multi-master-ha-setup-with-external-sql)
     - [Create a multi-master (HA) setup with embedded etcd](#create-a-multi-master-ha-setup-with-embedded-etcd)
     - [👨‍💻 Micro-tutorial for Raspberry Pi (2, 3, or 4) 🥧](#-micro-tutorial-for-raspberry-pi-2-3-or-4-)
@@ -68,7 +69,7 @@ You may wonder why a tool like this needs to exist when you can do this sort of 
 
 k3sup was developed to automate what can be a very manual and confusing process for many developers, who are already short on time. Once you've provisioned a VM with your favourite tooling, `k3sup` means you are only 60 seconds away from running `kubectl get pods` on your own computer. If you are a local computer, you can bypass SSH with `k3sup install --local`
 
-## Are you a `k3sup` user?
+### Are you a `k3sup` user?
 
 `k3sup` was created by [Alex Ellis](https://github.com/users/alexellis/sponsorship) - the founder of [OpenFaaS &reg;](https://www.openfaas.com/) & [inlets](https://inlets.dev/). 
 
@@ -94,7 +95,7 @@ K3sup runs from your local machine, without ever having to log into a remote ser
 ![Conceptual architecture](./docs/k3sup-cloud.png)
 *Conceptual architecture, showing `k3sup` running locally against any VM such as AWS EC2 or a VPS such as DigitalOcean.*
 
-## Download `k3sup` (tl;dr)
+### Download `k3sup` CE (tl;dr)
 
 `k3sup` is distributed as a static Go binary. You can use the installer on MacOS and Linux, or visit the [Releases page](https://github.com/alexellis/k3sup/releases) to download the executable for Windows.
 
@@ -105,9 +106,7 @@ sudo install k3sup /usr/local/bin/
 k3sup --help
 ```
 
-### A note for Windows users
-
-Windows users can use `k3sup install` and `k3sup join` with a normal "Windows command prompt".
+> A note for Windows users. Windows users can use `k3sup install` and `k3sup join` with a normal "Windows command prompt".
 
 ## Demo of K3sup CE📼
 
@@ -124,7 +123,7 @@ Watch the demo:
 
 The `k3sup` tool is a client application which you can run on your own computer. It uses SSH to connect to remote servers and creates a local KUBECONFIG file on your disk. Binaries are provided for MacOS, Windows, and Linux (including ARM).
 
-## Pre-requisites for k3sup servers and agents
+### Pre-requisites for k3sup servers and agents
 
 Some Linux hosts are configured to allow `sudo` to run without having to repeat your password. For those which are not already configured that way, you'll need to make the following changes if you wish to use `k3sup`:
 
@@ -142,8 +141,13 @@ As an alternative, if you only need a single server you can log in interactively
 
 ## K3sup Pro
 
-K3sup Pro is available as a free extra to [GitHub Sponsors](https://github.com/sponsors/alexellis) on a 25 USD / mo tier and higher to individuals. A separate option to purchase on an annual basis is available via email for commercial use. Contact [contact@openfaas.com](mailto:contact@openfaas.com) for more.
+K3sup Pro is available as a free extra to [GitHub Sponsors](https://github.com/sponsors/alexellis) on a 25 USD / mo tier and higher to individuals. A separate option to purchase on an annual basis is available via email for commercial use. Contact [sales@openfaas.com](mailto:sales@openfaas.com) for more information.
 
+The binary name for K3sup Pro is `k3sup` which is intended to replace the existing `k3sup` CE binary, if you have it. You'll find all the additional commands behind a new sub-command `k3sup pro`.
+
+Support for all K3sup Pro users is provided by the Issue Tracker for the [K3sup CE repository](https://github.com/alexellis/k3sup-pro/).
+
+* `activate` - used by GitHub Sponsors to obtain/refresh a license key valid for 30 days. Commercial users just place your key at `~/.k3sup/LICENSE`
 * `plan` - take one or more JSON files and generate a YAML plan for a HA installation of K3s
 * `apply` - run the installation in parallel, optionally pre-downloading the K3s binary and copying it via SSH beforehand
 * `exec` - run a command on all nodes in the cluster
@@ -152,9 +156,40 @@ K3sup Pro is available as a free extra to [GitHub Sponsors](https://github.com/s
 
 The `--predownload` flag for `k3sup pro apply` is the first step towards a fully airgapped solution, and reduces bandwidth whilst speeding up installation.
 
-Walkthrough of plan, apply, get-config and exec:
+Walkthrough of `plan`, `apply`, `get-config` and `exec`:
 
 [![asciicast](https://asciinema.org/a/HpHLjHFjXXAJ3uHiD4jKgvvaN.svg)](https://asciinema.org/a/HpHLjHFjXXAJ3uHiD4jKgvvaN)
+
+### K3sup Pro roadmap
+
+The initial version of K3sup Pro is largely feature-complete, however there are some additional features planned for commercial users:
+
+* Use K3sup Pro Plan/Apply via bastion hosts
+* Airgapped installation via initial download of packages on a local machine
+
+### Getting `k3sup pro`
+
+The `k3sup pro` binary is packaged in a container image, rather than being downloaded via GitHub Releases.
+
+The recommended option is to use K3sup CE to obtain K3sup Pro:
+
+```bash
+# Get the latest K3sup CE version
+curl -sLS https://get.k3sup.dev | sudo sh
+
+# Use K3sup CE to replace itself with the Pro edition
+sudo k3sup get pro
+```
+
+For the `k3sup get pro` command, you can omit `sudo` by passing a `--path` variable to a writeable location by your user.
+
+You can browse specific versions at [ghcr.io/openfaasltd/k3sup-pro](https://ghcr.io/openfaasltd/k3sup-pro) then pass the `--version` flag accordingly.
+
+### Activating K3sup Pro
+
+Individual users need to become GitHub Sponsors. After which, you can run `k3sup pro activate` to verify your identity using GitHub.com. You'll only need to do this on your laptop/workstation - machines which will host K3s do not need any additional steps.
+
+Commercial users will be emailed a license key to be placed at `$HOME/.k3sup/LICENSE` and do not need to run `k3sup pro activate`.
 
 ### K3sup `plan` / `apply` for automation and large installations
 
@@ -275,7 +310,7 @@ export KUBECONFIG=`pwd`/kubeconfig
 
 Watch a demo with dozens of Firecracker VMs: [Testing Kubernetes at Scale with bare-metal](https://youtu.be/o4UxRw-Cc8c)
 
-## Rapid uninstallation / reset with `k3sup pro uninstall`
+### Rapid uninstallation / reset with `k3sup pro uninstall`
 
 The `k3sup pro uninstall` command will uninstall k3s from all nodes in the cluster.
 
@@ -292,7 +327,7 @@ k3sup pro uninstall \
   --ssh-key ~/.ssh/id_rsa
 ```
 
-## K3sup `pro exec` - run a command everywhere
+### K3sup `pro exec` - run a command everywhere
 
 The `k3sup pro exec` command allows you to run a command on all nodes in the cluster. You can specify `--servers` or `--agents` to run the command on only the servers or agents.
 

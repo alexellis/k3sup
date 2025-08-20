@@ -117,7 +117,7 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 			return err
 		}
 
-		getConfigcommand := fmt.Sprintf(sudoPrefix + "cat /etc/rancher/k3s/k3s.yaml\n")
+		getConfigcommand := fmt.Sprintf("%scat /etc/rancher/k3s/k3s.yaml\n", sudoPrefix)
 
 		if local {
 			operator := operator.ExecOperator{}
