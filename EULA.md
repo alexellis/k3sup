@@ -1,5 +1,7 @@
 End User License Agreement (EULA) for K3sup Pro
 
+Note: K3sup CE is licensed under the MIT license, see LICENSE for details.
+
 1. Licensed Software
 
 1.1 K3sup Pro (the “Licensed Software”) is licensed as commercial software and must not be used without a valid license key issued by OpenFaaS Ltd.
