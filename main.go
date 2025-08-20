@@ -18,6 +18,8 @@ func main() {
 	cmdPlan := cmd.MakePlan()
 	cmdNodeToken := cmd.MakeNodeToken()
 	cmdGetConfig := cmd.MakeGetConfig()
+	cmdGet := cmd.MakeGet()
+	cmdGetPro := cmd.MakeGetPro()
 
 	printk3supASCIIArt := cmd.PrintK3supASCIIArt
 
@@ -27,7 +29,10 @@ func main() {
 			printk3supASCIIArt()
 			cmd.Help()
 		},
-		Example: `  # Install k3s on a server with embedded etcd
+		Example: `  # Upgrade to K3sup Pro
+  k3sup get pro
+
+  # Install k3s on a server with embedded etcd
   k3sup install \
     --cluster \
     --host $SERVER_1 \
@@ -60,6 +65,9 @@ func main() {
 	rootCmd.AddCommand(cmdPlan)
 	rootCmd.AddCommand(cmdNodeToken)
 	rootCmd.AddCommand(cmdGetConfig)
+
+	cmdGet.AddCommand(cmdGetPro)
+	rootCmd.AddCommand(cmdGet)
 
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)

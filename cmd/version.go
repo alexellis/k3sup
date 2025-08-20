@@ -14,7 +14,7 @@ var (
 )
 
 func PrintK3supASCIIArt() {
-	k3supLogo := aec.RedF.Apply(k3supFigletStr)
+	k3supLogo := aec.GreenF.Apply(k3supFigletStr)
 	support := aec.CyanF.Apply(pkg.SupportMessageShort)
 
 	fmt.Print(k3supLogo)
@@ -44,12 +44,12 @@ func MakeVersion() *cobra.Command {
 	return command
 }
 
-const k3supFigletStr = ` _    _____                 
-| | _|___ / ___ _   _ _ __  
-| |/ / |_ \/ __| | | | '_ \ 
-|   < ___) \__ \ |_| | |_) |
-|_|\_\____/|___/\__,_| .__/ 
-                     |_|    
+const k3supFigletStr = ` _    _____                    ____ _____ 
+| | _|___ / ___ _   _ _ __    / ___| ____|
+| |/ / |_ \/ __| | | | '_ \  | |   |  _|  
+|   < ___) \__ \ |_| | |_) | | |___| |___ 
+|_|\_\____/|___/\__,_| .__/   \____|_____|
+                     |_|                  
 
 bootstrap K3s over SSH in < 60s 🚀
 `
