@@ -158,7 +158,7 @@ The `--predownload` flag for `k3sup pro apply` is the first step towards a fully
 
 Walkthrough of `plan`, `apply`, `get-config` and `exec`:
 
-[![asciicast](https://asciinema.org/a/HpHLjHFjXXAJ3uHiD4jKgvvaN.svg)](https://asciinema.org/a/HpHLjHFjXXAJ3uHiD4jKgvvaN)
+[![asciicast](https://asciinema.org/a/725554.svg)](https://asciinema.org/a/725554)
 
 ### K3sup Pro roadmap
 
