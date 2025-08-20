@@ -8,6 +8,12 @@ The tool is written in Go and is cross-compiled for Linux, Windows, MacOS and ev
 
 How do you say it? Ketchup, as in tomato.
 
+**Introducing K3sup Pro 🎉**
+
+Whilst the CE edition is ideal for experimentation, we built `k3sup pro` for an IaaC/GitOps experience.
+
+`k3sup pro` adds a `plan` and `apply` command to automate installations both small and large - running in parallel. The plan file can be customised and retained in Git for maintenance and updates.
+
 [![Sponsor this](https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub&link=https://github.com/sponsors/alexellis)](https://github.com/sponsors/alexellis)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![build](https://github.com/alexellis/k3sup/actions/workflows/build.yaml/badge.svg)](https://github.com/alexellis/k3sup/actions/workflows/build.yaml)
@@ -25,10 +31,15 @@ How do you say it? Ketchup, as in tomato.
   - [Demo 📼](#demo-)
   - [Usage ✅](#usage-)
   - [Pre-requisites for k3sup servers and agents](#pre-requisites-for-k3sup-servers-and-agents)
+  - [K3sup pro](#k3sup-pro)
+    - [K3sup plan / apply for automation and large installations](#k3sup-plan--apply-for-automation-and-large-installations)
+    - [Rapid uninstallation / reset with `k3sup pro uninstall`](#rapid-uninstallation--reset-with-k3sup-pro-uninstall)
+    - [K3sup pro exec](#k3sup-pro-exec)
+    - [Get a kubeconfig from an existing installation](#get-a-kubeconfig-from-an-existing-installation)
+  - [K3sup Community Edition (CE)](#k3sup-community-edition-ce)
     - [👑 Setup a Kubernetes *server* with `k3sup`](#-setup-a-kubernetes-server-with-k3sup)
     - [Checking if a cluster is ready](#checking-if-a-cluster-is-ready)
     - [Merging clusters into your KUBECONFIG](#merging-clusters-into-your-kubeconfig)
-    - [Getting a kubeconfig from an existing installation](#getting-a-kubeconfig-from-an-existing-installation)
     - [😸 Join some agents to your Kubernetes server](#-join-some-agents-to-your-kubernetes-server)
     - [Use your hardware authentication / 2FA or SSH Agent](#use-your-hardware-authentication--2fa-or-ssh-agent)
     - [K3sup plan for automation](#k3sup-plan-for-automation)
@@ -74,7 +85,7 @@ K3sup runs from your local machine, without ever having to log into a remote ser
 * Bootstrap Kubernetes with k3s onto any VM with `k3sup install` - either manually, during CI or through `cloud-init`
 * Get from zero to `kubectl` with `k3s` on bare-metal, Raspberry Pi (RPi), VMs, AWS EC2, Google Cloud, DigitalOcean, Civo, Linode, Scaleway, and others
 * Build a Highly-Available (HA), multi-master (server) cluster
-* Fetch the KUBECONFIG from an existing cluster with `k3sup get-config`
+* Fetch the KUBECONFIG from an existing cluster with `k3sup pro get-config`
 * Join nodes into an existing `k3s` cluster with `k3sup join`
 * Build a massive cluster for automation and scale-out testing using `k3sup plan` and a JSON file with IP addresses
 
@@ -98,7 +109,7 @@ k3sup --help
 
 Windows users can use `k3sup install` and `k3sup join` with a normal "Windows command prompt".
 
-## Demo 📼
+## Demo of K3sup CE📼
 
 In the demo I install Kubernetes (`k3s`) onto two separate machines and get my `kubeconfig` downloaded to my laptop each time in around one minute.
 
@@ -128,6 +139,235 @@ alex ALL=(ALL) NOPASSWD: ALL
 In most circumstances, cloud images for Ubuntu and other distributions will not require this step.
 
 As an alternative, if you only need a single server you can log in interactively and run `k3sup install --local` instead of using SSH.
+
+## K3sup Pro
+
+K3sup Pro is available as a free extra to [GitHub Sponsors](https://github.com/sponsors/alexellis) on a 25 USD / mo tier and higher to individuals. A separate option to purchase on an annual basis is available via email for commercial use. Contact [contact@openfaas.com](mailto:contact@openfaas.com) for more.
+
+* `plan` - take one or more JSON files and generate a YAML plan for a HA installation of K3s
+* `apply` - run the installation in parallel, optionally pre-downloading the K3s binary and copying it via SSH beforehand
+* `exec` - run a command on all nodes in the cluster
+* `get-config` - get a kubeconfig from an existing installation
+* `uninstall` - uninstall k3s from all nodes in the cluster in parallel
+
+The `--predownload` flag for `k3sup pro apply` is the first step towards a fully airgapped solution, and reduces bandwidth whilst speeding up installation.
+
+Walkthrough of plan, apply, get-config and exec:
+
+[![asciicast](https://asciinema.org/a/HpHLjHFjXXAJ3uHiD4jKgvvaN.svg)](https://asciinema.org/a/HpHLjHFjXXAJ3uHiD4jKgvvaN)
+
+### K3sup `plan` / `apply` for automation and large installations
+
+The `k3sup pro plan` command reads a set of JSON files containing your hosts, and will generate a YAML plan file that you can edit to customize the installation.
+
+Example input file:
+
+```json
+[
+  {
+    "hostname": "k3s-server-1",
+    "ip": "192.168.129.138"
+  },
+  {
+    "hostname": "k3s-server-2",
+    "ip": "192.168.129.128"
+  },
+  {
+    "hostname": "k3s-server-3",
+    "ip": "192.168.129.131"
+  },
+  {
+    "hostname": "k3s-agent-1",
+    "ip": "192.168.129.130"
+  },
+  {
+    "hostname": "k3s-agent-2",
+    "ip": "192.168.129.127"
+  }
+]
+```
+
+The following will create 1x primary server, with 2x additional servers within a HA etcd cluster, the last two nodes will be added as agents.
+
+```bash
+k3sup pro plan ./n100.json ./n200.json \
+  --user ubuntu \
+  --servers 3 \
+  --svclb=false \
+  --server-extra-args "--disable traefik" \
+  --agent-extra-args "--node-label worker=true"
+```
+
+Example plan.yaml file:
+
+```yaml
+version:
+    k3s_channel: stable
+server_options:
+    user: ubuntu
+    ssh_port: 22
+    k3s_extra_args: --disable traefik
+    parallel: 5
+    traefik: true
+agent_options:
+    k3s_extra_args: --node-label worker=true
+hosts:
+    - name: k3s-1
+      role: server
+      host: 192.168.138.2
+      architecture: x86_64
+    - name: k3s-2
+      role: server
+      host: 192.168.138.3
+      architecture: x86_64
+    - name: k3s-3
+      role: server
+      host: 192.168.138.4
+      architecture: x86_64
+    - name: k3s-agent-1
+      role: agent
+      host: 192.168.137.2
+      architecture: x86_64
+    - name: k3s-agent-2
+      role: agent
+      host: 192.168.137.3
+      architecture: x86_64
+    - name: k3s-agent-3
+      role: agent
+      host: 192.168.137.4
+      architecture: x86_64
+
+```
+
+The YAML plan file can be edited and committed to Git for maintenance and future upgrades.
+
+Then when you're ready to install, you can run `k3sup pro apply` to install in parallel.
+
+The `--predownload` flag will download the k3s binary to your local machine, then copy it over SSH to each host to speed up the installation.
+
+The `--parallel` flag sets how many installation steps to run at the same time.
+
+```bash
+k3sup pro apply \
+  --predownload \
+  --parallel 10
+```
+
+You can also get hold of your kubeconfig with `k3sup pro get-config` and then use `kubectl` to access your cluster.
+
+Merge it into your main KUBECONFIG file:
+
+```bash
+k3sup pro get-config \
+  --local-path $HOME/.kube/config \
+  --context my-k3s \
+  --merge
+```
+
+Or set up a local file:
+
+```bash
+k3sup pro get-config \
+  --local-path ./kubeconfig
+
+export KUBECONFIG=`pwd`/kubeconfig
+```
+
+Watch a demo with dozens of Firecracker VMs: [Testing Kubernetes at Scale with bare-metal](https://youtu.be/o4UxRw-Cc8c)
+
+## Rapid uninstallation / reset with `k3sup pro uninstall`
+
+The `k3sup pro uninstall` command will uninstall k3s from all nodes in the cluster.
+
+If you have a plan YAML file, the username, SSH ports, and key files will all be read from the file, and the uninstallation will be performed in order and in parallel. Removing the agents first, then any additional servers, and finally the primary server.
+```bash
+k3sup pro uninstall
+```
+
+If you only have devices JSON files, you may also need a `--user` and / or `--ssh-key` flag.
+
+```bash
+k3sup pro uninstall \
+  --user ubuntu \
+  --ssh-key ~/.ssh/id_rsa
+```
+
+## K3sup `pro exec` - run a command everywhere
+
+The `k3sup pro exec` command allows you to run a command on all nodes in the cluster. You can specify `--servers` or `--agents` to run the command on only the servers or agents.
+
+Run on all nodes:
+
+```bash
+k3sup pro exec \
+  "free -h"
+```
+
+Only on servers:
+
+```bash
+k3sup pro exec \
+  --servers \
+  "sudo journalctl -u k3s -n 100"
+```
+
+Only on agents:
+
+```bash
+k3sup pro exec \
+  --agents \
+  "sudo journalctl -u k3s-agent -n 100"
+```
+
+### K3sup `pro get-config` - work with an existing cluster
+
+The `k3sup pro get-config` command allows you to retrieve kubeconfig files from existing K3s installations without performing any installation steps. This is useful when you already have K3s running and just need to access the cluster configuration.
+
+You can also use it if you initially created a local `./kubeconfig` file but now want to merge it under a meaningful context name to your main `$HOME/.kube/config` file.
+
+Get kubeconfig from a remote server:
+
+```bash
+k3sup pro get-config \
+  --host 192.168.0.100 \
+  --user ubuntu \
+  --local-path ./kubeconfig
+```
+
+Get kubeconfig from a local installation:
+
+```bash
+k3sup pro get-config --local
+```
+
+Merge kubeconfig into your main KUBECONFIG file:
+
+```bash
+k3sup pro get-config \
+  --host 192.168.0.100 \
+  --user ubuntu \
+  --merge \
+  --local-path $HOME/.kube/config \
+  --context my-remote-cluster
+```
+
+Use a custom SSH key:
+
+```bash
+k3sup pro get-config \
+  --host 192.168.0.100 \
+  --user ubuntu \
+  --ssh-key $HOME/.ssh/my-key \
+  --local-path ./kubeconfig
+```
+
+If you do not have `k3sup pro` yet, you can also use `k3sup install` with the `--skip-install` flag.
+
+## K3sup Community Edition (CE)
+
+The CE edition of K3sup is available to all users for free, and the code is licensed under the MIT license so you can also adapt it for your own use, or contribute back to the project.
+
+The CE edition has been available since 2019 and has been used by many different people to learn about Kubernetes, and to build their own clusters using imperative bash commands.
 
 ### 👑 Setup a Kubernetes *server* with `k3sup`
 
@@ -243,48 +483,6 @@ k3sup install \
 
 Here we set a context of `my-k3s` and also merge into our main local `KUBECONFIG` file, so we could run `kubectl config use-context my-k3s` or `kubectx my-k3s`.
 
-### Getting a kubeconfig from an existing installation
-
-The `k3sup get-config` command allows you to retrieve kubeconfig files from existing K3s installations without performing any installation steps. This is useful when you already have K3s running and just need to access the cluster configuration.
-
-You can also use it if you initially created a local `./kubeconfig` file but now want to merge it under a meaningful context name to your main `$HOME/.kube/config` file.
-
-Get kubeconfig from a remote server:
-
-```bash
-k3sup get-config \
-  --host 192.168.0.100 \
-  --user ubuntu \
-  --local-path ./kubeconfig
-```
-
-Get kubeconfig from a local installation:
-
-```bash
-k3sup get-config --local
-```
-
-Merge kubeconfig into your main KUBECONFIG file:
-
-```bash
-k3sup get-config \
-  --host 192.168.0.100 \
-  --user ubuntu \
-  --merge \
-  --local-path $HOME/.kube/config \
-  --context my-remote-cluster
-```
-
-Use a custom SSH key:
-
-```bash
-k3sup get-config \
-  --host 192.168.0.100 \
-  --user ubuntu \
-  --ssh-key $HOME/.ssh/my-key \
-  --local-path ./kubeconfig
-```
-
 ### 😸 Join some agents to your Kubernetes server
 
 Let's say that you have a server, and have already run the following:
@@ -330,61 +528,6 @@ Optionally, if your key is encrypted, run: `ssh-add ~/.ssh/id_rsa`
 Now run any `k3sup` command, and your SSH key will be requested from the ssh-agent instead of from the usual location.
 
 You can also specify an SSH key with `--ssh-key` if you want to use a specific key-pair.
-
-### K3sup plan for automation
-
-A new command was added to k3sup to help with automating large amounts of nodes.
-
-`k3sup plan` reads a JSON input file containing hosts, and will generate an installation command for a number of servers and agents.
-
-Example input file:
-
-```json
-[
-  {
-    "hostname": "node-a-1",
-    "ip": "192.168.129.138"
-  },
-  {
-    "hostname": "node-a-2",
-    "ip": "192.168.129.128"
-  },
-  {
-    "hostname": "node-a-3",
-    "ip": "192.168.129.131"
-  },
-  {
-    "hostname": "node-a-4",
-    "ip": "192.168.129.130"
-  },
-  {
-    "hostname": "node-a-5",
-    "ip": "192.168.129.127"
-  }
-]
-```
-
-The following will create 1x primary server, with 2x additional servers within a HA etcd cluster, the last two nodes will be added as agents:
-
-```bash
-k3sup plan \
-  devices.json \
-  --user ubuntu \
-  --servers 3 \
-  --server-k3s-extra-args "--disable traefik" \
-  --background > bootstrap.sh
-```
-
-Then make the file executable and run it:
-
-```bash
-chmod +x bootstrap.sh
-./bootstrap.sh
-```
-
-Watch a demo with dozens of Firecracker VMs: [Testing Kubernetes at Scale with bare-metal](https://youtu.be/o4UxRw-Cc8c)
-
-The initial version of `k3sup plan` has a reduced set of flags. Flags such as `--k3s-version` and `--datastore` are not available, but feel free to propose an issue with what you need.
 
 ### Create a multi-master (HA) setup with external SQL
 
