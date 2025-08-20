@@ -10,7 +10,7 @@ How do you say it? Ketchup, as in tomato.
 
 **Introducing K3sup Pro 🎉**
 
-Whilst the CE edition is ideal for experimentation, `k3sup pro` was built to satisfy long standing requests for an IaaC/GitOps experience.
+Whilst the CE edition is ideal for experimentation, [`k3sup pro`](#k3sup-pro) was built to satisfy long standing requests for an IaaC/GitOps experience.
 
 `k3sup pro` adds a `plan` and `apply` command to automate installations both small and large - running in parallel. The plan file can be customised and retained in Git for maintenance and updates.
 
@@ -141,7 +141,7 @@ As an alternative, if you only need a single server you can log in interactively
 
 ## K3sup Pro
 
-K3sup Pro is available as a free extra to [GitHub Sponsors](https://github.com/sponsors/alexellis) on a 25 USD / mo tier and higher to individuals. A separate option to purchase on an annual basis is available via email for commercial use. Contact [sales@openfaas.com](mailto:sales@openfaas.com) for more information.
+K3sup Pro is available as a free extra to [GitHub Sponsors](https://github.com/sponsors/alexellis) on a 25 USD / mo tier and higher to individuals. A separate option to purchase on an annual basis is available via email for commercial use. Contact [sales@openfaas.com](mailto:sales@openfaas.com) for more information. For either case review the [EULA](/EULA.md) before downloading or using the software.
 
 The binary name for K3sup Pro is `k3sup` which is intended to replace the existing `k3sup` CE binary, if you have it. You'll find all the additional commands behind a new sub-command `k3sup pro`.
 
