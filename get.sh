@@ -12,6 +12,23 @@ export REPO=k3sup
 export BINLOCATION="/usr/local/bin"
 export SUCCESS_CMD="$BINLOCATION/$REPO version"
 
+GET_PRO=false
+
+if [ "$PRO" = "true" ]; then
+    GET_PRO=true
+fi
+
+if [ "$PRO" = "1" ]; then
+   GET_PRO=true
+fi
+
+if [ "$GET_PRO" = "true" ]; then
+    echo "PRO=true"
+    echo ""
+    echo "Plan: download K3sup CE then upgrade to K3sup Pro"
+    echo ""
+fi
+
 ###############################
 # Content common across repos #
 ###############################
@@ -185,6 +202,7 @@ getPackage() {
     fi
 }
 
+
 thanks() {
     echo
     echo "================================================================"
@@ -197,4 +215,11 @@ thanks() {
 
 hasCli
 getPackage
-thanks
+
+if [ "$GET_PRO" = "false" ]; then
+    thanks
+else
+    echo "Upgrading to K3sup Pro"
+
+    $BINLOCATION/$REPO get pro
+fi

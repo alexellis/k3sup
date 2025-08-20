@@ -175,9 +175,12 @@ The recommended option is to use K3sup CE to obtain K3sup Pro:
 
 ```bash
 # Get the latest K3sup CE version
-curl -sLS https://get.k3sup.dev | sudo sh
+PRO=1 curl -sLS https://get.k3sup.dev | sudo sh
+```
 
-# Use K3sup CE to replace itself with the Pro edition
+Or, if you already have the latest K3sup CE version, it can replace itself:
+
+```bash
 sudo k3sup get pro
 ```
 
