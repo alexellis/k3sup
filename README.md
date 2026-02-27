@@ -69,6 +69,36 @@ You may wonder why a tool like this needs to exist when you can do this sort of 
 
 k3sup was developed to automate what can be a very manual and confusing process for many developers, who are already short on time. Once you've provisioned a VM with your favourite tooling, `k3sup` means you are only 60 seconds away from running `kubectl get pods` on your own computer. If you are a local computer, you can bypass SSH with `k3sup install --local`
 
+**How does k3sup work?**
+
+```
+                          k3sup install
+ +---------------------+                  +-----------------------------+
+ |                      |    1. SSH       |                             |
+ |   Your Laptop /      +---------------->|   Remote Server (VM/RPi)    |
+ |   Workstation        |                 |                             |
+ |                      |    2. Install   |   +---------------------+   |
+ |  +----------------+  |    k3s -------->|   |  k3s (server/agent) |   |
+ |  | kubectl        |  |                 |   +---------------------+   |
+ |  +----------------+  |    3. Fetch     |                             |
+ |  | kubeconfig     |<-+    kubeconfig   |                             |
+ |  +----------------+  |                 +-----------------------------+
+ |                      |
+ +---------------------+        k3sup join
+                          +-------------------->+-----------+
+                          |                     | Agent 1   |
+                          +-------------------->+-----------+
+                          |                     | Agent 2   |
+                          +-------------------->+-----------+
+                                                | Agent n   |
+                                                +-----------+
+```
+
+ * Step 1: k3sup install  → SSH into server, install k3s
+ * Step 2: kubeconfig     → Fetched to your laptop automatically
+ * Step 3: k3sup join     → Add agents to the cluster via SSH
+ * Step 4: kubectl        → Ready to use from your laptop 🚀
+ 
 ### Are you a `k3sup` user?
 
 `k3sup` was created by [Alex Ellis](https://github.com/users/alexellis/sponsorship) - the founder of [OpenFaaS &reg;](https://www.openfaas.com/) & [inlets](https://inlets.dev/). 
