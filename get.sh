@@ -206,9 +206,9 @@ getPackage() {
 thanks() {
     echo
     echo "================================================================"
-    echo "  Support Alex's work on K3sup via GitHub Sponsors"
-    echo "" 
-    echo "  https://github.com/sponsors/alexellis" 
+    echo "  Tip: Create clusters on Mac, Linux + WSL2 with K3sup"
+    echo ""
+    echo "  https://slicervm.com"
     echo "================================================================"
     echo
 }

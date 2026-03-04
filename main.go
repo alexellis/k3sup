@@ -20,6 +20,7 @@ func main() {
 	cmdGetConfig := cmd.MakeGetConfig()
 	cmdGet := cmd.MakeGet()
 	cmdGetPro := cmd.MakeGetPro()
+	cmdPro := cmd.MakePro()
 
 	printk3supASCIIArt := cmd.PrintK3supASCIIArt
 
@@ -29,32 +30,7 @@ func main() {
 			printk3supASCIIArt()
 			cmd.Help()
 		},
-		Example: `  # Upgrade to K3sup Pro
-  k3sup get pro
-
-  # Install k3s on a server with embedded etcd
-  k3sup install \
-    --cluster \
-    --host $SERVER_1 \
-    --user $SERVER_1_USER \
-    --k3s-channel stable
-
-  # Join a second server
-  k3sup join \
-    --server \
-    --host $SERVER_2 \
-    --user $SERVER_2_USER \
-    --server-host $SERVER_1 \
-    --server-user $SERVER_1_USER \
-    --k3s-channel stable
-
-  # Join an agent to the cluster
-  k3sup join \
-    --host $SERVER_1 \
-    --user $SERVER_1_USER \
-    --k3s-channel stable
-  
-` + pkg.SupportMessageShort,
+		Long: pkg.SupportMessageShort,
 	}
 
 	rootCmd.AddCommand(cmdInstall)
@@ -68,6 +44,7 @@ func main() {
 
 	cmdGet.AddCommand(cmdGetPro)
 	rootCmd.AddCommand(cmdGet)
+	rootCmd.AddCommand(cmdPro)
 
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)

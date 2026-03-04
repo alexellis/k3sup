@@ -13,7 +13,7 @@ Focus on the feature, not the technical approach or solution.
 
 **Why do you want this?**
 
-Make a case for why your request should be considered. For instance, are you a GitHub Sponsor?
+Make a case for why your request should be considered.
 
 **Recommended solution**
 

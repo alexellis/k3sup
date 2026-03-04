@@ -14,7 +14,6 @@ Whilst the CE edition is ideal for experimentation, [`k3sup pro`](#k3sup-pro) wa
 
 `k3sup pro` adds a `plan` and `apply` command to automate installations both small and large - running in parallel. The plan file can be customised and retained in Git for maintenance and updates.
 
-[![Sponsor this](https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub&link=https://github.com/sponsors/alexellis)](https://github.com/sponsors/alexellis)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![build](https://github.com/alexellis/k3sup/actions/workflows/build.yaml/badge.svg)](https://github.com/alexellis/k3sup/actions/workflows/build.yaml)
 [![Github All Releases](https://img.shields.io/github/downloads/alexellis/k3sup/total.svg)]()
@@ -24,7 +23,6 @@ Whilst the CE edition is ideal for experimentation, [`k3sup pro`](#k3sup-pro) wa
 - [k3sup 🚀 (said 'ketchup')](#k3sup--said-ketchup)
   - [Contents:](#contents)
   - [What's this for? 💻](#whats-this-for-)
-  - [Are you a `k3sup` user?](#are-you-a-k3sup-user)
     - [Use-cases](#use-cases)
     - [Bootstrapping Kubernetes](#bootstrapping-kubernetes)
     - [Download `k3sup` CE (tl;dr)](#download-k3sup-ce-tldr)
@@ -99,15 +97,7 @@ k3sup was developed to automate what can be a very manual and confusing process 
  * Step 3: k3sup join     → Add agents to the cluster via SSH
  * Step 4: kubectl        → Ready to use from your laptop 🚀
  
-### Are you a `k3sup` user?
-
-`k3sup` was created by [Alex Ellis](https://github.com/users/alexellis/sponsorship) - the founder of [OpenFaaS &reg;](https://www.openfaas.com/) & [inlets](https://inlets.dev/). 
-
-<a href="https://github.com/sponsors/alexellis/">
-<img alt="Sponsor this project" src="https://github.com/alexellis/alexellis/blob/master/sponsor-today.png" width="90%">
-</a>
-
-Want to see continued development? [Sponsor alexellis on GitHub](https://github.com/users/alexellis/sponsorship)
+> **Tip:** Create clusters on Mac, Linux + WSL2 with K3sup and [SlicerVM](https://slicervm.com)
 
 ### Use-cases
 
@@ -171,13 +161,13 @@ As an alternative, if you only need a single server you can log in interactively
 
 ## K3sup Pro
 
-K3sup Pro is available as a free extra to [GitHub Sponsors](https://github.com/sponsors/alexellis) on a 25 USD / mo tier and higher to individuals. A separate option to purchase on an annual basis is available via email for commercial use. Contact [sales@openfaas.com](mailto:sales@openfaas.com) for more information. For either case review the [EULA](/EULA.md) before downloading or using the software.
+K3sup Pro is available for individuals and commercial use. Review the [EULA](/EULA.md) before downloading or using the software.
 
 The binary name for K3sup Pro is `k3sup` which is intended to replace the existing `k3sup` CE binary, if you have it. You'll find all the additional commands behind a new sub-command `k3sup pro`.
 
 Support for all K3sup Pro users is provided by the Issue Tracker for the [K3sup CE repository](https://github.com/alexellis/k3sup-pro/).
 
-* `activate` - used by GitHub Sponsors to obtain/refresh a license key valid for 30 days. Commercial users just place your key at `~/.k3sup/LICENSE`
+* `activate` - obtain/refresh a license key. Commercial users just place your key at `~/.k3sup/LICENSE`
 * `plan` - take one or more JSON files and generate a YAML plan for a HA installation of K3s
 * `apply` - run the installation in parallel, optionally pre-downloading the K3s binary and copying it via SSH beforehand
 * `exec` - run a command on all nodes in the cluster
@@ -219,9 +209,9 @@ You can browse specific versions at [ghcr.io/openfaasltd/k3sup-pro](https://ghcr
 
 ### Activating K3sup Pro
 
-Individual users need to become GitHub Sponsors. After which, you can run `k3sup pro activate` to verify your identity using GitHub.com. You'll only need to do this on your laptop/workstation - machines which will host K3s do not need any additional steps.
+Run `k3sup pro activate` to verify your identity using GitHub.com. You'll only need to do this on your laptop/workstation - machines which will host K3s do not need any additional steps.
 
-Commercial users will be emailed a license key to be placed at `$HOME/.k3sup/LICENSE` and do not need to run `k3sup pro activate`.
+Commercial users can place their license key at `$HOME/.k3sup/LICENSE` and do not need to run `k3sup pro activate`.
 
 ### K3sup `plan` / `apply` for automation and large installations
 

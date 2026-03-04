@@ -15,11 +15,8 @@ var (
 
 func PrintK3supASCIIArt() {
 	k3supLogo := aec.GreenF.Apply(k3supFigletStr)
-	support := aec.CyanF.Apply(pkg.SupportMessageShort)
 
 	fmt.Print(k3supLogo)
-
-	fmt.Printf("%s\n\n", support)
 }
 
 func MakeVersion() *cobra.Command {

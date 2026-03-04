@@ -1,4 +1,4 @@
 package pkg
 
-// SupportMessageShort is how to support k3sup's ongoing development.
-const SupportMessageShort = `🫡 Sponsor Alex via GitHub: https://github.com/sponsors/alexellis`
+// SupportMessageShort is a tip shown to users after commands.
+const SupportMessageShort = `Tip: Create clusters on Mac, Linux + WSL2 with K3sup and https://slicervm.com`
