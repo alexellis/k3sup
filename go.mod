@@ -1,8 +1,6 @@
 module github.com/alexellis/k3sup
 
-go 1.24.0
-
-toolchain go1.24.6
+go 1.25.0
 
 require (
 	github.com/alexellis/arkade v0.0.0-20250818095951-5f1a8a0d86df
