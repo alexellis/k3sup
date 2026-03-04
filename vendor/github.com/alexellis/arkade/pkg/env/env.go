@@ -8,13 +8,24 @@ import (
 	"log"
 	"os"
 	"path"
+	"runtime"
 	"strings"
 
 	execute "github.com/alexellis/go-execute/v2"
 )
 
-// GetClientArch returns a pair of arch and os
+// GetClientArch returns the architecture and OS of the client machine
+// on Windows, that's a direct passthrough from runtime.GOARCH and runtime.GOOS
+// On Linux and Darwin, it uses `uname -m` and `uname -s` to get more specific values
 func GetClientArch() (arch string, os string) {
+	if runtime.GOOS == "windows" {
+		return runtime.GOARCH, runtime.GOOS
+	}
+
+	return getClientArchFromUname()
+}
+
+func getClientArchFromUname() (arch string, os string) {
 	task := execute.ExecTask{
 		Command:     "uname",
 		Args:        []string{"-m"},
