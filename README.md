@@ -174,6 +174,11 @@ Support for all K3sup Pro users is provided by the Issue Tracker for the [K3sup 
 * `get-config` - get a kubeconfig from an existing installation
 * `uninstall` - uninstall k3s from all nodes in the cluster in parallel
 
+Classic K3sup CE commands are also available within the single binary, for backwards compatibility and for quick testing.
+
+* `install` - install K3s to a single node imperatively
+* `join` - join a single node to an existing K3s server
+
 The `--predownload` flag for `k3sup-pro apply` is the first step towards a fully airgapped solution, and reduces bandwidth whilst speeding up installation.
 
 Walkthrough of `plan`, `apply`, `get-config` and `exec`:
