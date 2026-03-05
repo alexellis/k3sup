@@ -165,8 +165,6 @@ K3sup Pro is available for individuals via a [GitHub Sponsorship of 25+ USD / mo
 
 > K3sup Pro is free with your [SlicerVM](https://slicervm.com) subscription. Slicer makes it quick and easy to spin up single or multi-node K3s clusters directly on your own computer, cloud, or homelab environments.
 
-The binary name for K3sup Pro is `k3sup` which is intended to replace the existing `k3sup` CE binary, if you have it. You'll find all the additional commands behind a new sub-command `k3sup-pro`.
-
 Support for all K3sup Pro users is provided by the Issue Tracker for the [K3sup CE repository](https://github.com/alexellis/k3sup-pro/).
 
 * `activate` - obtain/refresh a license key. Commercial users just place your key at `~/.k3sup/LICENSE`
