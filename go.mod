@@ -3,6 +3,7 @@ module github.com/alexellis/k3sup
 go 1.25.6
 
 require (
+	github.com/Microsoft/go-winio v0.6.2
 	github.com/alexellis/arkade v0.0.0-20260304131458-e29d4142a4d5
 	github.com/alexellis/go-execute/v2 v2.2.1
 	github.com/google/go-containerregistry v0.21.2

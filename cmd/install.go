@@ -14,8 +14,6 @@ import (
 	"github.com/alexellis/k3sup/pkg"
 	operator "github.com/alexellis/k3sup/pkg/operator"
 
-	"errors"
-
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"golang.org/x/crypto/ssh"
@@ -290,7 +288,7 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 		sshKeyPath := expandPath(sshKey)
 		address := fmt.Sprintf("%s:%d", host, port)
 
-		sshOperator, sshOperatorDone, errored, err := connectOperator(user, address, sshKeyPath)
+		sshOperator, sshOperatorDone, errored, err := connectOperator(user, address, sshKeyPath, dialSystemSSHAgent)
 		if errored {
 			return err
 		}
@@ -340,66 +338,48 @@ type DoneFunc func()
 // If the initial connection attempt fails fall through to the using
 // the supplied/default private key file
 // DoneFunc should be called by the caller to close the SSH connection when done
-func connectOperator(user string, address string, sshKeyPath string) (*operator.SSHOperator, DoneFunc, bool, error) {
-	var sshOperator *operator.SSHOperator
-	var initialSSHErr error
-	var closeSSHAgentFunc func() error
+func connectOperator(user string, address string, sshKeyPath string, dialSSHAgent func() (net.Conn, error)) (*operator.SSHOperator, DoneFunc, bool, error) {
+	config := &ssh.ClientConfig{
+		User:            user,
+		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+	}
+
+	// Try the SSH agent first.
+	sshAgentConn, err := dialSSHAgent()
+	if err == nil {
+		sshAgentAuthMethod := ssh.PublicKeysCallback(agent.NewClient(sshAgentConn).Signers)
+		config.Auth = []ssh.AuthMethod{sshAgentAuthMethod}
+
+		sshOperator, err := operator.NewSSHOperator(address, config)
+		if err == nil {
+			doneFunc := func() {
+				sshOperator.Close()
+				sshAgentConn.Close()
+			}
+			return sshOperator, doneFunc, false, nil
+		}
+
+		sshAgentConn.Close()
+	}
+
+	// Fall back to the supplied or default private key.
+	publicKeyFileAuth, closeSSHAgent, err := loadPublickey(sshKeyPath)
+	if err != nil {
+		return nil, nil, true, fmt.Errorf("unable to load the ssh key with path %q: %w", sshKeyPath, err)
+	}
+	defer closeSSHAgent()
+
+	config.Auth = []ssh.AuthMethod{publicKeyFileAuth}
+
+	sshOperator, err := operator.NewSSHOperator(address, config)
+	if err != nil {
+		return nil, nil, true, fmt.Errorf("unable to connect to %s over ssh: %w", address, err)
+	}
 
 	doneFunc := func() {
-		if sshOperator != nil {
-			sshOperator.Close()
-		}
-		if closeSSHAgentFunc != nil {
-			closeSSHAgentFunc()
-		}
+		sshOperator.Close()
 	}
-
-	if runtime.GOOS != "windows" {
-		var sshAgentAuthMethod ssh.AuthMethod
-		sshAgentAuthMethod, initialSSHErr = sshAgentOnly()
-		if initialSSHErr == nil {
-
-			config := &ssh.ClientConfig{
-				User:            user,
-				Auth:            []ssh.AuthMethod{sshAgentAuthMethod},
-				HostKeyCallback: ssh.InsecureIgnoreHostKey(),
-			}
-
-			sshOperator, initialSSHErr = operator.NewSSHOperator(address, config)
-		}
-	} else {
-		initialSSHErr = errors.New("ssh-agent unsupported on windows")
-	}
-
-	if initialSSHErr != nil {
-		publicKeyFileAuth, closeSSHAgent, err := loadPublickey(sshKeyPath)
-		if err != nil {
-			return nil, nil, true, fmt.Errorf("unable to load the ssh key with path %q: %w", sshKeyPath, err)
-		}
-
-		defer closeSSHAgent()
-
-		config := &ssh.ClientConfig{
-			User:            user,
-			Auth:            []ssh.AuthMethod{publicKeyFileAuth},
-			HostKeyCallback: ssh.InsecureIgnoreHostKey(),
-		}
-
-		sshOperator, err = operator.NewSSHOperator(address, config)
-		if err != nil {
-			return nil, nil, true, fmt.Errorf("unable to connect to %s over ssh: %w", address, err)
-		}
-	}
-
 	return sshOperator, doneFunc, false, nil
-}
-
-func sshAgentOnly() (ssh.AuthMethod, error) {
-	sshAgent, err := net.Dial("unix", os.Getenv("SSH_AUTH_SOCK"))
-	if err != nil {
-		return nil, err
-	}
-	return ssh.PublicKeysCallback(agent.NewClient(sshAgent).Signers), nil
 }
 
 func obtainKubeconfig(operator operator.CommandOperator, getConfigcommand, host, context, localKubeconfig string, merge bool) error {
@@ -510,7 +490,7 @@ func expandPath(path string) string {
 }
 
 func sshAgent(publicKeyPath string) (ssh.AuthMethod, func() error) {
-	if sshAgentConn, err := net.Dial("unix", os.Getenv("SSH_AUTH_SOCK")); err == nil {
+	if sshAgentConn, err := dialSystemSSHAgent(); err == nil {
 		sshAgent := agent.NewClient(sshAgentConn)
 
 		keys, _ := sshAgent.List()

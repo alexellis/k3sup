@@ -2,7 +2,9 @@ package cmd
 
 import (
 	"errors"
+	"net"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"testing"
@@ -62,6 +64,35 @@ func Test_loadPublickeyEncrypted(t *testing.T) {
 	_, _, err = loadPublickey(fileName)
 	if errors.Is(err, want) {
 		t.Fatalf("want: %q, but got: %q", want, err.Error())
+	}
+}
+
+type closeTrackingConn struct {
+	net.Conn
+	closed bool
+}
+
+func (c *closeTrackingConn) Close() error {
+	c.closed = true
+	return c.Conn.Close()
+}
+
+func TestConnectOperatorClosesSSHAgentAfterConnectionFailure(t *testing.T) {
+	client, server := net.Pipe()
+	defer server.Close()
+
+	connection := &closeTrackingConn{Conn: client}
+	fakeDialSSHAgent := func() (net.Conn, error) {
+		return connection, nil
+	}
+
+	missingKey := filepath.Join(t.TempDir(), "missing-key")
+	_, _, errored, err := connectOperator("root", "127.0.0.1:0", missingKey, fakeDialSSHAgent)
+	if err == nil || !errored {
+		t.Fatal("expected SSH connection and private-key fallback to fail")
+	}
+	if !connection.closed {
+		t.Fatal("expected SSH agent connection to be closed")
 	}
 }
 
