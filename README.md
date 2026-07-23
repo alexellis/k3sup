@@ -589,6 +589,15 @@ Optionally, if your key is encrypted, run: `ssh-add ~/.ssh/id_rsa`
 
 Now run any `k3sup` command, and your SSH key will be requested from the ssh-agent instead of from the usual location.
 
+On Windows, start the OpenSSH Authentication Agent service and add your key from PowerShell:
+
+```powershell
+Start-Service ssh-agent
+ssh-add $HOME\.ssh\id_rsa
+```
+
+`k3sup` connects to the Windows OpenSSH agent through its standard named pipe.
+
 You can also specify an SSH key with `--ssh-key` if you want to use a specific key-pair.
 
 ### Create a multi-master (HA) setup with external SQL
@@ -1037,7 +1046,7 @@ If you've lost your kubeconfig, you can use `k3sup get-config`. See also the var
 
 > Warning: issues requesting support for smart cards / 2FA will be closed immediately. The feature has been proven to work, and is provided as-is.
 
-You can use a smart card or 2FA security key such as a Yubikey. You must have your ssh-agent configured correctly, at that point k3sup will defer to the agent to make connections on MacOS and Linux. [Find out more](https://github.com/alexellis/k3sup/pull/312)
+You can use a smart card or 2FA security key such as a Yubikey. You must have your ssh-agent configured correctly, at that point k3sup will defer to the agent to make connections on macOS, Linux, and Windows. [Find out more](https://github.com/alexellis/k3sup/issues/463)
 
 ### Misc note on `iptables`
 

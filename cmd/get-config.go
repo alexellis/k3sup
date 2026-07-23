@@ -138,7 +138,7 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 		sshKeyPath := expandPath(sshKey)
 		address := fmt.Sprintf("%s:%d", host, port)
 
-		sshOperator, sshOperatorDone, errored, err := connectOperator(user, address, sshKeyPath)
+		sshOperator, sshOperatorDone, errored, err := connectOperator(user, address, sshKeyPath, dialSystemSSHAgent)
 		if errored {
 			return err
 		}

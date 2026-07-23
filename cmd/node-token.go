@@ -117,7 +117,7 @@ server or agent to join the cluster.
 		if local {
 			operator = ssh.ExecOperator{}
 		} else {
-			sshOperator, sshOperatorDone, errored, err := connectOperator(user, address, sshKeyPath)
+			sshOperator, sshOperatorDone, errored, err := connectOperator(user, address, sshKeyPath, dialSystemSSHAgent)
 			if errored {
 				return err
 			}
