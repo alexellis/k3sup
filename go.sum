@@ -1,3 +1,5 @@
+github.com/Microsoft/go-winio v0.6.2 h1:F2VQgta7ecxGYO8k3ZZz3RS8fVIXVxONVUPlNERoyfY=
+github.com/Microsoft/go-winio v0.6.2/go.mod h1:yd8OoFMLzJbo9gZq8j5qaps8bJ9aShtEA8Ipt1oGCvU=
 github.com/alexellis/arkade v0.0.0-20250818095951-5f1a8a0d86df h1:2G+jZF9Wn1o8abf70sIKWWeOvhEoBDgzJ0bxWtECHno=
 github.com/alexellis/arkade v0.0.0-20250818095951-5f1a8a0d86df/go.mod h1:dDqIrbXxrj6BDvQIehG14v1ZqBZQJ5PIVffa+pYXM8M=
 github.com/alexellis/arkade v0.0.0-20260304131458-e29d4142a4d5 h1:cY1I3s7+xf6uy5Zrw5QHNuJ5pse1uszX76exlchoSQI=
