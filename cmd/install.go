@@ -59,7 +59,7 @@ func MakeInstall() *cobra.Command {
   k3sup install \
     --host HOST \
     --merge \
-    --local-file $HOME/.kube/kubeconfig \
+    --kubeconfig $HOME/.kube/kubeconfig \
     --context k3s-prod-eu-1
 
   # Only download kubeconfig
@@ -96,20 +96,22 @@ func MakeInstall() *cobra.Command {
 	command.Flags().Bool("skip-install", false, "Skip the k3s installer")
 
 	var localPath string
+	command.Flags().StringVarP(&localPath, "kubeconfig", "k", "kubeconfig", "Local path to save the kubeconfig file")
+	command.Flags().StringVar(&localPath, "local-file", "kubeconfig", "Local path to save the kubeconfig file")
+	_ = command.Flags().MarkHidden("local-file")
 	command.Flags().StringVar(&localPath, "local-path", "kubeconfig", "Local path to save the kubeconfig file")
 	_ = command.Flags().MarkHidden("local-path")
-	command.Flags().StringVar(&localPath, "local-file", "kubeconfig", "Local path to save the kubeconfig file")
 	command.Flags().String("context", "default", "Set the name of the kubeconfig context.")
 	command.Flags().Bool("no-extras", false, `Disable "servicelb" and "traefik"`)
 
 	command.Flags().Bool("ipsec", false, "Enforces and/or activates optional extra argument for k3s: flannel-backend option: ipsec")
 	command.Flags().Bool("merge", false, `Merge the config with existing kubeconfig if it already exists.
-Provide the --local-file flag with --merge if a kubeconfig already exists in some other directory`)
+Provide the --kubeconfig flag with --merge if a kubeconfig already exists in some other directory`)
 	command.Flags().Bool("local", false, "Perform a local install without using ssh")
 	command.Flags().Bool("cluster", false, "Form a cluster using embedded etcd (requires K8s >= 1.19)")
 
 	command.Flags().Bool("print-command", false, "Print a command that you can use with SSH to manually recover from an error")
-	command.Flags().String("datastore", "", "connection-string for the k3s datastore to enable HA - i.e. \"mysql://username:password@tcp(hostname:3306)/database-name\"")
+	command.Flags().String("datastore", "", "connection string for the k3s datastore to enable HA - i.e. \"mysql://username:password@tcp(hostname:3306)/database-name\"")
 	command.Flags().String("token", "", "the token used to encrypt the datastore, must be the same token for all nodes")
 
 	command.Flags().String("k3s-version", "", "Set a version to install, overrides k3s-channel")
@@ -434,6 +436,9 @@ func obtainKubeconfig(operator operator.CommandOperator, getConfigcommand, host,
 // Generates config files give the path to file: string and the data: []byte
 func writeConfig(path string, data []byte, context string, suppressMessage bool) error {
 	absPath, _ := filepath.Abs(path)
+	if err := os.MkdirAll(filepath.Dir(absPath), 0o755); err != nil {
+		return err
+	}
 	if !suppressMessage {
 		fmt.Printf(`Saving file to: %s
 
@@ -451,6 +456,29 @@ kubectl get node -o wide
 	}
 
 	if err := os.WriteFile(absPath, []byte(data), 0600); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func ensureConfigFile(path string) error {
+	absPath, err := filepath.Abs(path)
+	if err != nil {
+		return err
+	}
+
+	if err = os.MkdirAll(filepath.Dir(absPath), 0o755); err != nil {
+		return err
+	}
+
+	if _, err = os.Stat(absPath); err == nil {
+		return nil
+	} else if !os.IsNotExist(err) {
+		return err
+	}
+
+	if err = os.WriteFile(absPath, nil, 0600); err != nil {
 		return err
 	}
 
@@ -484,6 +512,10 @@ func mergeConfigs(localKubeconfigPath, context string, k3sconfig []byte) ([]byte
 		joinChar = ";"
 	} else {
 		joinChar = ":"
+	}
+
+	if err := ensureConfigFile(localKubeconfigPath); err != nil {
+		return nil, fmt.Errorf("could not prepare local kubeconfig path %q: %w", localKubeconfigPath, err)
 	}
 
 	appendKubeConfigENV := fmt.Sprintf("KUBECONFIG=%s%s%s",

@@ -23,13 +23,13 @@ func MakeGetConfig() *cobra.Command {
 		Example: `  # Get the kubeconfig and save it to ./kubeconfig in the local
   # directory under the default context
   k3sup get-config --host HOST \
-    --local-file ./kubeconfig
+    --kubeconfig ./kubeconfig
 
   # Merge kubeconfig into local file under custom context
   k3sup get-config \
     --host HOST \
     --merge \
-    --local-file $HOME/.kube/kubeconfig \
+    --kubeconfig $HOME/.kube/kubeconfig \
     --context k3s-prod-eu-1
 
   # Get kubeconfig from local installation directly on a server
@@ -45,12 +45,14 @@ func MakeGetConfig() *cobra.Command {
 	command.Flags().Int("ssh-port", 22, "The port on which to connect for ssh")
 	command.Flags().Bool("sudo", true, "Use sudo for kubeconfig retrieval. e.g. set to false when using the root user and no sudo is available.")
 	var localPath string
+	command.Flags().StringVarP(&localPath, "kubeconfig", "k", "kubeconfig", "Local path to save the kubeconfig file")
+	command.Flags().StringVar(&localPath, "local-file", "kubeconfig", "Local path to save the kubeconfig file")
+	_ = command.Flags().MarkHidden("local-file")
 	command.Flags().StringVar(&localPath, "local-path", "kubeconfig", "Local path to save the kubeconfig file")
 	_ = command.Flags().MarkHidden("local-path")
-	command.Flags().StringVar(&localPath, "local-file", "kubeconfig", "Local path to save the kubeconfig file")
 	command.Flags().String("context", "default", "Set the name of the kubeconfig context.")
 	command.Flags().Bool("merge", false, `Merge the config with existing kubeconfig if it already exists.
-Provide the --local-file flag with --merge if a kubeconfig already exists in some other directory`)
+Provide the --kubeconfig flag with --merge if a kubeconfig already exists in some other directory`)
 	command.Flags().Bool("print-command", false, "Print a command that you can use with SSH to manually recover from an error")
 	command.Flags().Bool("local", false, "Perform a local get-config without using ssh")
 

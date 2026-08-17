@@ -37,9 +37,11 @@ Examples JSON input file:
 
 	command.Flags().Int("servers", 3, "Number of servers to use from the devices file")
 	var localPath string
+	command.Flags().StringVarP(&localPath, "kubeconfig", "k", "kubeconfig", "Where to save the kubeconfig file")
+	command.Flags().StringVar(&localPath, "local-file", "kubeconfig", "Where to save the kubeconfig file")
+	_ = command.Flags().MarkHidden("local-file")
 	command.Flags().StringVar(&localPath, "local-path", "kubeconfig", "Where to save the kubeconfig file")
 	_ = command.Flags().MarkHidden("local-path")
-	command.Flags().StringVar(&localPath, "local-file", "kubeconfig", "Where to save the kubeconfig file")
 	command.Flags().String("context", "default", "Name of the kubeconfig context to use")
 	command.Flags().String("user", "root", "Username for SSH login")
 
@@ -54,7 +56,7 @@ Examples JSON input file:
 	command.Flags().Int("limit", 0, "Maximum number of nodes to use from the devices file, 0 to use all devices")
 
 	command.Flags().Bool("merge", true, `Merge the config with existing kubeconfig if it already exists.
-Provide the --local-file flag with --merge if a kubeconfig already exists in some other directory`)
+Provide the --kubeconfig flag with --merge if a kubeconfig already exists in some other directory`)
 
 	command.RunE = func(cmd *cobra.Command, args []string) error {
 
@@ -136,7 +138,7 @@ Provide the --local-file flag with --merge if a kubeconfig already exists in som
 				script += fmt.Sprintf(`k3sup install --host %s \
 --user %s \
 --cluster \
---local-file %s \
+--kubeconfig %s \
 --context %s%s%s%s%s
 `,
 					host.IP,
