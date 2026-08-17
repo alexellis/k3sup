@@ -23,13 +23,13 @@ func MakeGetConfig() *cobra.Command {
 		Example: `  # Get the kubeconfig and save it to ./kubeconfig in the local
   # directory under the default context
   k3sup get-config --host HOST \
-    --local-path ./kubeconfig
+    --local-file ./kubeconfig
 
   # Merge kubeconfig into local file under custom context
   k3sup get-config \
     --host HOST \
     --merge \
-    --local-path $HOME/.kube/kubeconfig \
+    --local-file $HOME/.kube/kubeconfig \
     --context k3s-prod-eu-1
 
   # Get kubeconfig from local installation directly on a server
@@ -44,10 +44,13 @@ func MakeGetConfig() *cobra.Command {
 	command.Flags().String("ssh-key", "~/.ssh/id_rsa", "The ssh key to use for remote login")
 	command.Flags().Int("ssh-port", 22, "The port on which to connect for ssh")
 	command.Flags().Bool("sudo", true, "Use sudo for kubeconfig retrieval. e.g. set to false when using the root user and no sudo is available.")
-	command.Flags().String("local-path", "kubeconfig", "Local path to save the kubeconfig file")
+	var localPath string
+	command.Flags().StringVar(&localPath, "local-path", "kubeconfig", "Local path to save the kubeconfig file")
+	_ = command.Flags().MarkHidden("local-path")
+	command.Flags().StringVar(&localPath, "local-file", "kubeconfig", "Local path to save the kubeconfig file")
 	command.Flags().String("context", "default", "Set the name of the kubeconfig context.")
 	command.Flags().Bool("merge", false, `Merge the config with existing kubeconfig if it already exists.
-Provide the --local-path flag with --merge if a kubeconfig already exists in some other directory`)
+Provide the --local-file flag with --merge if a kubeconfig already exists in some other directory`)
 	command.Flags().Bool("print-command", false, "Print a command that you can use with SSH to manually recover from an error")
 	command.Flags().Bool("local", false, "Perform a local get-config without using ssh")
 
@@ -75,7 +78,7 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 	}
 
 	command.RunE = func(command *cobra.Command, args []string) error {
-		localKubeconfig, _ := command.Flags().GetString("local-path")
+		localKubeconfig := localPath
 		useSudo, err := command.Flags().GetBool("sudo")
 		if err != nil {
 			return err

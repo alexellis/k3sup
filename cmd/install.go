@@ -59,7 +59,7 @@ func MakeInstall() *cobra.Command {
   k3sup install \
     --host HOST \
     --merge \
-    --local-path $HOME/.kube/kubeconfig \
+    --local-file $HOME/.kube/kubeconfig \
     --context k3s-prod-eu-1
 
   # Only download kubeconfig
@@ -95,13 +95,16 @@ func MakeInstall() *cobra.Command {
 	command.Flags().Bool("sudo", true, "Use sudo for installation. e.g. set to false when using the root user and no sudo is available.")
 	command.Flags().Bool("skip-install", false, "Skip the k3s installer")
 
-	command.Flags().String("local-path", "kubeconfig", "Local path to save the kubeconfig file")
+	var localPath string
+	command.Flags().StringVar(&localPath, "local-path", "kubeconfig", "Local path to save the kubeconfig file")
+	_ = command.Flags().MarkHidden("local-path")
+	command.Flags().StringVar(&localPath, "local-file", "kubeconfig", "Local path to save the kubeconfig file")
 	command.Flags().String("context", "default", "Set the name of the kubeconfig context.")
 	command.Flags().Bool("no-extras", false, `Disable "servicelb" and "traefik"`)
 
 	command.Flags().Bool("ipsec", false, "Enforces and/or activates optional extra argument for k3s: flannel-backend option: ipsec")
 	command.Flags().Bool("merge", false, `Merge the config with existing kubeconfig if it already exists.
-Provide the --local-path flag with --merge if a kubeconfig already exists in some other directory`)
+Provide the --local-file flag with --merge if a kubeconfig already exists in some other directory`)
 	command.Flags().Bool("local", false, "Perform a local install without using ssh")
 	command.Flags().Bool("cluster", false, "Form a cluster using embedded etcd (requires K8s >= 1.19)")
 
@@ -143,7 +146,7 @@ Provide the --local-path flag with --merge if a kubeconfig already exists in som
 
 		fmt.Printf("Running: k3sup install\n")
 
-		localKubeconfig, _ := command.Flags().GetString("local-path")
+		localKubeconfig := localPath
 
 		skipInstall, err := command.Flags().GetBool("skip-install")
 		if err != nil {
