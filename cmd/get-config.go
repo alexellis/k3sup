@@ -46,8 +46,6 @@ func MakeGetConfig() *cobra.Command {
 	command.Flags().Bool("sudo", true, "Use sudo for kubeconfig retrieval. e.g. set to false when using the root user and no sudo is available.")
 	var localPath string
 	command.Flags().StringVarP(&localPath, "kubeconfig", "k", "kubeconfig", "Local path to save the kubeconfig file")
-	command.Flags().StringVar(&localPath, "local-file", "kubeconfig", "Local path to save the kubeconfig file")
-	_ = command.Flags().MarkHidden("local-file")
 	command.Flags().StringVar(&localPath, "local-path", "kubeconfig", "Local path to save the kubeconfig file")
 	_ = command.Flags().MarkHidden("local-path")
 	command.Flags().String("context", "default", "Set the name of the kubeconfig context.")

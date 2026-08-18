@@ -97,8 +97,6 @@ func MakeInstall() *cobra.Command {
 
 	var localPath string
 	command.Flags().StringVarP(&localPath, "kubeconfig", "k", "kubeconfig", "Local path to save the kubeconfig file")
-	command.Flags().StringVar(&localPath, "local-file", "kubeconfig", "Local path to save the kubeconfig file")
-	_ = command.Flags().MarkHidden("local-file")
 	command.Flags().StringVar(&localPath, "local-path", "kubeconfig", "Local path to save the kubeconfig file")
 	_ = command.Flags().MarkHidden("local-path")
 	command.Flags().String("context", "default", "Set the name of the kubeconfig context.")
